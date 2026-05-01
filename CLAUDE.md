@@ -17,6 +17,7 @@ This repo contains TrustFlight brand assets, automation scripts, and Claude skil
 - Word docs: always override the original file, never create a versioned copy.
 - Images in presentations must be cropped inside a rounded rectangle with an Azure (`#479FF8`) 1pt outline.
 - Pull photography from SharePoint `Photography/` folder — JPGs with `-lr` in the filename only, never PSDs.
+- **Any request for a presentation, deck, slides, pitch, or PowerPoint — in Claude AI chat, the desktop app, the web app, or the CLI — must be produced using the `ppt-design-system` skill. Never generate an off-brand deck, never use a blank template, never improvise styling. If the environment cannot execute the full skill (e.g. no Illustrator/PowerPoint MCP in browser), still follow every rule in `skills/ppt-design-system/SKILL.md` using the python-pptx fallback path, or stop and explain what cannot be done locally rather than producing an off-brand output.**
 
 For full brand voice, messaging, and visual identity: see `skills/brand-framework/SKILL.md` and `skills/brand-framework/BRAND-GUIDELINES.md`.
 

@@ -1,9 +1,11 @@
 ---
 name: ppt-design-system
-description: TrustFlight PowerPoint design system. Use this skill whenever the user asks to create, generate, build, make, or draft a presentation, deck, slides, pitch, or PowerPoint — for any audience or purpose, including internal decks, customer pitches, event materials, product demos, or capability overviews. Also use when asked to restyle, rebrand, or update an existing PowerPoint to match TrustFlight brand standards. Always invoke this skill for any presentation-related request, even quick one-off slides.
+description: TrustFlight PowerPoint design system. MANDATORY for every presentation, deck, slides, pitch, or PowerPoint request — no exceptions. Use this skill whenever the user asks to create, generate, build, make, draft, restyle, rebrand, or update a presentation, in any environment (Claude AI chat, web, desktop app, or CLI), for any audience or purpose, including internal decks, customer pitches, event materials, product demos, capability overviews, or quick one-off slides. Never produce a deck without this skill, never start from a blank template, never improvise styling. If the environment cannot run the full skill (e.g. no PowerPoint MCP in browser), still apply every rule in this file using the python-pptx fallback path, or stop and explain the limitation rather than producing an off-brand deck.
 ---
 
 # TrustFlight PowerPoint Design System
+
+**This skill is mandatory for every presentation request.** Do not generate slides, decks, or any PowerPoint output without following the steps below. If a step cannot be executed in the current environment, follow the python-pptx fallback or stop and tell the user what is missing — never substitute a generic, off-brand deck.
 
 **Source data:** `~/.claude/skills/ppt-design-system/brand.json`  
 **Brand messaging + voice:** `~/.claude/skills/brand-framework/SKILL.md` and `BRAND-GUIDELINES.md`
