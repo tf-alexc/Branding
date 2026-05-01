@@ -319,6 +319,8 @@ Call `fix_grp_sp_pr(slide)` immediately after every `prs.slides.add_slide(layout
 **Footer and page number — required on every interior slide:**
 Every slide except the cover (Dark - Title, index 0) and the end slide (Dark - End) must have both a footer placeholder and a slide number placeholder. Slides added via `add_slide` do not inherit these automatically — copy them explicitly from a reference slide that already has them (e.g. the cloned Centrik product slide).
 
+**Always keep the bottom-left (copyright/footer) and bottom-right (page number) text boxes. Never remove, hide, or move them off-slide on any interior slide — they are part of the brand frame and must remain on every page they appear.** When cloning template slides, do not delete these shapes during cleanup. When populating slide content, do not let other shapes overlap or obscure them.
+
 **Footer text colour:**
 - Dark slides (Midnight/dark background): set footer text to Light grey — `#E0E7F5`
 - Light slides (light background): set footer text to Graphite — `#242D41`
@@ -537,3 +539,4 @@ When restyling an existing deck:
 - Never leave `grpSpPr` empty on an `add_slide` slide — always call `fix_grp_sp_pr(slide)` immediately after adding
 - Never use the second Agenda slide (index 2, 27-shape workshop grid with time slots) — always clone index 1 (12 shapes, right-side image)
 - Never omit footer and page number from interior slides — required on all slides except the cover (Dark - Title) and end slide (Dark - End)
+- Never remove, hide, or move the bottom-left copyright/footer text box or the bottom-right page number text box — they must stay intact on every interior slide
