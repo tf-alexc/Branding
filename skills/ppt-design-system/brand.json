@@ -1,0 +1,113 @@
+{
+  "colors": {
+    "primary": {
+      "midnight": "#062955",
+      "sapphire": "#1E5BB5",
+      "azure": "#479FF8",
+      "electric": "#03D4FF",
+      "light": "#E0E7F5",
+      "white": "#FFFFFF",
+      "graphite": "#242D41"
+    },
+    "gradients": {
+      "dark": ["#010306", "#083976"],
+      "blue": ["#1E5BB5", "#03D4FF"]
+    },
+    "products": {
+      "tech_log": {
+        "name": "Tech Log",
+        "primary": "#006EDA",
+        "secondary": "#00D5FD",
+        "light": "#D8E7FD",
+        "lightest": "#FFFFFF"
+      },
+      "centrik": {
+        "name": "Centrik 5",
+        "primary": "#FFAA61",
+        "secondary": "#FFD740",
+        "light": "#FFDFBB",
+        "lightest": "#FFF0DD"
+      },
+      "mel_manager": {
+        "name": "MEL Manager",
+        "primary": "#FF008F",
+        "secondary": "#0094FF",
+        "light": "#C7DEFF",
+        "lightest": "#FFEBFF"
+      },
+      "smart_regulations": {
+        "name": "Smart Regulations",
+        "primary": "#072955",
+        "secondary": "#4F9AFD",
+        "light": "#A4C2EB",
+        "lightest": "#FFFFFF"
+      },
+      "smart_documents": {
+        "name": "Smart Documents",
+        "primary": "#008B00",
+        "secondary": "#97FD37",
+        "light": "#CEEDF2",
+        "lightest": "#F7FFF7"
+      }
+    }
+  },
+  "typography": {
+    "powerpoint": {
+      "font": "Arial",
+      "weights": ["Regular", "Bold"],
+      "note": "Standard PowerPoint font — pre-installed across all OS. Use for all slides."
+    },
+    "marketing": {
+      "font": "Open Sans",
+      "weights": ["Light 300", "Regular 400", "Bold 700"],
+      "note": "Used in marketing materials and stationery only — not PowerPoint"
+    },
+    "email": {
+      "font": "Lato",
+      "weights": ["Regular", "Bold"],
+      "note": "HubSpot email only"
+    }
+  },
+  "slide": {
+    "width_emu": 9144000,
+    "height_emu": 5143500,
+    "width_inches": 10,
+    "height_inches": 5.625,
+    "aspect_ratio": "16:9"
+  },
+  "templates": {
+    "master": "~/.claude/skills/ppt-design-system/Master Presentation Template - v2.pptx",
+    "master_potx_source": "~/.claude/skills/ppt-design-system/Master Presentation Template - v2.potx",
+    "note": "master is the canonical template for all new presentations. The .potx is the source file; the .pptx is the MCP-compatible working copy (content-type patched).",
+    "reference_only": {
+      "old_master": "/Users/alexcraiu/Library/CloudStorage/OneDrive-SharedLibraries-TrustFlight/[ORG]-Design - Documents/Collateral & Printables/Source files/PowerPoints/Master Presentation - Template.pptx",
+      "basic": "/Users/alexcraiu/Library/CloudStorage/OneDrive-SharedLibraries-TrustFlight/[ORG]-Design - Documents/Collateral & Printables/Source files/PowerPoints/Basic Template.pptx",
+      "baines_simmons": "/Users/alexcraiu/Library/CloudStorage/OneDrive-TrustFlight/Master Presentation Template - BSL.pptx"
+    }
+  },
+  "layouts": {
+    "note": "All 9 layouts are dark-themed. Single slide master. Sourced from Master Presentation Template - v2.potx.",
+    "title":              { "index": 0, "name": "Dark - Title",               "placeholders": 3, "use_for": "Opening title slide" },
+    "main":               { "index": 1, "name": "Dark - Main",                "placeholders": 4, "use_for": "Primary content slides — title + body" },
+    "half_half":          { "index": 2, "name": "Dark - Half & Half",         "placeholders": 4, "use_for": "Two-column split content" },
+    "half_half_radial":   { "index": 3, "name": "Dark - Half & Half Radial",  "placeholders": 4, "use_for": "Two-column split with radial graphic" },
+    "radial_centre":      { "index": 4, "name": "Dark - Radial Centre",       "placeholders": 4, "use_for": "Centred radial graphic layout" },
+    "half_half_globe":    { "index": 5, "name": "Dark - Half & Half Globe",   "placeholders": 4, "use_for": "Two-column split with globe graphic" },
+    "globe":              { "index": 6, "name": "Dark - Globe",               "placeholders": 4, "use_for": "Globe graphic layout — global reach / international stats" },
+    "section_break":      { "index": 7, "name": "Dark - Section Break",       "placeholders": 3, "use_for": "Section divider between major topics" },
+    "end":                { "index": 8, "name": "Dark - End",                 "placeholders": 1, "use_for": "Closing / thank you slide" }
+  },
+  "logo": {
+    "use_on_dark": "White version of logomark + logotype",
+    "use_on_light": "Midnight (#062955) version of logomark + logotype",
+    "clear_space": "Use uppercase T height as minimum clear space on all sides",
+    "dont": "Never change logo colour to anything other than Midnight or white. Never recreate."
+  },
+  "brand_rules": {
+    "alignment": "All text left-aligned, never justified",
+    "voice": "Active voice. Short sentences. Clarity first.",
+    "no_em_dashes": true,
+    "name_spelling": "TrustFlight — capital T, capital F, one word. Never 'TrustFlight Group'.",
+    "sub_brands": "Refer to Baines Simmons, Redline, Kenyon as 'capabilities' — never subsidiaries, divisions, or business units"
+  }
+}
