@@ -280,6 +280,21 @@ Add new slides with `mcp__powerpoint__add_slide` (for fresh layouts) or `mcp__po
 - No corporate jargon (see brand-framework for approved language)
 - Lead with the value — put the most important point first on every slide
 
+**Text styles:**
+
+General rule: no indentation for simple paragraphs, paragraph margins set to zero (`paragraph_format.left_indent = 0`, `space_before = 0`, `space_after = 0`).
+
+- **Title**
+  - Open Sans Light, 40pt, `#E2F2FB` on dark theme
+  - Open Sans Light, 40pt, Midnight on light theme
+- **Body text**
+  - Open Sans, min 14pt / max 18pt (scale to fit content)
+  - `#E2F2FB` on dark theme
+  - Graphite on light theme
+  - Bullet point markers in Azure (`#479FF8`)
+
+These explicit styles apply when adding text via python-pptx (new text boxes, custom shapes). When populating existing template placeholders, the "Preserve template styles" rule above takes precedence — set only `font.name = "Open Sans"` and let the master define size, weight, and colour.
+
 **Critical: fix `grpSpPr` on every slide added via `add_slide`:**
 `add_slide` creates an empty `<p:grpSpPr/>` which is invalid OOXML and causes PowerPoint to show a "found a problem with content" repair dialog on open. After adding each new slide, call this fix before doing anything else with the slide:
 
