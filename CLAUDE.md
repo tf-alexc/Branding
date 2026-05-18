@@ -113,6 +113,20 @@ Restyle any Word document to TrustFlight brand standards using the master templa
 
 ---
 
+### `letterhead` — TrustFlight letterhead (1-2 pages)
+Simplified counterpart to `word-brand`: generate a short branded letter from the office-specific master letterheads bundled inside the skill.  
+**Script:** `skills/letterhead/letterhead.py`  
+**Bundled templates:** `skills/letterhead/templates/Letterhead [Office].dotx`  
+**Trigger:** any request for a letter, letterhead, branded letter, signed letter, or formal correspondence.  
+**Can run in browser:** Yes (once templates are committed) — no SharePoint or local file dependency.
+
+Key rules:
+- User must specify a **brand** (TrustFlight, Baines Simmons, Kenyon, Redline) and an **office** (Bracknell, Doncaster, Houston, Vancouver, London, Luton, Jersey). Ask if missing.
+- Only TrustFlight has letterhead templates today. If another brand is requested, stop and ask whether to fall back to TrustFlight.
+- Target 1 page, never exceed 2.
+
+---
+
 ## File Structure
 
 ```
@@ -125,7 +139,8 @@ Claude Playground/
 │   ├── linkedin-event-generator/  # Event graphic Illustrator workflow
 │   ├── bsl-course-sheets/         # BSL PDF automation
 │   ├── course-dates-generator/    # Course dates PDF automation
-│   └── word-brand/                # Word document branding
+│   ├── word-brand/                # Word document branding
+│   └── letterhead/                # 1-2 page TrustFlight letterhead generator (bundled .dotx templates)
 ├── Illustrator Templates/         # Master .ai files for Illustrator skills
 ├── InDesign/
 │   ├── BSL Course Sheets/         # Templates, script, fonts, output PDFs
@@ -151,5 +166,6 @@ Claude Playground/
 | linkedin-event-generator | No | Yes |
 | bsl-course-sheets | No | Yes |
 | word-brand | No | Yes |
+| letterhead | Yes (once templates are committed) | Yes |
 
 Skills marked "No" require desktop apps (Illustrator, InDesign, PowerPoint, Word) running locally via MCP.
