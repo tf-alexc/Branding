@@ -101,9 +101,10 @@ def build(data):
     if name := recipient.get('name'):
         add_paragraph(doc, name, bold=True, tight=True)
 
-    for key in ('title', 'company'):
-        if val := recipient.get(key):
-            add_paragraph(doc, val, tight=True)
+    role_parts = [recipient.get('title'), recipient.get('company')]
+    role_line = ', '.join(part.strip() for part in role_parts if part and part.strip())
+    if role_line:
+        add_paragraph(doc, role_line, tight=True)
 
     address = recipient.get('address')
     if isinstance(address, list):
@@ -134,15 +135,14 @@ def build(data):
         add_paragraph(doc, para)
         add_blank(doc)
 
-    add_paragraph(doc, data.get('signoff') or 'Kind regards,', color=GRAPHITE)
     add_blank(doc)
-    add_blank(doc)
+    add_paragraph(doc, data.get('signoff') or 'Kind regards,', color=GRAPHITE, tight=True)
 
     signer = data.get('signer') or {}
     if name := signer.get('name'):
-        add_paragraph(doc, name, bold=True, color=SAPPHIRE)
+        add_paragraph(doc, name, bold=True, color=SAPPHIRE, tight=True)
     if title := signer.get('title'):
-        add_paragraph(doc, title, color=GRAPHITE)
+        add_paragraph(doc, title, color=GRAPHITE, tight=True)
 
     out = data['output_path']
     os.makedirs(os.path.dirname(out), exist_ok=True)

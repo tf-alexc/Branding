@@ -99,7 +99,7 @@ Never use em dashes (brand rule). Use commas, colons, or rewrite.
 - `date` — omit to auto-fill today's date in `DD Month YYYY` format (e.g. `18 May 2026`).
 - `subject` — omit to skip the "Re:" line.
 - `recipient.title`, `recipient.company`, `recipient.email`, `recipient.phone` — any can be omitted; missing lines are skipped cleanly.
-- `recipient.address` — accepts a list of address parts (joined with `, ` on a single line) or a pre-joined string. The recipient block always renders as: name, title, company, single-line address, email, phone.
+- `recipient.address` — accepts a list of address parts (joined with `, ` on a single line) or a pre-joined string. The recipient block renders as: name (bold), `title, company` (joined on one line), single-line address, email, phone — all tight, no inter-paragraph gap.
 - `salutation` — defaults to `Dear Sir/Madam,` if omitted.
 - `signoff` — defaults to `Kind regards,` if omitted. Rendered in Graphite. Only the signer's name appears in Sapphire; the signer's title stays in Graphite.
 
