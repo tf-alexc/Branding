@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
 TrustFlight Letterhead Tool
-Generates a 1-2 page branded letter from the office-specific master templates
-bundled under skills/letterhead/templates/.
+Generates a 1-2 page branded letter (Word + PDF) from the office-specific
+master templates bundled under skills/letterhead/templates/.
 
 Usage: python3 letterhead.py <data.json>
 """
 
 import json
 import os
+import shutil
+import subprocess
 import sys
 from datetime import date
 from pathlib import Path
@@ -145,9 +147,35 @@ def build(data):
         add_paragraph(doc, title, color=GRAPHITE, tight=True)
 
     out = data['output_path']
-    os.makedirs(os.path.dirname(out), exist_ok=True)
+    out_dir = os.path.dirname(out) or '.'
+    os.makedirs(out_dir, exist_ok=True)
     doc.save(out)
     print(f'Saved: {out}')
+
+    pdf_path = export_pdf(out, out_dir)
+    if pdf_path:
+        print(f'Saved: {pdf_path}')
+    else:
+        print('PDF export skipped: no LibreOffice/soffice on PATH.')
+
+
+def export_pdf(docx_path: str, out_dir: str) -> str | None:
+    """Convert the saved .docx to .pdf via LibreOffice headless. Returns the PDF path, or None if no converter is available."""
+    soffice = shutil.which('soffice') or shutil.which('libreoffice')
+    if not soffice:
+        return None
+    profile_dir = Path(out_dir) / '.lo_profile'
+    cmd = [
+        soffice, '--headless', '--norestore', '--nologo', '--nodefault',
+        f'-env:UserInstallation=file://{profile_dir}',
+        '--convert-to', 'pdf', '--outdir', out_dir, docx_path,
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f'PDF export failed: {result.stderr.strip() or result.stdout.strip()}', file=sys.stderr)
+        return None
+    pdf_path = str(Path(out_dir) / (Path(docx_path).stem + '.pdf'))
+    return pdf_path if Path(pdf_path).exists() else None
 
 
 if __name__ == '__main__':

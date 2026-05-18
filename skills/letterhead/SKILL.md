@@ -1,6 +1,6 @@
 ---
 name: letterhead
-description: Generate a 1-2 page TrustFlight letterhead from the office-specific master templates bundled inside this skill. Simplified counterpart to word-brand for short branded letters. Use this skill when the user asks for a letter, letterhead, branded letter, signed letter, or formal correspondence on TrustFlight stationery.
+description: Generate a 1-2 page TrustFlight letterhead (Word + PDF) from the office-specific master templates bundled inside this skill. Trigger any time someone asks for a letterhead, letter, branded letter, signed letter, or formal correspondence on TrustFlight stationery. Simplified counterpart to word-brand for short letters.
 ---
 
 # TrustFlight Letterhead Skill
@@ -10,13 +10,15 @@ description: Generate a 1-2 page TrustFlight letterhead from the office-specific
 **Templates source of truth (SharePoint):** [Design / MS Word Templates / Letterheads](https://totalaoc.sharepoint.com/sites/team-design2/Shared%20Documents/Document%20Templates/MS%20Word%20Templates/Letterheads)
 **Dependency:** `python-docx` (already installed)
 
-The script opens the office-specific master (`.docx` preferred, `.dotx` accepted as a fallback) from the bundled `templates/` folder, inheriting the letterhead header/footer (logo, address bar, contact details, page layout), clears the placeholder body, and rebuilds it from a JSON spec. Output saves as `.docx`. No external uploads or re-downloads needed: every office template ships with the skill.
+The script opens the office-specific master (`.docx` preferred, `.dotx` accepted as a fallback) from the bundled `templates/` folder, inheriting the letterhead header/footer (logo, address bar, contact details, page layout), clears the placeholder body, and rebuilds it from a JSON spec. Outputs **both** a `.docx` and a `.pdf` (via LibreOffice headless — needs `soffice` or `libreoffice` on PATH). No external uploads or re-downloads needed: every office template ships with the skill.
 
 ---
 
 ## Required user inputs
 
-Before running, the user must specify **both** a brand/company and an office. If either is missing, ask before generating.
+Before generating, confirm the **sender** (brand + office) and the **recipient**. If anything below is missing from the user's request, ask for it in a single round of follow-up questions before running the script.
+
+### Sender (brand + office)
 
 | Field | Allowed values |
 |---|---|
@@ -24,6 +26,18 @@ Before running, the user must specify **both** a brand/company and an office. If
 | **Office** | `Bracknell`, `Doncaster`, `Houston`, `Vancouver`, `London`, `Luton`, `Jersey` |
 
 Current template coverage: **only `TrustFlight` has office letterheads bundled.** If the user picks Baines Simmons, Kenyon, or Redline, stop and tell them no letterhead template exists for that brand yet, then ask whether to fall back to TrustFlight.
+
+### Recipient
+
+Ask the user for these recipient details unless already provided:
+
+- **Full name** (required)
+- **Role / position** (required)
+- **Company** (required)
+- **Email address** (required)
+- **Phone number** (optional, include if known)
+
+If you also know the recipient's postal address, include it (comma-separated parts, rendered on a single line). The recipient's address is not strictly required: a name + role + company + email is enough.
 
 ---
 
@@ -52,14 +66,14 @@ Never use em dashes (brand rule). Use commas, colons, or rewrite.
 
 ## Process
 
-1. **Confirm brand + office** with the user. Ask if missing.
-2. **Draft the letter content** (date, recipient, salutation, body paragraphs, sign-off, signer).
+1. **Confirm sender** (brand + office) and **recipient** (name, role, company, email, optional phone). Ask if any are missing.
+2. **Draft the letter content** (date, salutation, body paragraphs, sign-off, signer).
 3. **Write a temp JSON file** (e.g. `/tmp/letterhead_data.json`) with the spec below.
 4. **Run the script:**
    ```bash
    python3 ~/.claude/skills/letterhead/letterhead.py /tmp/letterhead_data.json
    ```
-5. The script saves to `output_path` as `.docx`. Default location: `/Users/alexcraiu/Desktop/Claude Playground/Letterheads/`.
+5. The script saves a `.docx` to `output_path` and a matching `.pdf` alongside it. Default location: `/Users/alexcraiu/Desktop/Claude Playground/Letterheads/`. If `soffice` / `libreoffice` is not on PATH the PDF step is skipped and the script prints a warning, the `.docx` is still produced.
 
 ---
 
@@ -107,7 +121,17 @@ Never use em dashes (brand rule). Use commas, colons, or rewrite.
 
 ## File naming
 
-Suggested output filename: `Letter - [Recipient or Topic].docx`. Always save under `/Users/alexcraiu/Desktop/Claude Playground/Letterheads/` unless the user specifies otherwise. Create the folder if it doesn't exist.
+Suggested output filename: `Letter - [Recipient or Topic].docx`. The script auto-creates a matching `.pdf` alongside (same stem). Always save under `/Users/alexcraiu/Desktop/Claude Playground/Letterheads/` unless the user specifies otherwise. Create the folder if it doesn't exist.
+
+## PDF dependency
+
+The PDF step shells out to LibreOffice in headless mode. On macOS, install LibreOffice once:
+
+```bash
+brew install --cask libreoffice
+```
+
+After that `soffice` is on PATH and the script will produce a PDF on every run. If LibreOffice isn't installed, the `.docx` still saves cleanly and the script prints a one-line warning.
 
 ---
 
