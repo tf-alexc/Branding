@@ -19,6 +19,7 @@ from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor
 
 SAPPHIRE = RGBColor(0x1E, 0x5B, 0xB5)
+GRAPHITE = RGBColor(0x24, 0x2D, 0x41)
 
 SKILL_DIR = Path(__file__).resolve().parent
 TEMPLATES_DIR = SKILL_DIR / 'templates'
@@ -58,10 +59,12 @@ def clear_body(doc):
         body.append(sectPr)
 
 
-def add_paragraph(doc, text, *, bold=False, size_pt=8.5, color=None):
+def add_paragraph(doc, text, *, bold=False, size_pt=8.5, color=None, tight=False):
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(0)
     p.paragraph_format.space_after = Pt(0)
+    if tight:
+        p.paragraph_format.line_spacing = 1.0
     run = p.add_run(text)
     run.font.name = 'Open Sans'
     run.font.size = Pt(size_pt)
@@ -95,9 +98,12 @@ def build(data):
     add_blank(doc)
 
     recipient = data.get('recipient') or {}
-    for key in ('name', 'title', 'company'):
+    if name := recipient.get('name'):
+        add_paragraph(doc, name, bold=True, tight=True)
+
+    for key in ('title', 'company'):
         if val := recipient.get(key):
-            add_paragraph(doc, val, bold=(key == 'name'))
+            add_paragraph(doc, val, tight=True)
 
     address = recipient.get('address')
     if isinstance(address, list):
@@ -107,12 +113,12 @@ def build(data):
     else:
         address_line = ''
     if address_line:
-        add_paragraph(doc, address_line)
+        add_paragraph(doc, address_line, tight=True)
 
     if email := recipient.get('email'):
-        add_paragraph(doc, email)
+        add_paragraph(doc, email, tight=True)
     if phone := recipient.get('phone'):
-        add_paragraph(doc, phone)
+        add_paragraph(doc, phone, tight=True)
 
     if recipient:
         add_blank(doc)
@@ -128,7 +134,7 @@ def build(data):
         add_paragraph(doc, para)
         add_blank(doc)
 
-    add_paragraph(doc, data.get('signoff') or 'Kind regards,', color=SAPPHIRE)
+    add_paragraph(doc, data.get('signoff') or 'Kind regards,', color=GRAPHITE)
     add_blank(doc)
     add_blank(doc)
 
@@ -136,7 +142,7 @@ def build(data):
     if name := signer.get('name'):
         add_paragraph(doc, name, bold=True, color=SAPPHIRE)
     if title := signer.get('title'):
-        add_paragraph(doc, title, color=SAPPHIRE)
+        add_paragraph(doc, title, color=GRAPHITE)
 
     out = data['output_path']
     os.makedirs(os.path.dirname(out), exist_ok=True)
