@@ -77,10 +77,12 @@ def add_paragraph(doc, text, *, bold=False, size_pt=8.5, color=None, tight=False
     return p
 
 
-def add_blank(doc):
+def add_blank(doc, *, tight=False):
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(0)
     p.paragraph_format.space_after = Pt(0)
+    if tight:
+        p.paragraph_format.line_spacing = 1.0
 
 
 def format_today() -> str:
@@ -130,14 +132,14 @@ def build(data):
         add_paragraph(doc, subject, bold=True)
         add_blank(doc)
 
-    add_paragraph(doc, data.get('salutation') or 'Dear Sir/Madam,')
-    add_blank(doc)
+    add_paragraph(doc, data.get('salutation') or 'Dear Sir/Madam,', tight=True)
+    add_blank(doc, tight=True)
 
     for para in data.get('body') or []:
-        add_paragraph(doc, para)
-        add_blank(doc)
+        add_paragraph(doc, para, tight=True)
+        add_blank(doc, tight=True)
 
-    add_blank(doc)
+    add_blank(doc, tight=True)
     add_paragraph(doc, data.get('signoff') or 'Kind regards,', color=GRAPHITE, tight=True)
 
     signer = data.get('signer') or {}
