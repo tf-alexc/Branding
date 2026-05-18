@@ -38,9 +38,9 @@ Current template coverage: **only `TrustFlight` has office letterheads bundled.*
 
 | Element | Spec |
 |---|---|
-| Body font | Open Sans, 10pt, `#242D41` |
-| Date | Open Sans, 10pt, `#242D41` |
-| Sign-off / signer name | Open Sans, 10pt, `#242D41` |
+| Body font | Open Sans, 8.5pt, `#242D41` |
+| Date | Open Sans, 8.5pt, `#242D41` |
+| Sign-off / signer name | Open Sans, 8.5pt, `#242D41` |
 | Header (logo + office address) | Pre-built in template, do not modify |
 | Footer (page number / strapline) | Pre-built in template, do not modify |
 
