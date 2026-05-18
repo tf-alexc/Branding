@@ -42,11 +42,11 @@ def resolve_template(brand: str, office: str) -> Path:
             f"Brands with templates: {', '.join(BRANDS_WITH_TEMPLATES)}."
         )
     for ext in ('.docx', '.dotx'):
-        path = TEMPLATES_DIR / f'Letterhead [{office}]{ext}'
+        path = TEMPLATES_DIR / f'Letterhead - {office}{ext}'
         if path.exists():
             return path
     raise SystemExit(
-        f"Template not found: {TEMPLATES_DIR / f'Letterhead [{office}].(docx|dotx)'}\n"
+        f"Template not found: {TEMPLATES_DIR / f'Letterhead - {office}.(docx|dotx)'}\n"
         f"See {TEMPLATES_DIR / 'README.md'} for one-time setup."
     )
 

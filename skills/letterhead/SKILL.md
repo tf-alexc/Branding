@@ -6,7 +6,7 @@ description: Generate a 1-2 page TrustFlight letterhead (Word + PDF) from the of
 # TrustFlight Letterhead Skill
 
 **Script:** `~/.claude/skills/letterhead/letterhead.py`
-**Bundled templates:** `~/.claude/skills/letterhead/templates/Letterhead [Office].docx` (or `.dotx`)
+**Bundled templates:** `~/.claude/skills/letterhead/templates/Letterhead - {Office}.docx` (or `.dotx`)
 **Templates source of truth (SharePoint):** [Design / MS Word Templates / Letterheads](https://totalaoc.sharepoint.com/sites/team-design2/Shared%20Documents/Document%20Templates/MS%20Word%20Templates/Letterheads)
 **Dependency:** `python-docx` (already installed)
 
@@ -139,13 +139,13 @@ After that `soffice` is on PATH and the script will produce a PDF on every run. 
 
 ```
 skills/letterhead/templates/
-├── Letterhead [Bracknell].docx
-├── Letterhead [Doncaster].docx
-├── Letterhead [Houston].docx
-├── Letterhead [Jersey].docx
-├── Letterhead [London].docx
-├── Letterhead [Luton].docx
-└── Letterhead [Vancouver].docx
+├── Letterhead - Bracknell.docx
+├── Letterhead - Doncaster.docx
+├── Letterhead - Houston.docx
+├── Letterhead - Jersey.docx
+├── Letterhead - London.docx
+├── Letterhead - Luton.docx
+└── Letterhead - Vancouver.docx
 ```
 
 `.docx` is preferred. The script will also accept `.dotx` if that's what's present — same file format under the hood, only the MIME flag differs. Either works. These ship with the skill: see `templates/README.md` for the one-time setup if any are missing.
@@ -154,6 +154,6 @@ skills/letterhead/templates/
 
 ## Adding a new office or brand
 
-1. Drop the new template into `skills/letterhead/templates/` with filename pattern `Letterhead [Office].docx` (or `.dotx`). Commit it.
+1. Drop the new template into `skills/letterhead/templates/` with filename pattern `Letterhead - {Office}.docx` (or `.dotx`). Commit it.
 2. Add the office to the allowed list in this SKILL.md.
-3. For a new brand, create `templates/{Brand}/Letterhead [Office].docx` and update `letterhead.py` to resolve `{brand}/{office}` paths.
+3. For a new brand, create `templates/{Brand}/Letterhead - {Office}.docx` and update `letterhead.py` to resolve `{brand}/{office}` paths.

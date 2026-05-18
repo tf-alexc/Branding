@@ -5,16 +5,16 @@ The `letterhead` skill loads master templates from this folder. They are the sou
 ## Required files
 
 ```
-Letterhead [Bracknell].docx
-Letterhead [Doncaster].docx
-Letterhead [Houston].docx
-Letterhead [Jersey].docx
-Letterhead [London].docx
-Letterhead [Luton].docx
-Letterhead [Vancouver].docx
+Letterhead - Bracknell.docx
+Letterhead - Doncaster.docx
+Letterhead - Houston.docx
+Letterhead - Jersey.docx
+Letterhead - London.docx
+Letterhead - Luton.docx
+Letterhead - Vancouver.docx
 ```
 
-Filename must match the pattern `Letterhead [Office].docx` exactly (square brackets, single space before `[`).
+Filename must match the pattern `Letterhead - {Office}.docx` exactly (single dash with single spaces on either side). Brackets were avoided so the folder zips cleanly for upload to claude.ai (their validator rejects `[` `]` in paths).
 
 `.dotx` is also accepted as a fallback if that's what you have on hand — same OOXML format, only the MIME flag differs. The script checks `.docx` first, then `.dotx`. Prefer `.docx` for convenience and tool compatibility.
 
@@ -32,9 +32,11 @@ cd ~/path/to/Branding   # local clone of tf-alexc/Branding
 # Adjust the source path to wherever the SharePoint folder is synced locally
 SRC="/Users/alexcraiu/Library/CloudStorage/OneDrive-SharedLibraries-TotalAOC/Design - Document Templates/MS Word Templates/Letterheads"
 
-# Easiest: open each .dotx in Word once and save it as .docx into this folder,
-# OR just copy the .dotx files directly — the script accepts both.
-cp "$SRC"/Letterhead*.dotx skills/letterhead/templates/
+# Open each .dotx in Word and save it as .docx into this folder, renaming
+# to "Letterhead - {Office}.docx" (no square brackets — needed so the
+# folder zips cleanly for upload to claude.ai).
+# Example for one file:
+# cp "$SRC/Letterhead [London].dotx" "skills/letterhead/templates/Letterhead - London.docx"
 
 git add skills/letterhead/templates/*.docx skills/letterhead/templates/*.dotx 2>/dev/null
 git commit -m "Bundle TrustFlight letterhead templates"
