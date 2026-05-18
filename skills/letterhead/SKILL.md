@@ -40,7 +40,7 @@ Current template coverage: **only `TrustFlight` has office letterheads bundled.*
 |---|---|
 | Body font | Open Sans, 8.5pt, `#242D41` |
 | Date | Open Sans, 8.5pt, `#242D41` |
-| Sign-off / signer name | Open Sans, 8.5pt, `#242D41` |
+| Sign-off + signer block | Open Sans, 8.5pt, Sapphire `#1E5BB5` |
 | Header (logo + office address) | Pre-built in template, do not modify |
 | Footer (page number / strapline) | Pre-built in template, do not modify |
 
@@ -73,11 +73,9 @@ Never use em dashes (brand rule). Use commas, colons, or rewrite.
     "name": "John Doe",
     "title": "Director of Operations",
     "company": "Acme Aviation",
-    "address": [
-      "123 Main Street",
-      "Suite 400",
-      "Vancouver, BC, V6B 1A1"
-    ]
+    "address": ["123 Main Street", "Suite 400", "Vancouver, BC, V6B 1A1"],
+    "email": "john.doe@acmeaviation.com",
+    "phone": "+1 (604) 555 0182"
   },
   "subject": "Re: Maintenance contract renewal",
   "salutation": "Dear John,",
@@ -98,9 +96,10 @@ Never use em dashes (brand rule). Use commas, colons, or rewrite.
 
 - `date` — omit to auto-fill today's date in `DD Month YYYY` format (e.g. `18 May 2026`).
 - `subject` — omit to skip the "Re:" line.
-- `recipient.title`, `recipient.company`, `recipient.address` — any can be omitted; missing lines are skipped cleanly.
+- `recipient.title`, `recipient.company`, `recipient.email`, `recipient.phone` — any can be omitted; missing lines are skipped cleanly.
+- `recipient.address` — accepts a list of address parts (joined with `, ` on a single line) or a pre-joined string. The recipient block always renders as: name, title, company, single-line address, email, phone.
 - `salutation` — defaults to `Dear Sir/Madam,` if omitted.
-- `signoff` — defaults to `Kind regards,` if omitted.
+- `signoff` — defaults to `Kind regards,` if omitted. Always rendered in Sapphire along with the signer's name and title.
 
 ---
 

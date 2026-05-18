@@ -16,7 +16,9 @@ from pathlib import Path
 from docx import Document
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Pt
+from docx.shared import Pt, RGBColor
+
+SAPPHIRE = RGBColor(0x1E, 0x5B, 0xB5)
 
 SKILL_DIR = Path(__file__).resolve().parent
 TEMPLATES_DIR = SKILL_DIR / 'templates'
@@ -56,7 +58,7 @@ def clear_body(doc):
         body.append(sectPr)
 
 
-def add_paragraph(doc, text, *, bold=False, size_pt=8.5):
+def add_paragraph(doc, text, *, bold=False, size_pt=8.5, color=None):
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(0)
     p.paragraph_format.space_after = Pt(0)
@@ -65,6 +67,8 @@ def add_paragraph(doc, text, *, bold=False, size_pt=8.5):
     run.font.size = Pt(size_pt)
     if bold:
         run.bold = True
+    if color is not None:
+        run.font.color.rgb = color
     return p
 
 
@@ -94,8 +98,21 @@ def build(data):
     for key in ('name', 'title', 'company'):
         if val := recipient.get(key):
             add_paragraph(doc, val, bold=(key == 'name'))
-    for line in recipient.get('address') or []:
-        add_paragraph(doc, line)
+
+    address = recipient.get('address')
+    if isinstance(address, list):
+        address_line = ', '.join(part.strip() for part in address if part and part.strip())
+    elif isinstance(address, str):
+        address_line = address.strip()
+    else:
+        address_line = ''
+    if address_line:
+        add_paragraph(doc, address_line)
+
+    if email := recipient.get('email'):
+        add_paragraph(doc, email)
+    if phone := recipient.get('phone'):
+        add_paragraph(doc, phone)
 
     if recipient:
         add_blank(doc)
@@ -111,15 +128,15 @@ def build(data):
         add_paragraph(doc, para)
         add_blank(doc)
 
-    add_paragraph(doc, data.get('signoff') or 'Kind regards,')
+    add_paragraph(doc, data.get('signoff') or 'Kind regards,', color=SAPPHIRE)
     add_blank(doc)
     add_blank(doc)
 
     signer = data.get('signer') or {}
     if name := signer.get('name'):
-        add_paragraph(doc, name, bold=True)
+        add_paragraph(doc, name, bold=True, color=SAPPHIRE)
     if title := signer.get('title'):
-        add_paragraph(doc, title)
+        add_paragraph(doc, title, color=SAPPHIRE)
 
     out = data['output_path']
     os.makedirs(os.path.dirname(out), exist_ok=True)
