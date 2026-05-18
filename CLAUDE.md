@@ -116,7 +116,7 @@ Restyle any Word document to TrustFlight brand standards using the master templa
 ### `letterhead` — TrustFlight letterhead (1-2 pages)
 Simplified counterpart to `word-brand`: generate a short branded letter from the office-specific master letterheads bundled inside the skill.  
 **Script:** `skills/letterhead/letterhead.py`  
-**Bundled templates:** `skills/letterhead/templates/Letterhead [Office].dotx`  
+**Bundled templates:** `skills/letterhead/templates/Letterhead [Office].docx` (`.dotx` also accepted)  
 **Trigger:** any request for a letter, letterhead, branded letter, signed letter, or formal correspondence.  
 **Can run in browser:** Yes (once templates are committed) — no SharePoint or local file dependency.
 

@@ -36,13 +36,14 @@ def resolve_template(brand: str, office: str) -> Path:
             f"No letterhead template exists for {brand} yet. "
             f"Brands with templates: {', '.join(BRANDS_WITH_TEMPLATES)}."
         )
-    path = TEMPLATES_DIR / f'Letterhead [{office}].dotx'
-    if not path.exists():
-        raise SystemExit(
-            f"Template not found: {path}\n"
-            f"See {TEMPLATES_DIR / 'README.md'} for one-time setup."
-        )
-    return path
+    for ext in ('.docx', '.dotx'):
+        path = TEMPLATES_DIR / f'Letterhead [{office}]{ext}'
+        if path.exists():
+            return path
+    raise SystemExit(
+        f"Template not found: {TEMPLATES_DIR / f'Letterhead [{office}].(docx|dotx)'}\n"
+        f"See {TEMPLATES_DIR / 'README.md'} for one-time setup."
+    )
 
 
 def clear_body(doc):

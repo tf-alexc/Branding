@@ -6,11 +6,11 @@ description: Generate a 1-2 page TrustFlight letterhead from the office-specific
 # TrustFlight Letterhead Skill
 
 **Script:** `~/.claude/skills/letterhead/letterhead.py`
-**Bundled templates:** `~/.claude/skills/letterhead/templates/Letterhead [Office].dotx`
+**Bundled templates:** `~/.claude/skills/letterhead/templates/Letterhead [Office].docx` (or `.dotx`)
 **Templates source of truth (SharePoint):** [Design / MS Word Templates / Letterheads](https://totalaoc.sharepoint.com/sites/team-design2/Shared%20Documents/Document%20Templates/MS%20Word%20Templates/Letterheads)
 **Dependency:** `python-docx` (already installed)
 
-The script opens the office-specific `.dotx` master from the bundled `templates/` folder, inheriting the letterhead header/footer (logo, address bar, contact details, page layout), clears the placeholder body, and rebuilds it from a JSON spec. Output saves as `.docx`. No external uploads or re-downloads needed: every office template ships with the skill.
+The script opens the office-specific master (`.docx` preferred, `.dotx` accepted as a fallback) from the bundled `templates/` folder, inheriting the letterhead header/footer (logo, address bar, contact details, page layout), clears the placeholder body, and rebuilds it from a JSON spec. Output saves as `.docx`. No external uploads or re-downloads needed: every office template ships with the skill.
 
 ---
 
@@ -114,21 +114,21 @@ Suggested output filename: `Letter - [Recipient or Topic].docx`. Always save und
 
 ```
 skills/letterhead/templates/
-├── Letterhead [Bracknell].dotx
-├── Letterhead [Doncaster].dotx
-├── Letterhead [Houston].dotx
-├── Letterhead [Jersey].dotx
-├── Letterhead [London].dotx
-├── Letterhead [Luton].dotx
-└── Letterhead [Vancouver].dotx
+├── Letterhead [Bracknell].docx
+├── Letterhead [Doncaster].docx
+├── Letterhead [Houston].docx
+├── Letterhead [Jersey].docx
+├── Letterhead [London].docx
+├── Letterhead [Luton].docx
+└── Letterhead [Vancouver].docx
 ```
 
-These ship with the skill — see `templates/README.md` for the one-time setup if any are missing.
+`.docx` is preferred. The script will also accept `.dotx` if that's what's present — same file format under the hood, only the MIME flag differs. Either works. These ship with the skill: see `templates/README.md` for the one-time setup if any are missing.
 
 ---
 
 ## Adding a new office or brand
 
-1. Drop the new `.dotx` into `skills/letterhead/templates/` with filename pattern `Letterhead [Office].dotx`. Commit it.
+1. Drop the new template into `skills/letterhead/templates/` with filename pattern `Letterhead [Office].docx` (or `.dotx`). Commit it.
 2. Add the office to the allowed list in this SKILL.md.
-3. For a new brand, create `templates/{Brand}/Letterhead [Office].dotx` and update `letterhead.py` to resolve `{brand}/{office}` paths.
+3. For a new brand, create `templates/{Brand}/Letterhead [Office].docx` and update `letterhead.py` to resolve `{brand}/{office}` paths.
