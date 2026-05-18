@@ -58,6 +58,8 @@ def clear_body(doc):
 
 def add_paragraph(doc, text, *, bold=False, size_pt=10):
     p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(0)
+    p.paragraph_format.space_after = Pt(0)
     run = p.add_run(text)
     run.font.name = 'Open Sans'
     run.font.size = Pt(size_pt)
@@ -67,7 +69,9 @@ def add_paragraph(doc, text, *, bold=False, size_pt=10):
 
 
 def add_blank(doc):
-    doc.add_paragraph()
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(0)
+    p.paragraph_format.space_after = Pt(0)
 
 
 def format_today() -> str:
