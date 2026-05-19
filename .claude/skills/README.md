@@ -14,21 +14,11 @@ Shared skills for use with [Claude Code](https://claude.ai/code). These load aut
 
 ## Setup
 
-Clone this repo into your Claude Code skills directory:
+These skills live under `.claude/skills/` in this repo, which Claude Code auto-discovers. No manual install is required:
 
-```bash
-# If you don't have a skills directory yet
-mkdir -p ~/.claude/skills
-
-# Clone directly into the skills directory
-git clone <repo-url> ~/.claude/skills
-
-# Or if ~/.claude/skills already exists with content
-cd ~/.claude/skills
-git init
-git remote add origin <repo-url>
-git pull origin main
-```
+- **Claude Code on the web:** open this repo in a session and the skills are available automatically.
+- **Claude Code CLI / IDE extensions:** clone this repo and open it as your working directory. The repo-local `.claude/skills/` is picked up alongside any skills in `~/.claude/skills/`.
+- **Per-user install (optional):** if you want these available outside this repo, copy or symlink the skill folders into `~/.claude/skills/`.
 
 ## Using a Skill
 
@@ -42,10 +32,7 @@ Claude will load the full Brand Framework and Brand Guidelines into context.
 
 ## Keeping Up to Date
 
-```bash
-cd ~/.claude/skills
-git pull
-```
+`git pull` inside this repo. Skills update for everyone the next time they open a session on the repo.
 
 ## Contributing
 

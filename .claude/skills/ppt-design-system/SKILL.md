@@ -5,8 +5,8 @@ description: TrustFlight PowerPoint design system. Use this skill whenever the u
 
 # TrustFlight PowerPoint Design System
 
-**Source data:** `~/.claude/skills/ppt-design-system/brand.json`  
-**Brand messaging + voice:** `~/.claude/skills/brand-framework/SKILL.md` and `BRAND-GUIDELINES.md`
+**Source data:** `brand.json` (in this skill's folder)  
+**Brand messaging + voice:** `../brand-framework/SKILL.md` and `../brand-framework/BRAND-GUIDELINES.md` (sibling skill)
 
 ---
 
@@ -37,7 +37,7 @@ Determine which mode applies based on the user's request:
 The canonical template is `Basic Presentation Template.pptx`, located in this skill's own folder (alongside `SKILL.md` and `brand.json`). Resolve its absolute path from SKILL.md's directory at runtime — do not hard-code a user-specific path like `/Users/alexcraiu/...`. Typical resolutions:
 
 - Installed locally: `~/.claude/skills/ppt-design-system/Basic Presentation Template.pptx`
-- From a cloned repo: `<repo>/skills/ppt-design-system/Basic Presentation Template.pptx`
+- From a cloned repo: `<repo>/.claude/skills/ppt-design-system/Basic Presentation Template.pptx`
 - From a Claude Code web session: the path the SKILL.md is being read from
 
 A simple way to compute it in Python:

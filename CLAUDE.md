@@ -18,13 +18,13 @@ This repo contains TrustFlight brand assets, automation scripts, and Claude skil
 - Images in presentations must be cropped inside a rounded rectangle with an Azure (`#479FF8`) 1pt outline.
 - Pull photography from SharePoint `Photography/` folder — JPGs with `-lr` in the filename only, never PSDs.
 
-For full brand voice, messaging, and visual identity: see `skills/brand-framework/SKILL.md` and `skills/brand-framework/BRAND-GUIDELINES.md`.
+For full brand voice, messaging, and visual identity: see `.claude/skills/brand-framework/SKILL.md` and `.claude/skills/brand-framework/BRAND-GUIDELINES.md`.
 
 ---
 
 ## Skills
 
-All skill definitions live in `skills/`. Each folder contains a `SKILL.md` with the full operating procedure.
+All skill definitions live in `.claude/skills/` (Claude Code's auto-discovery location, so they load in any session that opens this repo — web, CLI, or IDE). Each folder contains a `SKILL.md` with the full operating procedure.
 
 ### `brand-framework` — Brand voice and identity
 Reference for any copy, messaging, or design decisions. Covers the four capability pillars (Centrik, TechLog, SmartSuite, Baines Simmons), tone of voice, boilerplate, and visual identity.  
@@ -34,8 +34,8 @@ Reference for any copy, messaging, or design decisions. Covers the four capabili
 
 ### `ppt-design-system` — PowerPoint presentations
 Build or restyle PowerPoint decks to TrustFlight brand standards.  
-**Template:** `skills/ppt-design-system/Master Presentation Template - v2.pptx`  
-**Brand tokens:** `skills/ppt-design-system/brand.json`  
+**Template:** `.claude/skills/ppt-design-system/Basic Presentation Template.pptx`  
+**Brand tokens:** `.claude/skills/ppt-design-system/brand.json`  
 **Trigger:** any request for a deck, slides, pitch, or presentation.  
 **Can run in browser:** Partially (Python/python-pptx script runs anywhere; MCP server for reading slide info is local-only).
 
@@ -96,7 +96,7 @@ Fill branded course sheet PDFs from source BSL documents. 70+ courses across 5 p
 
 ### `course-dates-generator` — Sub-brand course date PDFs
 Scrape a course listing page and generate branded course date PDFs for Redline, BSL, or Kenyon.  
-**Script:** `skills/course-dates-generator/fill_course_pdf.py`  
+**Script:** `.claude/skills/course-dates-generator/fill_course_pdf.py`  
 **Templates:** `Course PDFs/Courses - [Brand] - Template.pdf`  
 **Can run in browser:** Yes — uses WebFetch + Python/PyMuPDF, no local apps needed.
 
@@ -107,7 +107,7 @@ Key rules:
 
 ### `word-brand` — Word document branding
 Restyle any Word document to TrustFlight brand standards using the master template.  
-**Script:** `skills/word-brand/word_brand.py`  
+**Script:** `.claude/skills/word-brand/word_brand.py`  
 **Master template:** `/Users/alexcraiu/Desktop/Documents/Word templates/Basic Document.docx`  
 **Can run in browser:** No — master template is local.
 
@@ -117,7 +117,7 @@ Restyle any Word document to TrustFlight brand standards using the master templa
 
 ```
 Claude Playground/
-├── skills/                        # Claude skill definitions (mirrored from ~/.claude/skills)
+├── .claude/skills/                # Claude skill definitions (auto-discovered by Claude Code)
 │   ├── brand-framework/           # Brand voice, messaging, visual identity
 │   ├── ppt-design-system/         # PowerPoint automation + master template
 │   ├── linkedin-ad-generator/     # LinkedIn ad Illustrator workflow
