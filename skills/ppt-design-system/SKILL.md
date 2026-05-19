@@ -14,6 +14,8 @@ description: TrustFlight PowerPoint design system. Use this skill whenever the u
 
 Read `brand.json` for all colour hex values, template paths, and layout indices. Do not hard-code values from memory — always reference the file.
 
+**Template lives in this skill's folder.** The master template, `Basic Presentation Template.pptx`, ships inside this skill directory (the same folder as this `SKILL.md`). Always load it from that folder — never ask the user to upload a template, and never fall back to a blank presentation. Resolve the absolute path at runtime from the SKILL.md location, so it works whether the skill is installed at `~/.claude/skills/ppt-design-system/`, in the cloned repo, or anywhere else.
+
 Also load the brand-framework skill for messaging guidance if the presentation requires copy (pitches, customer decks, corporate comms).
 
 ---
@@ -32,10 +34,18 @@ Determine which mode applies based on the user's request:
 
 ## Step 2: Load the Master Template
 
-The canonical template is at (from `brand.json > templates.master`):
+The canonical template is `Basic Presentation Template.pptx`, located in this skill's own folder (alongside `SKILL.md` and `brand.json`). Resolve its absolute path from SKILL.md's directory at runtime — do not hard-code a user-specific path like `/Users/alexcraiu/...`. Typical resolutions:
+
+- Installed locally: `~/.claude/skills/ppt-design-system/Basic Presentation Template.pptx`
+- From a cloned repo: `<repo>/skills/ppt-design-system/Basic Presentation Template.pptx`
+- From a Claude Code web session: the path the SKILL.md is being read from
+
+A simple way to compute it in Python:
+```python
+from pathlib import Path
+TEMPLATE_PATH = Path(__file__).resolve().parent / "Basic Presentation Template.pptx"
 ```
-~/.claude/skills/ppt-design-system/Basic Presentation Template.pptx
-```
+If running an ad-hoc script outside the skill folder, locate SKILL.md first (e.g. by searching `skills/ppt-design-system/SKILL.md` upwards from the cwd) and use its parent.
 
 Slide size: **12192000 × 6858000 EMU** (13.33" × 7.5", standard widescreen 16:9).
 

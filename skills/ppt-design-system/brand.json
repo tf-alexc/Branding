@@ -76,10 +76,11 @@
     "aspect_ratio": "16:9"
   },
   "templates": {
-    "master": "~/.claude/skills/ppt-design-system/Basic Presentation Template.pptx",
-    "note": "master is the canonical template for all new presentations.",
+    "master_filename": "Basic Presentation Template.pptx",
+    "master_location": "Same folder as SKILL.md and this brand.json. Resolve the absolute path from the skill directory at runtime — never hard-code a user-specific path.",
+    "note": "master is the canonical template for all new presentations. The file is committed to the skill folder, so no upload is ever required.",
     "reference_only": {
-      "baines_simmons": "/Users/alexcraiu/Library/CloudStorage/OneDrive-TrustFlight/Master Presentation Template - BSL.pptx"
+      "baines_simmons": "Master Presentation Template - BSL.pptx (BSL-specific; lives outside this skill folder on the local CLI only)"
     }
   },
   "layouts": {
