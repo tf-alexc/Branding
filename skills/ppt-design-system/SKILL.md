@@ -34,8 +34,10 @@ Determine which mode applies based on the user's request:
 
 The canonical template is at (from `brand.json > templates.master`):
 ```
-/Users/alexcraiu/.claude/skills/ppt-design-system/Master Presentation Template - v2.pptx
+~/.claude/skills/ppt-design-system/Basic Presentation Template.pptx
 ```
+
+Slide size: **12192000 × 6858000 EMU** (13.33" × 7.5", standard widescreen 16:9).
 
 The Baines Simmons template (`templates.reference_only.baines_simmons`) is for BSL-specific work only.
 
@@ -43,7 +45,7 @@ The Baines Simmons template (`templates.reference_only.baines_simmons`) is for B
 
 > **MCP v2.1.0 bug notice:** `keep_slides`, `delete_slide`, and `clone_slide` are broken in the current MCP server (error: `'PresentationPart' object has no attribute 'related_parts'`). All structural operations — deleting slides, cloning slides, stripping the template — must be done directly via Python/python-pptx. The MCP server is only reliable for reading slide info and setting core properties. Use the Python patterns in Steps 3 and 5 below.
 
-**Required: strip web extension and SharePoint metadata before saving.** The master template carries a baked-in OMEX Office add-in, SharePoint customXml, a modern-comments author list, and stale app.xml metadata — all of which cause PowerPoint to show a "found a problem with content" repair dialog on open. Strip them and fix app.xml on every save using this pattern:
+**Required: strip SharePoint metadata before saving.** The master template carries SharePoint customXml, a modern-comments author list, and stale app.xml metadata — all of which cause PowerPoint to show a "found a problem with content" repair dialog on open. Strip them and fix app.xml on every save using this pattern:
 
 ```python
 import zipfile, io, re
@@ -56,9 +58,6 @@ def clean_and_save(prs, output_path):
     prs.save(tmp)
 
     STRIP = {
-        'ppt/webextensions/webextension1.xml',
-        'ppt/webextensions/taskpanes.xml',
-        'ppt/webextensions/_rels/taskpanes.xml.rels',
         'customXml/item1.xml', 'customXml/item2.xml', 'customXml/item3.xml',
         'customXml/itemProps1.xml', 'customXml/itemProps2.xml', 'customXml/itemProps3.xml',
         'customXml/_rels/item1.xml.rels', 'customXml/_rels/item2.xml.rels',
@@ -125,16 +124,19 @@ Use `clean_and_save(prs, OUTPUT_PATH)` instead of `prs.save(OUTPUT_PATH)` on eve
 
 Strip all unwanted template slides using Python directly (MCP delete is broken — see Step 2 note).
 
-**Template structure (v2.pptx, 33 slides, 0-indexed):**
+**Template structure (`Basic Presentation Template.pptx`, 7 example slides, 0-indexed):**
 
-| Index | Layout | Title / Notes |
-|-------|--------|---------------|
-| 0 | Dark - Title | Blank title slide |
-| 1 | Light - Main | **Agenda (short — 12 shapes) — use this one** |
-| 2 | Light - Main | Agenda (complex workshop grid — do not use) |
-| 3 | Dark - Section Break | Introduction |
-| 16 | Light - Main | **Centrik 5 product slide** |
-| last | Dark - End | **Slide 35 (index 34)** — always clone this slide as the end slide. It already contains all the required contact and closing information. Never recreate it from a blank layout. |
+| Index | Layout | Notes |
+|-------|--------|-------|
+| 0 | Dark - Title | Blank title slide — clone as cover |
+| 1 | Dark - Section Break | Example section break |
+| 2 | Dark - Horizontal Split | Example content (top/bottom split) |
+| 3 | Dark - Vertical Split | Example content (left/right split) |
+| 4 | Dark - Radial Split 2 | Example content with radial graphic |
+| 5 | Light - Main | Example light-background content |
+| 6 | Dark - End | **End slide** — always clone this as the closing slide. It already contains the TrustFlight boilerplate, logo, and contact information. Never recreate it from a blank layout. |
+
+The example slides exist for visual reference only — they should all be deleted from the working deck once you've cloned the end slide (and any other layout you want to copy structure from). Build new slides from the layouts via `prs.slides.add_slide(layout)` rather than reusing the example content.
 
 **Python delete pattern:**
 ```python
@@ -154,26 +156,15 @@ for i in range(len(prs.slides) - 1, -1, -1):
         delete_slide(prs, i)
 ```
 
-**Recommended approach for new decks:** Open the template with `Presentation(template_path)`, add all new slides to the end using `prs.slides.add_slide(layout)`, clone needed template slides (see clone pattern below), then delete all original template slides in reverse order. This avoids any MCP structural tools entirely.
+**Recommended approach for new decks:** Open the template with `Presentation(template_path)`, clone the end slide (index 6) to preserve it, add all new content slides to the end using `prs.slides.add_slide(layout)`, then delete all original example slides in reverse order. This avoids any MCP structural tools entirely.
 
 ---
 
-## Step 4: Scan the Kept Slides Before Building
+## Step 4: Build Slides on Top of the Template
 
-After `keep_slides` runs, scan what remains to understand what's reusable:
+The example slides in the template are not reusable content — they're visual reference for the layouts. Build new slides from the layouts directly.
 
-### Agenda slide
-
-Always use the **first Agenda slide** from the template: **index 1**, Light - Main, 12 shapes (right-side image + left-side bullet rows). Never use index 2 (the 27-shape workshop grid with time slots — wrong format for pitch decks).
-
-Clone it using the Python pattern below, then populate the pill shapes with the agenda items.
-
-**Populating agenda pills:** The agenda slide contains pill-shaped rectangle shapes (one per agenda item). Each pill must be filled with the title text of the corresponding section break slide in the deck. To get the titles:
-1. Scan the deck for all slides using layout `Dark - Section Break` (layout index 7)
-2. Collect their title placeholder text in order — these are your agenda items
-3. Update the pill text shapes on the cloned agenda slide to match, in order
-
-Do this after all section break slides have been added to the deck, so the full list of titles is known. Use python-pptx to iterate the agenda slide's shapes, find the pill text frames, and set `.text` on each one.
+The one exception is the **end slide** (index 6), which contains the TrustFlight boilerplate, logo, and contact block. Always clone it rather than rebuilding from the `Dark - End` layout.
 
 ### Clone pattern (Python — MCP clone_slide is broken)
 
@@ -197,43 +188,35 @@ def clone_slide(prs, src_idx):
     return new
 ```
 
-Use this for: agenda slide (index 1), product slides (Centrik at index 16), any other slide with embedded visuals you want to preserve.
+Use this for the end slide (index 6) and any other slide with embedded visuals you want to preserve verbatim.
 
-### Scan for Product Images (product decks only)
-
-If the deck is about a specific product (Centrik, Tech Log, MEL Manager, Smart Suite), use `mcp__powerpoint__scan_presentation_images` to find images already embedded in the kept slides.
-
-- Look at which slides have images and what their titles are
-- Identify slides that appear to contain product screenshots or UI visuals
-- Note their `slide_index` and `shape_index` — clone those slides to bring the images into your deck
-
-**Never describe images you can't see. Scan first, then reference what's actually there.**
-
----
-
-## Step 4: Plan the Slide Structure
+### Plan the Slide Structure
 
 For a full deck, plan the structure before building. Standard TrustFlight deck structure:
 
-1. **Title slide** — clone the template's title slide or use layout index 0 (`Dark - Title`)
-2. **Agenda** — clone the template's Agenda slide (find with `find_slides_by_title`)
-3. **Section breaks** — clone template section break slides between major topics
-4. **Content slides** — layout index 1 (`Dark - Main`) for standard content
-5. **Visual slides** — layout index 4 (`Dark - Radial Centre`) or 6 (`Dark - Globe`) for stats/global reach
-6. **Closing slide** — always clone slide index 34 (slide 35 in the template) using `clone_slide`. Never use `add_slide` for the end slide. Do not clear or replace its content — the slide already contains all required closing information and must be used as-is.
+1. **Title slide** — layout index 0 (`Dark - Title`)
+2. **Agenda** — build from layout 9 (`Light - Main`) or 7 (`Dark - Section Break`); the new template does not ship a dedicated agenda slide
+3. **Section breaks** — layout 7 (`Dark - Section Break`) between major topics
+4. **Content slides** — vary across layouts 1, 2, 3, 4, 6, 10, 11 (see table below) — never default everything to one layout
+5. **Light-background content** — layout 9 (`Light - Main`) when a visual change of pace is needed mid-deck
+6. **Closing slide** — always clone template slide index 6 (the `Dark - End` example) using the clone pattern above. Never use `add_slide` for the end slide. Do not clear or replace its content — the slide already contains the TrustFlight boilerplate, logo, and contact block and must be used as-is.
 
 **Available layouts:**
 
 | Index | Name | Use for |
 |-------|------|---------|
-| 0 | Dark - Title | Opening title slide |
-| 1 | Dark - Main | Primary content — title + body text |
-| 4 | Dark - Radial Centre | Centred radial graphic — key stats, single focus message |
-| 6 | Dark - Globe | Globe layout — global reach, international stats |
-| 7 | Dark - Section Break | Section divider between topics |
-| 8 | Dark - End | **Never use the layout directly** — always clone slide index 34 (slide 35) which has all content pre-populated |
-
-**Do not use layouts 2, 3, or 5 (Half & Half variants).** These are available in the template but should not be used when building decks. Use layout 1 (Dark - Main) for content that would otherwise go in a two-column layout — write tighter, structured copy instead.
+| 0  | Dark - Title           | Opening title slide |
+| 1  | Dark - Radial split    | Split content with radial graphic accent |
+| 2  | Dark - Radial Split 2  | Alternative radial split — different proportions |
+| 3  | Dark - Radial Centre   | Centred radial — key stat, single focus message |
+| 4  | Dark - Blank           | Blank dark canvas for custom-built content (tables, timelines, image grids) |
+| 5  | Dark - Globe Split     | Split content with globe graphic |
+| 6  | Dark - Globe           | Globe layout — global reach, international stats |
+| 7  | Dark - Section Break   | Section divider between topics |
+| 8  | Dark - End             | **Never use the layout directly** — always clone template slide index 6 |
+| 9  | Light - Main           | Light-background content — title + body |
+| 10 | Dark - Horizontal Split| Top/bottom split content |
+| 11 | Dark - Vertical Split  | Left/right split content |
 
 ### Vary the Layout on Every Slide
 
@@ -252,7 +235,7 @@ For a full deck, plan the structure before building. Standard TrustFlight deck s
 - **Numbered steps** — large numerals (styled as accent elements) with a short description beside each. Better than a plain numbered list.
 - **Timeline** — a horizontal line with labelled nodes, built from shapes. Good for roadmaps or onboarding sequences.
 
-Build these using python-pptx shapes and text boxes rather than forcing everything into placeholder 1. Position elements using EMU coordinates (slide is 9144000 × 5143500 EMU).
+Build these using python-pptx shapes and text boxes rather than forcing everything into placeholder 1. Position elements using EMU coordinates (slide is 12192000 × 6858000 EMU).
 
 **Suggesting New Layouts**
 
@@ -301,47 +284,16 @@ def fix_grp_sp_pr(slide):
 
 Call `fix_grp_sp_pr(slide)` immediately after every `prs.slides.add_slide(layout)`. Cloned slides (via `clone_slide`) inherit the correct xfrm from the source and do not need this fix.
 
-**Footer and page number — required on every interior slide:**
-Every slide except the cover (Dark - Title, index 0) and the end slide (Dark - End) must have both a footer placeholder and a slide number placeholder. Slides added via `add_slide` do not inherit these automatically — copy them explicitly from a reference slide that already has them (e.g. the cloned Centrik product slide).
+**Footer and page number — built into the layouts:**
+Every layout except `Dark - Title` (index 0) and `Dark - End` (index 8) ships with both a Footer placeholder and a Slide Number placeholder. Slides added via `add_slide(layout)` inherit them automatically — do not copy them manually.
+
+The default footer text is `©2026 TrustFlight Ltd. All rights reserved.` Update the year manually if the deck is being prepared for a future date.
 
 **Footer text colour:**
-- Dark slides (Midnight/dark background): set footer text to Light grey — `#E0E7F5`
-- Light slides (light background): set footer text to Graphite — `#242D41`
+- Dark slides (Midnight/dark background): footer text is Light grey — `#E0E7F5`
+- Light slides (Light - Main, index 9): footer text is Graphite — `#242D41`
 
-All layouts in the master template are dark-themed by default, so most footer text will be `#E0E7F5`. Only apply `#242D41` when the slide explicitly uses a light background. Set the colour on the text run inside the footer shape's text frame using `run.font.color.rgb = RGBColor(0xE0, 0xE7, 0xF5)` (or the graphite equivalent).
-
-```python
-import copy
-
-def apply_footer_and_slidenum(prs, interior_range):
-    """Copy footer + slide number to all interior slides from a reference slide."""
-    # Use a slide known to have both (e.g. the Centrik product slide)
-    ref = next(s for s in prs.slides if 'Centrik' in
-               next((sh.text_frame.text for sh in s.shapes
-                     if sh.name == 'Title 1' and sh.has_text_frame), ''))
-    footer_el = slidenum_el = None
-    for shape in ref.shapes:
-        n = shape.name.lower()
-        if 'footer' in n and footer_el is None:
-            footer_el = copy.deepcopy(shape._element)
-        if 'slide number' in n and slidenum_el is None:
-            slidenum_el = copy.deepcopy(shape._element)
-
-    for i in interior_range:
-        slide = prs.slides[i]
-        existing = [s.name.lower() for s in slide.shapes]
-        sp_tree = slide.shapes._spTree
-        if footer_el is not None and not any('footer' in e for e in existing):
-            el = copy.deepcopy(footer_el)
-            for e in el.iter():
-                if e.tag.endswith('}cNvPr'): e.set('id', str(3000 + i)); break
-            sp_tree.append(el)
-        if slidenum_el is not None and not any('slide number' in e for e in existing):
-            el = copy.deepcopy(slidenum_el)
-            for e in el.iter():
-                if e.tag.endswith('}cNvPr'): e.set('id', str(4000 + i)); break
-            sp_tree.append(el)
-```
+These colours come from the layout — do not override them on the run. If a placeholder appears in the wrong colour, the fix is in the layout, not the slide.
 
 ---
 
@@ -406,7 +358,7 @@ Use `find` with `-name '*-lr.jpg'` to list available files. Only use JPGs with `
 
 **Sizing and positioning:**
 - Preserve original aspect ratio — read natural pixel dimensions with `PIL.Image.open(path).size` and fit within the target area without distortion
-- If the photo is large and a full-bleed or oversized treatment suits the layout, it is acceptable to scale the photo up and let it bleed off the **right edge only** — never off the left, top, or bottom. Set `left` such that the image is anchored left and extends rightward beyond `slide_width_emu` (9144000 EMU)
+- If the photo is large and a full-bleed or oversized treatment suits the layout, it is acceptable to scale the photo up and let it bleed off the **right edge only** — never off the left, top, or bottom. Set `left` such that the image is anchored left and extends rightward beyond `slide_width_emu` (12192000 EMU)
 - **Never cover the TrustFlight logo (top-right corner) or the page number (bottom-right corner).** When positioning or sizing a photo, ensure it does not overlap either of these elements — even when bleeding off the right edge. Keep the top-right and bottom-right corners clear.
 
 ### Transparent PNG graphics (icons, product UI, illustrations)
@@ -500,7 +452,6 @@ When restyling an existing deck:
 
 ## What Not to Do
 
-- Never use layouts 2, 3, or 5 (Half & Half variants) when building decks
 - Never add a blank slide when an existing template slide can be cloned instead
 - Never describe TrustFlight as "a software company"
 - Never use "TrustFlight Group", "TrustFlight Services", or "a TrustFlight company"
@@ -520,5 +471,4 @@ When restyling an existing deck:
 - Never bleed an oversized photo off the left, top, or bottom edge — only the right edge is permitted
 - Never allow a photo to cover the TrustFlight logo (top-right) or the page number (bottom-right)
 - Never leave `grpSpPr` empty on an `add_slide` slide — always call `fix_grp_sp_pr(slide)` immediately after adding
-- Never use the second Agenda slide (index 2, 27-shape workshop grid with time slots) — always clone index 1 (12 shapes, right-side image)
-- Never omit footer and page number from interior slides — required on all slides except the cover (Dark - Title) and end slide (Dark - End)
+- Never rebuild the end slide from the `Dark - End` layout — always clone template slide index 6, which contains the TrustFlight boilerplate, logo, and contact block
