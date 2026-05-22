@@ -307,16 +307,85 @@ def fix_grp_sp_pr(slide):
 
 Call `fix_grp_sp_pr(slide)` immediately after every `prs.slides.add_slide(layout)`. Cloned slides (via `clone_slide`) inherit the correct xfrm from the source and do not need this fix.
 
-**Footer and page number — built into the layouts:**
-Every layout except `Dark - Title` (index 0) and `Dark - End` (index 8) ships with both a Footer placeholder and a Slide Number placeholder. Slides added via `add_slide(layout)` inherit them automatically — do not copy them manually.
+**Footer (bottom-left) and slide number (bottom-right) — must be visible on every interior slide:**
 
-The default footer text is `©2026 TrustFlight Ltd. All rights reserved.` Update the year manually if the deck is being prepared for a future date.
+Every layout except `Dark - Title` (index 0) and `Dark - End` (index 8) ships with both a Footer placeholder (bottom-left) and a Slide Number placeholder (bottom-right). Slides added via `add_slide(layout)` inherit them from the layout, and cloned template slides already contain them. But inheritance is rendered through PowerPoint's header/footer toggle (`<p:hf>`) which must be set on each slide — otherwise some renderers (Google Slides, Keynote, older PowerPoint) hide them silently.
 
-**Footer text colour:**
-- Dark slides (Midnight/dark background): footer text is Light grey — `#E0E7F5`
-- Light slides (Light - Main, index 9): footer text is Graphite — `#242D41`
+**Required: run `ensure_footer_and_slidenum(prs)` as the last step before saving every deck.** It is a hard guarantee that footer + page number appear on every interior slide. The default footer text is `©2026 TrustFlight Ltd. All rights reserved.` — update the year if the deck is for a future date.
 
-These colours come from the layout — do not override them on the run. If a placeholder appears in the wrong colour, the fix is in the layout, not the slide.
+```python
+from copy import deepcopy
+from lxml import etree
+from pptx.enum.shapes import PP_PLACEHOLDER
+
+P_NS = 'http://schemas.openxmlformats.org/presentationml/2006/main'
+FOOTER_TEXT = "©2026 TrustFlight Ltd. All rights reserved."
+
+def _placeholder_types(slide):
+    out = []
+    for shape in slide.shapes:
+        try:
+            out.append(shape.placeholder_format.type)
+        except (ValueError, AttributeError):
+            pass
+    return out
+
+def _find_layout_placeholder(layout, ph_attr_type):
+    for sp in layout.shapes._spTree.findall(f'{{{P_NS}}}sp'):
+        ph = sp.find(f'{{{P_NS}}}nvSpPr/{{{P_NS}}}nvPr/{{{P_NS}}}ph')
+        if ph is not None and ph.get('type') == ph_attr_type:
+            return sp
+    return None
+
+def ensure_footer_and_slidenum(prs, skip_layouts=("Dark - Title", "Dark - End")):
+    """Guarantee footer + slide number are visible on every interior slide.
+
+    For each slide whose layout is not in skip_layouts:
+      1. Force <p:hf sldNum="1" ftr="1"/> so PowerPoint shows both elements.
+      2. If the slide is missing the footer or slide-number placeholder
+         shape, copy it from the layout's spTree.
+      3. Ensure the footer placeholder contains FOOTER_TEXT (handles cloned
+         slides where the text frame was emptied).
+    """
+    for slide in prs.slides:
+        if slide.slide_layout.name in skip_layouts:
+            continue
+        sld = slide._element
+
+        # 1. Force hf=1
+        for hf in sld.findall(f'{{{P_NS}}}hf'):
+            sld.remove(hf)
+        sld.append(etree.fromstring(
+            f'<p:hf xmlns:p="{P_NS}" sldNum="1" ftr="1" dt="0" hdr="0"/>'
+        ))
+
+        # 2. Ensure both placeholder shapes exist on the slide
+        on_slide = _placeholder_types(slide)
+        for ph_enum, ph_attr in ((PP_PLACEHOLDER.FOOTER, 'ftr'),
+                                  (PP_PLACEHOLDER.SLIDE_NUMBER, 'sldNum')):
+            if ph_enum in on_slide:
+                continue
+            layout_sp = _find_layout_placeholder(slide.slide_layout, ph_attr)
+            if layout_sp is not None:
+                slide.shapes._spTree.append(deepcopy(layout_sp))
+
+        # 3. Ensure footer text is set
+        for shape in slide.placeholders:
+            try:
+                if shape.placeholder_format.type == PP_PLACEHOLDER.FOOTER:
+                    if not shape.text_frame.text.strip():
+                        shape.text_frame.text = FOOTER_TEXT
+            except (ValueError, AttributeError):
+                continue
+```
+
+Call this once, right before `clean_and_save(prs, OUTPUT_PATH)`. Never skip it, even on single-slide decks.
+
+**Footer text colour comes from the layout:**
+- Dark slides (Midnight/dark background): Light grey — `#E0E7F5`
+- Light slides (Light - Main, index 9): Graphite — `#242D41`
+
+Do not override these on the run. If a placeholder appears in the wrong colour, the fix is in the layout, not the slide.
 
 ---
 
@@ -450,14 +519,20 @@ Apply brand colours to chart series:
 
 ## Step 8: Set Core Properties and Save
 
-Use `mcp__powerpoint__set_core_properties`:
-- `title`: Presentation title
-- `author`: Alexandru Craiu (default)
-- `subject`: Audience or purpose
+Set core properties via python-pptx:
+- `prs.core_properties.title` — presentation title
+- `prs.core_properties.author` — Alexandru Craiu (default)
+- `prs.core_properties.subject` — audience or purpose
 
-Use `mcp__powerpoint__save_presentation`. Default save location: `/Users/alexcraiu/Desktop/Claude Playground/Claude Presentations`. Name format: `[Topic] - [Date or Version].pptx`
+**Required save sequence — always in this order:**
+```python
+ensure_footer_and_slidenum(prs)   # Step 5 — guarantee footer + slide number visibility
+clean_and_save(prs, OUTPUT_PATH)  # Step 2 — strip SharePoint/repair artefacts
+```
 
-> Never save to `~/Desktop/` directly.
+Never call `prs.save()` directly. Never skip `ensure_footer_and_slidenum` — even a one-slide deck must pass through it.
+
+Default save location: `/Users/alexcraiu/Desktop/Claude Playground/Claude Presentations`. Name format: `[Topic] - [Date or Version].pptx`. Never save to `~/Desktop/` directly.
 
 ---
 
@@ -494,5 +569,8 @@ When restyling an existing deck:
 - Never bleed an oversized photo off the left, top, or bottom edge — only the right edge is permitted
 - Never allow a photo to cover the TrustFlight logo (top-right) or the page number (bottom-right)
 - Never leave `grpSpPr` empty on an `add_slide` slide — always call `fix_grp_sp_pr(slide)` immediately after adding
+- Never save a deck without calling `ensure_footer_and_slidenum(prs)` first — footer (bottom-left) and slide number (bottom-right) must be visible on every interior slide
+- Never delete the footer or slide-number placeholders from an interior slide
+- Never hide the slide number by overriding the layout's `<p:hf>` element
 - Never rebuild the end slide from the `Dark - End` layout — always clone template slide index 7, which contains the TrustFlight Aerospace Safety Intelligence Platform boilerplate, logo, and contact block
 - Never rebuild the agenda slide from a blank layout — always clone template slide index 1, which has the 5 pill rows and 3 stacked photos pre-positioned
