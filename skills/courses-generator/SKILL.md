@@ -37,8 +37,14 @@ Both pages include a fixed `BOOK NOW` button and website footer — those are vi
 
 **Generation method:** Python + PyMuPDF. The script fills the template in memory, then rasterises the page to a 2400×2800 JPG (2× zoom from the 1200×1400 template).
 
-**Script:** `/Users/alexcraiu/.claude/skills/courses-generator/fill_course_jpg.py`
-**Output folder:** `/Users/alexcraiu/Desktop/Claude Playground/Course PDFs/Course JPGs - [Brand]/`
+**Script:** `fill_course_jpg.py` (bundled at the root of this skill folder).
+**Fonts:** `fonts/OpenSans-Regular.ttf` (also bundled — skill is fully self-contained).
+**Output folder:** the script auto-selects the first available location:
+1. `/mnt/user-data/outputs/Course JPGs - [Brand]/` (claude.ai Skills sandbox)
+2. `/Users/alexcraiu/Desktop/Claude Playground/Course PDFs/Course JPGs - [Brand]/` (Alex's Mac)
+3. `<repo>/Course PDFs/Course JPGs - [Brand]/` (cloud session checkout)
+4. Current working directory (last-resort fallback).
+
 **Output filename:** `Course - [Brand] - [Course Title].jpg`
 
 ---
@@ -70,7 +76,7 @@ The script does this automatically via `brand_from_url(url)`. If the domain does
 
 ## Step 2: Fetch the Course Page
 
-Use `WebFetch` on the URL. Extract:
+Use the available web-fetch tool on the URL (the tool name varies by host — `WebFetch` in Claude Code, `web_fetch` / `web_search` in claude.ai chat). Extract:
 
 - **Course name** — the page's course title (verbatim, no truncation)
 - **Date type** — `initial`, `recurrent`, `both`, or `generic`
@@ -85,12 +91,14 @@ If the page has no dates listed, ask the user to provide them or pick `column_ty
 
 ## Step 3: Generate the JPG
 
-Run one Python call:
+Import `fill_course_jpg` from this skill folder and call `fill_course_from_url`. Add the skill folder to `sys.path` first — the exact directory depends on the host (it's the folder containing this `SKILL.md`).
 
-```bash
-python3 - << 'PYEOF'
-import sys
-sys.path.insert(0, "/Users/alexcraiu/.claude/skills/courses-generator")
+```python
+import sys, os
+# Skill folder = directory containing this SKILL.md.
+# In claude.ai: typically /mnt/skills/user/courses-generator
+# In Claude Code on Mac: /Users/alexcraiu/.claude/skills/courses-generator
+sys.path.insert(0, os.path.dirname(os.path.abspath("SKILL.md location")))
 from fill_course_jpg import fill_course_from_url
 
 fill_course_from_url(
@@ -101,7 +109,6 @@ fill_course_from_url(
     right_dates=[],
     column_type="generic",
 )
-PYEOF
 ```
 
 For an initial + recurrent split:
@@ -119,6 +126,8 @@ fill_course_from_url(
 
 If you already know the brand and want to skip URL detection, call `fill_course(brand=..., ...)` directly.
 
+**If PyMuPDF (`fitz`) isn't installed in the sandbox**, install it first: `pip install pymupdf`.
+
 ---
 
 ## Step 4: Confirm Output
@@ -126,9 +135,9 @@ If you already know the brand and want to skip URL detection, call `fill_course(
 Report back:
 - Brand detected
 - Course name used
-- Output path
+- Full path of the generated JPG (returned by `fill_course_from_url`)
 
-Then open the folder:
+In claude.ai chat, present the JPG file inline so the user can download it directly. In Claude Code on the Mac, also open the output folder:
 
 ```bash
 open "/Users/alexcraiu/Desktop/Claude Playground/Course PDFs/Course JPGs - [Brand]/"

@@ -18,15 +18,23 @@ import fitz, os, re
 _SCRIPT_DIR  = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(_SCRIPT_DIR, "templates")
 
-# Output: prefer the standard Mac workspace; fall back to a sibling of the
-# repo root when running elsewhere (e.g. cloud sessions).
-_MAC_OUTPUT_BASE = "/Users/alexcraiu/Desktop/Claude Playground/Course PDFs"
-OUTPUT_BASE = _MAC_OUTPUT_BASE if os.path.isdir(os.path.dirname(_MAC_OUTPUT_BASE)) \
-    else os.path.abspath(os.path.join(_SCRIPT_DIR, "..", "..", "Course PDFs"))
+# Output base — first existing path wins. Covers claude.ai chat sandbox,
+# Alex's Mac workspace, the cloud repo checkout, and finally cwd.
+_OUTPUT_CANDIDATES = [
+    "/mnt/user-data/outputs",                                     # claude.ai Skills sandbox
+    "/Users/alexcraiu/Desktop/Claude Playground/Course PDFs",     # Mac workspace
+    os.path.abspath(os.path.join(_SCRIPT_DIR, "..", "..", "Course PDFs")),
+]
+OUTPUT_BASE = next(
+    (p for p in _OUTPUT_CANDIDATES
+     if os.path.isdir(p) or os.path.isdir(os.path.dirname(p))),
+    os.getcwd(),
+)
 
-# Font resolution: variable font on the Mac, static OpenSans-Regular in the
-# repo as a fallback (cloud/CI). First existing path wins.
+# Font resolution: bundled font (ships with skill, always present) first,
+# then Mac variable font, then repo fallback. First existing path wins.
 _FONT_CANDIDATES = [
+    os.path.join(_SCRIPT_DIR, "fonts", "OpenSans-Regular.ttf"),
     "/Users/alexcraiu/Library/Fonts/OpenSans-VariableFont_wdth,wght.ttf",
     os.path.join(_SCRIPT_DIR, "..", "..", "InDesign", "BSL Course Sheets",
                  "fonts", "OpenSans-Regular.ttf"),
