@@ -105,6 +105,21 @@ Key rules:
 
 ---
 
+### `courses-generator` — Single-course LinkedIn JPG
+Fetch one course page, detect the sub-brand from the URL, and generate a branded JPG promoting that course for LinkedIn.  
+**Script:** `skills/courses-generator/fill_course_jpg.py`  
+**Templates:** `skills/courses-generator/templates/Courses - [Brand] - Template.pdf` (BOOK NOW + website footer variant, bundled with the skill)  
+**Output:** `Course PDFs/Course JPGs - [Brand]/Course - [Brand] - [Title].jpg` at 2400×2800.  
+**Triggers:** "promote academy course", "training post", course promo, LinkedIn course graphic.  
+**Can run in browser:** Yes — uses WebFetch + Python/PyMuPDF.
+
+Key rules:
+- Brand auto-detected from URL domain: `kenyoninternational.com` → Kenyon, `trustredline.co.uk` / `redlineassuredsecurity.com` → Redline, `bainessimmons.com` → Baines Simmons.
+- Layout constants mirror `course-dates-generator` — the upper title/pill/dates region is identical; the new templates only add the BOOK NOW button + website footer.
+- For PDF (non-LinkedIn) deliverables of the same content, use `course-dates-generator` instead.
+
+---
+
 ### `word-brand` — Word document branding
 Restyle any Word document to TrustFlight brand standards using the master template.  
 **Script:** `skills/word-brand/word_brand.py`  
@@ -125,6 +140,7 @@ Claude Playground/
 │   ├── linkedin-event-generator/  # Event graphic Illustrator workflow
 │   ├── bsl-course-sheets/         # BSL PDF automation
 │   ├── course-dates-generator/    # Course dates PDF automation
+│   ├── courses-generator/         # Single-course LinkedIn JPG automation
 │   └── word-brand/                # Word document branding
 ├── Illustrator Templates/         # Master .ai files for Illustrator skills
 ├── InDesign/
@@ -146,6 +162,7 @@ Claude Playground/
 | brand-framework (reference) | Yes | Yes |
 | ppt-design-system | Partial | Yes |
 | course-dates-generator | Yes | Yes |
+| courses-generator | Yes | Yes |
 | linkedin-ad-generator | No | Yes |
 | linkedin-holiday-generator | No | Yes |
 | linkedin-event-generator | No | Yes |
