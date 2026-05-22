@@ -134,19 +134,20 @@ Use `clean_and_save(prs, OUTPUT_PATH)` instead of `prs.save(OUTPUT_PATH)` on eve
 
 Strip all unwanted template slides using Python directly (MCP delete is broken — see Step 2 note).
 
-**Template structure (`Basic Presentation Template.pptx`, 7 example slides, 0-indexed):**
+**Template structure (`Basic Presentation Template.pptx`, 8 example slides, 0-indexed):**
 
 | Index | Layout | Notes |
 |-------|--------|-------|
 | 0 | Dark - Title | Blank title slide — clone as cover |
-| 1 | Dark - Section Break | Example section break |
-| 2 | Dark - Horizontal Split | Example content (top/bottom split) |
-| 3 | Dark - Vertical Split | Example content (left/right split) |
-| 4 | Dark - Radial Split 2 | Example content with radial graphic |
-| 5 | Light - Main | Example light-background content |
-| 6 | Dark - End | **End slide** — always clone this as the closing slide. It already contains the TrustFlight boilerplate, logo, and contact information. Never recreate it from a blank layout. |
+| 1 | Light - Main | **Agenda slide** — light background, 5 pill-shaped item rows, 3 stacked photos on the right. Clone and populate the 5 pills with your section titles. |
+| 2 | Dark - Section Break | Example section break |
+| 3 | Dark - Horizontal Split | Example content (top/bottom split) |
+| 4 | Dark - Vertical Split | Example content (left/right split) |
+| 5 | Dark - Radial Split 2 | Example content with radial graphic |
+| 6 | Light - Main | Example light-background content |
+| 7 | Dark - End | **End slide** — always clone this as the closing slide. It already contains the TrustFlight Aerospace Safety Intelligence Platform boilerplate, logo, and contact block. Never recreate it from a blank layout. |
 
-The example slides exist for visual reference only — they should all be deleted from the working deck once you've cloned the end slide (and any other layout you want to copy structure from). Build new slides from the layouts via `prs.slides.add_slide(layout)` rather than reusing the example content.
+The non-agenda, non-end example slides exist for visual reference only — they should all be deleted from the working deck once you've cloned (a) the agenda slide if the deck needs one and (b) the end slide. Build new content slides from the layouts via `prs.slides.add_slide(layout)` rather than reusing the example content.
 
 **Python delete pattern:**
 ```python
@@ -166,7 +167,7 @@ for i in range(len(prs.slides) - 1, -1, -1):
         delete_slide(prs, i)
 ```
 
-**Recommended approach for new decks:** Open the template with `Presentation(template_path)`, clone the end slide (index 6) to preserve it, add all new content slides to the end using `prs.slides.add_slide(layout)`, then delete all original example slides in reverse order. This avoids any MCP structural tools entirely.
+**Recommended approach for new decks:** Open the template with `Presentation(template_path)`, clone the agenda slide (index 1) if the deck needs an agenda, clone the end slide (index 7) to preserve it, add all new content slides to the end using `prs.slides.add_slide(layout)`, then delete all original example slides in reverse order. This avoids any MCP structural tools entirely.
 
 ---
 
@@ -174,7 +175,19 @@ for i in range(len(prs.slides) - 1, -1, -1):
 
 The example slides in the template are not reusable content — they're visual reference for the layouts. Build new slides from the layouts directly.
 
-The one exception is the **end slide** (index 6), which contains the TrustFlight boilerplate, logo, and contact block. Always clone it rather than rebuilding from the `Dark - End` layout.
+There are two exceptions, both of which must be cloned rather than rebuilt:
+
+- **Agenda slide** (index 1) — Light - Main background with 5 pill-shaped item rows and 3 stacked photos. Clone it and replace the 5 pill texts (currently `Item 1`–`Item 5`) with your section titles in order. See "Populating the agenda" below.
+- **End slide** (index 7) — contains the TrustFlight Aerospace Safety Intelligence Platform boilerplate, logo, and contact block. Always clone it rather than rebuilding from the `Dark - End` layout.
+
+### Populating the agenda
+
+After all section break slides have been added to the deck, populate the cloned agenda slide:
+
+1. Scan the deck for all slides using layout `Dark - Section Break` (layout index 7) and collect their title placeholder text in order.
+2. Find the 5 pill shapes on the cloned agenda slide (their default text is `Item 1`–`Item 5`; their `name` starts with `Google Shape;`).
+3. Set the text of each pill to the corresponding section title.
+4. If the deck has fewer than 5 sections, blank the unused pills or delete them. If more than 5, consolidate sections — never spill onto a second agenda slide.
 
 ### Clone pattern (Python — MCP clone_slide is broken)
 
@@ -198,18 +211,18 @@ def clone_slide(prs, src_idx):
     return new
 ```
 
-Use this for the end slide (index 6) and any other slide with embedded visuals you want to preserve verbatim.
+Use this for the agenda slide (index 1), the end slide (index 7), and any other slide with embedded visuals you want to preserve verbatim.
 
 ### Plan the Slide Structure
 
 For a full deck, plan the structure before building. Standard TrustFlight deck structure:
 
 1. **Title slide** — layout index 0 (`Dark - Title`)
-2. **Agenda** — build from layout 9 (`Light - Main`) or 7 (`Dark - Section Break`); the new template does not ship a dedicated agenda slide
+2. **Agenda** — clone template slide index 1 (Light - Main, with 5 pre-styled pill rows and 3 stacked photos). Populate the pills from the deck's section-break titles. See Step 4 "Populating the agenda" for the exact pattern.
 3. **Section breaks** — layout 7 (`Dark - Section Break`) between major topics
 4. **Content slides** — vary across layouts 1, 2, 3, 4, 6, 10, 11 (see table below) — never default everything to one layout
 5. **Light-background content** — layout 9 (`Light - Main`) when a visual change of pace is needed mid-deck
-6. **Closing slide** — always clone template slide index 6 (the `Dark - End` example) using the clone pattern above. Never use `add_slide` for the end slide. Do not clear or replace its content — the slide already contains the TrustFlight boilerplate, logo, and contact block and must be used as-is.
+6. **Closing slide** — always clone template slide index 7 (the `Dark - End` example) using the clone pattern above. Never use `add_slide` for the end slide. Do not clear or replace its content — the slide already contains the TrustFlight Aerospace Safety Intelligence Platform boilerplate, logo, and contact block and must be used as-is.
 
 **Available layouts:**
 
@@ -223,7 +236,7 @@ For a full deck, plan the structure before building. Standard TrustFlight deck s
 | 5  | Dark - Globe Split     | Split content with globe graphic |
 | 6  | Dark - Globe           | Globe layout — global reach, international stats |
 | 7  | Dark - Section Break   | Section divider between topics |
-| 8  | Dark - End             | **Never use the layout directly** — always clone template slide index 6 |
+| 8  | Dark - End             | **Never use the layout directly** — always clone template slide index 7 |
 | 9  | Light - Main           | Light-background content — title + body |
 | 10 | Dark - Horizontal Split| Top/bottom split content |
 | 11 | Dark - Vertical Split  | Left/right split content |
@@ -481,4 +494,5 @@ When restyling an existing deck:
 - Never bleed an oversized photo off the left, top, or bottom edge — only the right edge is permitted
 - Never allow a photo to cover the TrustFlight logo (top-right) or the page number (bottom-right)
 - Never leave `grpSpPr` empty on an `add_slide` slide — always call `fix_grp_sp_pr(slide)` immediately after adding
-- Never rebuild the end slide from the `Dark - End` layout — always clone template slide index 6, which contains the TrustFlight boilerplate, logo, and contact block
+- Never rebuild the end slide from the `Dark - End` layout — always clone template slide index 7, which contains the TrustFlight Aerospace Safety Intelligence Platform boilerplate, logo, and contact block
+- Never rebuild the agenda slide from a blank layout — always clone template slide index 1, which has the 5 pill rows and 3 stacked photos pre-positioned
