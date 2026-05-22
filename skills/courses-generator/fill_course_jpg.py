@@ -13,9 +13,25 @@ the chosen page to a high-resolution JPG suitable for LinkedIn posting.
 
 import fitz, os, re
 
-TEMPLATE_DIR = "/Users/alexcraiu/Desktop/Claude Playground/Course PDFs/courses-generator"
-OUTPUT_BASE  = "/Users/alexcraiu/Desktop/Claude Playground/Course PDFs"
-FONT_FILE    = "/Users/alexcraiu/Library/Fonts/OpenSans-VariableFont_wdth,wght.ttf"
+# Templates ship with the skill — always next to this script — so no reupload
+# or external path is required when running on a fresh checkout.
+_SCRIPT_DIR  = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_DIR = os.path.join(_SCRIPT_DIR, "templates")
+
+# Output: prefer the standard Mac workspace; fall back to a sibling of the
+# repo root when running elsewhere (e.g. cloud sessions).
+_MAC_OUTPUT_BASE = "/Users/alexcraiu/Desktop/Claude Playground/Course PDFs"
+OUTPUT_BASE = _MAC_OUTPUT_BASE if os.path.isdir(os.path.dirname(_MAC_OUTPUT_BASE)) \
+    else os.path.abspath(os.path.join(_SCRIPT_DIR, "..", "..", "Course PDFs"))
+
+# Font resolution: variable font on the Mac, static OpenSans-Regular in the
+# repo as a fallback (cloud/CI). First existing path wins.
+_FONT_CANDIDATES = [
+    "/Users/alexcraiu/Library/Fonts/OpenSans-VariableFont_wdth,wght.ttf",
+    os.path.join(_SCRIPT_DIR, "..", "..", "InDesign", "BSL Course Sheets",
+                 "fonts", "OpenSans-Regular.ttf"),
+]
+FONT_FILE = next((p for p in _FONT_CANDIDATES if os.path.isfile(p)), _FONT_CANDIDATES[0])
 
 RENDER_ZOOM = 2.0          # 1200x1400 template → 2400x2800 JPG
 JPG_QUALITY = 92

@@ -108,7 +108,7 @@ Key rules:
 ### `courses-generator` — Single-course LinkedIn JPG
 Fetch one course page, detect the sub-brand from the URL, and generate a branded JPG promoting that course for LinkedIn.  
 **Script:** `skills/courses-generator/fill_course_jpg.py`  
-**Templates:** `Course PDFs/courses-generator/Courses - [Brand] - Template.pdf` (BOOK NOW + website footer variant)  
+**Templates:** `skills/courses-generator/templates/Courses - [Brand] - Template.pdf` (BOOK NOW + website footer variant, bundled with the skill)  
 **Output:** `Course PDFs/Course JPGs - [Brand]/Course - [Brand] - [Title].jpg` at 2400×2800.  
 **Triggers:** "promote academy course", "training post", course promo, LinkedIn course graphic.  
 **Can run in browser:** Yes — uses WebFetch + Python/PyMuPDF.

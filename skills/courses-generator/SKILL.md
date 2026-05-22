@@ -15,11 +15,19 @@ This skill is the JPG / LinkedIn counterpart of `course-dates-generator` (which 
 
 ## Templates (one per sub-brand, never modified)
 
-| Brand | Domain | Template |
-|-------|--------|----------|
-| Kenyon | `kenyoninternational.com` | `Course PDFs/courses-generator/Courses - Kenyon - Template.pdf` |
-| Redline | `trustredline.co.uk` (or `redlineassuredsecurity.com`) | `Course PDFs/courses-generator/Courses - Redline - Template.pdf` |
-| Baines Simmons | `bainessimmons.com` | `Course PDFs/courses-generator/Courses - Baines Simmons - Template.pdf` |
+Templates ship inside the skill folder, alongside the script, so the skill
+is fully self-contained — no separate upload step is ever required.
+
+| Brand | Domain | Template (relative to skill folder) |
+|-------|--------|--------------------------------------|
+| Kenyon | `kenyoninternational.com` | `templates/Courses - Kenyon - Template.pdf` |
+| Redline | `trustredline.co.uk` (or `redlineassuredsecurity.com`) | `templates/Courses - Redline - Template.pdf` |
+| Baines Simmons | `bainessimmons.com` | `templates/Courses - Baines Simmons - Template.pdf` |
+
+The script resolves `TEMPLATE_DIR` automatically from its own location, so
+the same code path works on Alex's Mac and in cloud sessions without any
+configuration. If a template ever needs updating, replace the PDF in
+`templates/` and commit — no script changes required.
 
 Each template has two pages:
 - **Page 0** — two-column layout (Initial + Recurrent), used when both date types are present
