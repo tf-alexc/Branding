@@ -6,6 +6,7 @@ Rebuilds a Word document using TrustFlight brand styles from the master template
 Usage: python3 word_brand.py <data.json>
 """
 
+import os
 import sys
 import json
 from docx import Document
@@ -13,6 +14,16 @@ from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
 TEMPLATE = '/Users/alexcraiu/Desktop/Documents/Word templates/Basic Document.docx'
+PROPOSAL_TEMPLATE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    'templates', 'Proposal Template.docx',
+)
+
+PRODUCT_SECTIONS = {
+    'tech_log':    'Tech Log Technical Overview',
+    'centrik_5':   'Centrik 5 Technical Overview',
+    'smart_suite': 'Smart Suite Technical Overview',
+}
 
 BLUE = '1E5BB5'   # Header bottom border + first data row top border
 GRAY = 'D9D9D9'   # Table grid lines
@@ -295,9 +306,104 @@ def build(data):
     print(f'Saved: {out}')
 
 
+# ---------------------------------------------------------------------------
+# Proposal flow
+# ---------------------------------------------------------------------------
+
+def _is_heading1(el):
+    if el.tag != qn('w:p'):
+        return False
+    pPr = el.find(qn('w:pPr'))
+    if pPr is None:
+        return False
+    pStyle = pPr.find(qn('w:pStyle'))
+    if pStyle is None:
+        return False
+    return pStyle.get(qn('w:val')) in ('Heading1', 'heading1', 'heading 1', 'Heading 1')
+
+
+def _paragraph_text(el):
+    return ''.join(t.text or '' for t in el.iter(qn('w:t')))
+
+
+def _remove_section_by_heading(body, heading_text):
+    """Remove an H1 paragraph and every element after it up to (but not including) the next H1."""
+    children = list(body)
+    start = None
+    for i, el in enumerate(children):
+        if _is_heading1(el) and _paragraph_text(el).strip() == heading_text:
+            start = i
+            break
+    if start is None:
+        return False
+
+    end = len(children)
+    for j in range(start + 1, len(children)):
+        if _is_heading1(children[j]) and _paragraph_text(children[j]).strip():
+            end = j
+            break
+
+    for el in children[start:end]:
+        body.remove(el)
+    return True
+
+
+def _replace_placeholders(doc, replacements):
+    """Substring-replace inside every w:t run across body, headers, and footers."""
+    if not replacements:
+        return
+
+    def walk(root_el):
+        for t in root_el.iter(qn('w:t')):
+            if t.text:
+                new = t.text
+                for needle, value in replacements.items():
+                    if needle in new:
+                        new = new.replace(needle, value)
+                if new != t.text:
+                    t.text = new
+
+    walk(doc.element)
+    for section in doc.sections:
+        for hdr in (section.header, section.first_page_header, section.even_page_header):
+            walk(hdr._element)
+        for ftr in (section.footer, section.first_page_footer, section.even_page_footer):
+            walk(ftr._element)
+
+
+def build_proposal(data):
+    products = data.get('products') or []
+    if not products:
+        print('Error: proposal requires at least one product in "products".')
+        sys.exit(1)
+    unknown = [p for p in products if p not in PRODUCT_SECTIONS]
+    if unknown:
+        print(f'Error: unknown product(s): {unknown}. Allowed: {list(PRODUCT_SECTIONS)}')
+        sys.exit(1)
+
+    doc = Document(PROPOSAL_TEMPLATE)
+
+    excluded = [key for key in PRODUCT_SECTIONS if key not in products]
+    for key in excluded:
+        heading = PRODUCT_SECTIONS[key]
+        removed = _remove_section_by_heading(doc.element.body, heading)
+        if not removed:
+            print(f'Warning: could not locate section "{heading}" to remove.')
+
+    _replace_placeholders(doc, data.get('placeholders', {}))
+
+    out = data['output_path']
+    doc.save(out)
+    print(f'Saved: {out}')
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('Usage: python3 word_brand.py <data.json>')
         sys.exit(1)
     with open(sys.argv[1]) as f:
-        build(json.load(f))
+        data = json.load(f)
+    if data.get('doc_type') == 'proposal':
+        build_proposal(data)
+    else:
+        build(data)

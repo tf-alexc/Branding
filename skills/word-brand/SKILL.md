@@ -127,9 +127,31 @@ If the user does not have one to attach, confirm before proceeding with the defa
 
 ### Step P3 — Build the proposal
 
-Build from `Proposal Template.docx`, applying these rules:
+Run the script with `doc_type: "proposal"`:
 
-1. **Cover page and end page** — reuse as-is from the Proposal Template. Do not regenerate or restyle them. Only the dynamic placeholders (organisation name, deal owner, presented-to person, date) should be updated.
+```json
+{
+  "doc_type": "proposal",
+  "output_path": "/path/to/TrustFlight Proposal - Acme.docx",
+  "products": ["centrik_5", "smart_suite"],
+  "placeholders": {
+    "[COMPANY]": "Acme Air",
+    "[PRODUCT]": "Centrik 5 and Smart Suite"
+  }
+}
+```
+
+```bash
+python3 ~/.claude/skills/word-brand/word_brand.py /tmp/proposal.json
+```
+
+**Allowed `products` values:** `tech_log`, `centrik_5`, `smart_suite` (one or more).
+
+The script opens `Proposal Template.docx`, removes the H1 blocks for any product **not** in `products` (the block runs from the product's "Technical Overview" H1 up to the next H1), then substring-replaces every key in `placeholders` across body, headers, and footers.
+
+Build rules:
+
+1. **Cover page and end page** — reuse as-is from the Proposal Template. Do not regenerate or restyle them. Only the dynamic placeholders (organisation name, deal owner, presented-to person, date) should be updated via the `placeholders` map.
 2. **Body content** — use the exact content structure already baked into the Proposal Template. Do not invent new sections, do not rewrite the boilerplate prose. Only swap `[COMPANY]`, `[PRODUCT]`, and other placeholders for the prospect's actual values.
 3. **Product-conditional sections** — include or exclude entire product blocks based on the Step P1 selection:
    - **Tech Log block** — heading "Tech Log Technical Overview" + Capabilities Matrix + Implementation Schedule + Framework + Proposed Schedule + SLAs.
