@@ -105,9 +105,9 @@ Key rules:
 
 ---
 
-### `word-brand` — Word document branding
+### `word-docs` — Word document branding
 Restyle any Word document to TrustFlight brand standards using the master template.  
-**Script:** `skills/word-brand/word_brand.py`  
+**Script:** `skills/word-docs/word_docs.py`  
 **Master template:** `/Users/alexcraiu/Desktop/Documents/Word templates/Basic Document.docx`  
 **Can run in browser:** No — master template is local.
 
@@ -125,7 +125,7 @@ Claude Playground/
 │   ├── linkedin-event-generator/  # Event graphic Illustrator workflow
 │   ├── bsl-course-sheets/         # BSL PDF automation
 │   ├── course-dates-generator/    # Course dates PDF automation
-│   └── word-brand/                # Word document branding
+│   └── word-docs/                # Word document branding
 ├── Illustrator Templates/         # Master .ai files for Illustrator skills
 ├── InDesign/
 │   ├── BSL Course Sheets/         # Templates, script, fonts, output PDFs
@@ -150,6 +150,6 @@ Claude Playground/
 | linkedin-holiday-generator | No | Yes |
 | linkedin-event-generator | No | Yes |
 | bsl-course-sheets | No | Yes |
-| word-brand | No | Yes |
+| word-docs | No | Yes |
 
 Skills marked "No" require desktop apps (Illustrator, InDesign, PowerPoint, Word) running locally via MCP.

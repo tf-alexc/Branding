@@ -3,7 +3,7 @@
 TrustFlight Word Branding Tool
 Rebuilds a Word document using TrustFlight brand styles from the master template.
 
-Usage: python3 word_brand.py <data.json>
+Usage: python3 word_docs.py <data.json>
 """
 
 import os
@@ -399,7 +399,7 @@ def build_proposal(data):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('Usage: python3 word_brand.py <data.json>')
+        print('Usage: python3 word_docs.py <data.json>')
         sys.exit(1)
     with open(sys.argv[1]) as f:
         data = json.load(f)

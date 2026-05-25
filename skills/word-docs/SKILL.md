@@ -1,13 +1,13 @@
 ---
-name: word-brand
+name: word-docs
 description: Rebuild any Word document with TrustFlight brand styling using the master template. Use this skill whenever the user asks to restyle, brand, or recreate a Word document to match TrustFlight standards.
 ---
 
 # TrustFlight Word Branding Skill
 
-**Script:** `~/.claude/skills/word-brand/word_brand.py`  
+**Script:** `~/.claude/skills/word-docs/word_docs.py`  
 **Master template (Basic):** `/Users/alexcraiu/Desktop/Documents/Word templates/Basic Document.docx`  
-**Master template (Proposal):** `~/.claude/skills/word-brand/templates/Proposal Template.docx`  
+**Master template (Proposal):** `~/.claude/skills/word-docs/templates/Proposal Template.docx`  
 **Dependency:** `python-docx` (already installed)
 
 The script opens the relevant master template as the base document, inheriting all named styles, fonts, page layout, headers and footers, then rebuilds the content from a JSON spec.
@@ -49,7 +49,7 @@ Before doing anything else, ask the user which document type to produce:
 3. **Write a temp JSON file** (e.g. `/tmp/doc_data.json`) with the mapped content.
 4. **Run the script:**
    ```bash
-   python3 ~/.claude/skills/word-brand/word_brand.py /tmp/doc_data.json
+   python3 ~/.claude/skills/word-docs/word_docs.py /tmp/doc_data.json
    ```
 5. The script saves to `output_path` — always set this to the original source file path to override it.
 
@@ -107,7 +107,7 @@ To convert inches to twips: `inches × 1440`
 
 Use this flow **only when the user specifically asks for a proposal**. Do not trigger it for general document branding.
 
-**Master template:** `~/.claude/skills/word-brand/templates/Proposal Template.docx`
+**Master template:** `~/.claude/skills/word-docs/templates/Proposal Template.docx`
 
 ### Step P1 — Ask which product(s) the proposal is for
 
@@ -142,7 +142,7 @@ Run the script with `doc_type: "proposal"`:
 ```
 
 ```bash
-python3 ~/.claude/skills/word-brand/word_brand.py /tmp/proposal.json
+python3 ~/.claude/skills/word-docs/word_docs.py /tmp/proposal.json
 ```
 
 **Allowed `products` values:** `tech_log`, `centrik_5`, `smart_suite` (one or more).
