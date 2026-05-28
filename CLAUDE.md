@@ -17,6 +17,7 @@ This repo contains TrustFlight brand assets, automation scripts, and Claude skil
 - Word docs: always override the original file, never create a versioned copy.
 - Images in presentations must be cropped inside a rounded rectangle with an Azure (`#479FF8`) 1pt outline.
 - Pull photography from SharePoint `Photography/` folder — JPGs with `-lr` in the filename only, never PSDs.
+- Pull icons and decorative graphics from SharePoint `Graphics - General & Iconography/` folder. Stylising slides with graphics is optional but encouraged; always match the filename to the slide's topic.
 
 For full brand voice, messaging, and visual identity: see `skills/brand-framework/SKILL.md` and `skills/brand-framework/BRAND-GUIDELINES.md`.
 
