@@ -52,6 +52,16 @@ Follow the structure implied by the brief (Step 1.2) or the agreed structure for
   - Choose the layout per slide based on the content, not on a fixed sequence.
 - **Big numbers:** Whenever a slide leads with a large statistic or headline number, set it in **Open Sans Light, 50pt, Centrik Gold (`#FFD740`)**. Supporting copy beneath stays in the template's body style.
 
+### Stylising with Graphics and Iconography
+
+Using icons and decorative graphics to lift a slide is **optional but encouraged**. A well-placed icon, illustration, or supporting graphic lifts a slide far beyond plain text — use them on stat callouts, icon grids, numbered steps, section breaks, and anywhere a slide would otherwise feel text-heavy. Skip them on slides that are already visually rich (full-bleed photos, product screenshots, charts).
+
+**Source folder.** Pull icons and decorative graphics from the SharePoint `Graphics - General & Iconography/` folder (local path: `/Users/alexcraiu/Library/CloudStorage/OneDrive-SharedLibraries-TrustFlight/[ORG]-Design - Documents/Graphics - General & Iconography`).
+
+**Match the file to the slide context.** Read the filename and only use a graphic whose subject genuinely fits the slide's topic — e.g. a `safety-shield.png` belongs on a safety slide, not a generic "next steps" slide. When in doubt, pick a more neutral graphic or skip it rather than forcing a poor match.
+
+**Placement.** Place transparent PNGs directly on the slide with `add_picture` — no rounded rectangle wrapper, no border. Preserve the original aspect ratio; never stretch.
+
 ### Build Notes
 
 (Further build patterns to be added.)
