@@ -41,9 +41,20 @@ Always build from the brand's template. Never start from a blank presentation. N
 
 ## Step 3: Build the Deck
 
-Follow the structure implied by the brief (Step 1.2) or the agreed structure for the purpose (Step 1.1). Keep all visual styles, fonts, and colours from the loaded template.
+Follow the structure implied by the brief (Step 1.2) or the agreed structure for the purpose (Step 1.1).
 
-(Detailed build patterns to be added.)
+### Formatting and Styling
+
+- **Font:** Always Open Sans. No other font is permitted anywhere in the deck — not Arial, not Aptos, not Lato, not Calibri. Set `run.font.name = "Open Sans"` on every text run, including footers, page numbers, tables, charts, and callouts.
+- **Colours and styling:** Follow the loaded template. Use the swatches, backgrounds, and accents that ship with the chosen brand's template — do not introduce colours from outside it.
+- **Slide layouts:** Vary layouts across the deck. Do not default every slide to a bulleted list.
+  - Suggest interesting layouts where they fit the content: three-column, four-column, stat callouts, text + image, icon grids, timelines, numbered steps, quote slides.
+  - Choose the layout per slide based on the content, not on a fixed sequence.
+- **Big numbers:** Whenever a slide leads with a large statistic or headline number, set it in **Open Sans Light, 50pt, Centrik Gold (`#FFD740`)**. Supporting copy beneath stays in the template's body style.
+
+### Build Notes
+
+(Further build patterns to be added.)
 
 ## Step 4: Export
 
