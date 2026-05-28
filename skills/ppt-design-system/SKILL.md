@@ -248,7 +248,7 @@ For a full deck, plan the structure before building. Standard TrustFlight deck s
 - **Text + image** — body copy on the left, a rounded-rectangle photo on the right (see Step 7 for image rules). Good for product or capability slides.
 - **Table** — when data has clear rows and columns. Style with Midnight header row, alternating Light/White rows, Open Sans throughout.
 - **Quote** — a single pull quote centred or left-aligned in large type, attributed below. Clone the section break layout and repurpose it.
-- **Icon grid** — 3 or 6 icons with short labels beneath. Use transparent PNGs placed directly (no border). Source from the Graphics folder (see Step 7).
+- **Icon grid** — 3 or 6 icons with short labels beneath. Use transparent PNGs placed directly (no border).
 - **Numbered steps** — large numerals (styled as accent elements) with a short description beside each. Better than a plain numbered list.
 - **Timeline** — a horizontal line with labelled nodes, built from shapes. Good for roadmaps or onboarding sequences.
 
@@ -411,15 +411,6 @@ Use `find` with `-name '*-lr.jpg'` to list available files. Only use JPGs with `
 
 ### Transparent PNG graphics (icons, product UI, illustrations)
 
-**Source:** Pull icons and decorative graphics from the local Graphics folder at:
-`/Users/alexcraiu/Library/CloudStorage/OneDrive-SharedLibraries-TrustFlight/[ORG]-Design - Documents/Graphics - General & Iconography`
-
-(SharePoint equivalent: `team-design2 > Shared Documents > Graphics - General & Iconography`.)
-
-**Stylising slides with graphics and iconography is optional but encouraged.** A well-placed icon, illustration, or supporting graphic lifts a slide far beyond plain text — use them on stat callouts, icon grids, numbered steps, section breaks, and anywhere a slide would otherwise feel text-heavy. Skip them on slides that are already visually rich (full-bleed photos, product screenshots, charts).
-
-**Match the file to the slide context.** Read the filename and only use a graphic whose subject genuinely fits the slide's topic — e.g. a `safety-shield.png` belongs on a safety slide, not a generic "next steps" slide. When in doubt, pick a more neutral graphic or skip it rather than forcing a poor match.
-
 **Do not apply the rounded rectangle frame or Azure border to transparent PNGs.** Place them directly on the slide using `prs.slides[n].shapes.add_picture(img_path, left, top, width, height)`. Preserve aspect ratio the same way, but no shape wrapping and no border.
 
 **CRITICAL: Never stretch images.** The shape dimensions must always match the image's natural aspect ratio. Use `fit_in_area()` to calculate width and height before placing any image — never set width and height independently or to fill an arbitrary box. Stretching is the most visible brand error in a presentation.
@@ -526,7 +517,6 @@ When restyling an existing deck:
 - Never stretch or distort an image — always preserve the original aspect ratio by fitting within the target area
 - Never use a large corner radius for images — adj=8000 (8%) only
 - Never pull images from the Photography folder unless the filename contains `-lr` and is a `.jpg`
-- Never drop an icon or graphic onto a slide whose filename does not clearly match the slide's topic — match the asset to the context, or leave it out
 - Never bleed an oversized photo off the left, top, or bottom edge — only the right edge is permitted
 - Never allow a photo to cover the TrustFlight logo (top-right) or the page number (bottom-right)
 - Never leave `grpSpPr` empty on an `add_slide` slide — always call `fix_grp_sp_pr(slide)` immediately after adding
