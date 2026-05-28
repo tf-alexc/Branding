@@ -48,6 +48,21 @@ Key rules:
 
 ---
 
+### `deck-builder` — Multi-brand presentation builder
+Build PowerPoint decks for any TrustFlight brand. Asks the user up front about purpose (sales, CRM, pitch, etc.), whether they have a brief or abstract, which brand the deck is for, and whether a PDF export is also needed.
+**Templates (baked into the skill):** `skills/deck-builder/templates/[Brand] - Basic Presentation Template.pptx` for TrustFlight, Baines Simmons, Kenyon, Redline.
+**Bundle:** `skills/deck-builder/deck-builder.zip` — ready to upload.
+**Can run in browser:** Partially (python-pptx runs anywhere; PowerPoint MCP for advanced editing is local-only).
+
+Key rules:
+- Always ask the four intake questions before building (purpose, brief/abstract, brand, PDF).
+- Always build from the brand's baked-in template — never blank, never substitute brands.
+- Font: Open Sans only, no exceptions.
+- Big numbers: Open Sans Light 50pt, Centrik Gold (`#FFD740`).
+- Vary layouts — suggest three- or four-column arrangements where they fit.
+
+---
+
 ### `linkedin-ad-generator` — LinkedIn ad graphics
 Generate JPG ads from the Illustrator Ads template. Layouts 01, 02, 03 — each produces a square and wide artboard.  
 **Template:** `Illustrator Templates/Ads - Template.ai`  
@@ -120,6 +135,7 @@ Claude Playground/
 ├── skills/                        # Claude skill definitions (mirrored from ~/.claude/skills)
 │   ├── brand-framework/           # Brand voice, messaging, visual identity
 │   ├── ppt-design-system/         # PowerPoint automation + master template
+│   ├── deck-builder/              # Multi-brand presentation builder + baked-in templates
 │   ├── linkedin-ad-generator/     # LinkedIn ad Illustrator workflow
 │   ├── linkedin-holiday-generator/# Holiday post Illustrator workflow
 │   ├── linkedin-event-generator/  # Event graphic Illustrator workflow
@@ -145,6 +161,7 @@ Claude Playground/
 |-------|---------|-----|
 | brand-framework (reference) | Yes | Yes |
 | ppt-design-system | Partial | Yes |
+| deck-builder | Partial | Yes |
 | course-dates-generator | Yes | Yes |
 | linkedin-ad-generator | No | Yes |
 | linkedin-holiday-generator | No | Yes |

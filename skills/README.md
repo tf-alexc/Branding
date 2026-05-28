@@ -8,6 +8,7 @@ Shared skills for use with [Claude Code](https://claude.ai/code). These load aut
 |-------|-------------|
 | `brand-framework` | TrustFlight Brand Framework + Brand Guidelines — messaging, voice, visual identity, colours, typography, logos, product reference, and communication standards |
 | `ppt-design-system` | TrustFlight PowerPoint design system — brand-compliant slide and deck generation using the official master template, colours, fonts, and layouts via PowerPoint MCP |
+| `deck-builder` | Multi-brand presentation builder — asks for purpose, brief/abstract, brand (TrustFlight, Baines Simmons, Kenyon, Redline), and PDF export, then builds from the matching baked-in template |
 | `linkedin-ad-generator` | Generate LinkedIn ad JPGs from the Ads - Template.ai Illustrator file — layout selection, caption update, split-colour styling, and export |
 | `linkedin-holiday-generator` | Generate LinkedIn holiday post artboards from `Linkedin - Holidays - New.aic` — creates new artboards for all 60 PDF holidays, updates captions, replaces photos, exports JPGs |
 | `course-dates-generator` | Generate sub-brand course date PDFs from `Courses Generator - Template.ai` — scrapes a course listing page, creates one artboard per course, exports multi-page PDF for Redline, BSL, or Kenyon |
