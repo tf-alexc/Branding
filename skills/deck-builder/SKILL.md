@@ -1,6 +1,6 @@
 ---
 name: deck-builder
-description: Build a branded presentation deck for TrustFlight, Baines Simmons, Kenyon, or Redline. PowerPoint is the primary output. When invoked, always ask the user about the purpose of the deck, whether they have a brief or abstract, which brand it is for, and whether they also want a PDF export.
+description: Build a branded presentation deck for TrustFlight, Baines Simmons, Kenyon, or Redline. PowerPoint is the primary output. Trigger on any request that mentions a deck, presentation, slides, pitch, or slideshow, including phrasings like "need a deck", "put together a presentation", "build me some slides", "make a pitch", "draft a slideshow". When invoked, always ask the user about the purpose of the deck, whether they have a brief or abstract, which brand it is for, and whether they also want a PDF export.
 ---
 
 # Deck Builder
@@ -8,6 +8,20 @@ description: Build a branded presentation deck for TrustFlight, Baines Simmons, 
 Primary output: PowerPoint (`.pptx`).
 
 Templates are baked into this skill at `templates/` — never ask the user to upload one.
+
+## Trigger phrases
+
+Invoke this skill on any request that contains the words **deck**, **presentation**, **slides**, **pitch**, or **slideshow** — and any natural phrasing around them. Examples:
+
+- "need a deck"
+- "put together a presentation"
+- "build me some slides"
+- "draft a pitch"
+- "throw together a slideshow"
+- "can you make a deck for..."
+- "I need slides on..."
+
+If the request is ambiguous (e.g. "a one-pager" or "a write-up"), confirm with the user before invoking.
 
 ## Step 1: Gather Intent
 
