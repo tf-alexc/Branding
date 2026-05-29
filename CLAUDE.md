@@ -108,8 +108,11 @@ Key rules:
 ### `word-docs` — Word document branding
 Restyle any Word document to TrustFlight brand standards using the master template.  
 **Script:** `skills/word-docs/word_docs.py`  
-**Master template:** `skills/word-docs/templates/Basic Document.docx` (bundled)  
-**Can run in browser:** Yes — template ships with the skill.
+**Master templates (bundled):**
+- `skills/word-docs/templates/Basic Document.docx` — full doc with cover, Revision History, back cover.
+- `skills/word-docs/templates/Basic Letterhead.docx` — letterhead for briefs and short docs (`is_brief: true`).
+
+**Can run in browser:** Yes — templates ship with the skill.
 
 ---
 

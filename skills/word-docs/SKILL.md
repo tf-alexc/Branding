@@ -6,10 +6,11 @@ description: Rebuild any Word document with TrustFlight brand styling using the 
 # TrustFlight Word Branding Skill
 
 **Script:** `~/.claude/skills/word-docs/word_docs.py`  
-**Master template:** `~/.claude/skills/word-docs/templates/Basic Document.docx`  
+**Master template (full):** `~/.claude/skills/word-docs/templates/Basic Document.docx`  
+**Master template (letterhead):** `~/.claude/skills/word-docs/templates/Basic Letterhead.docx`  
 **Dependency:** `python-docx` (already installed)
 
-The script opens the master template as the base document, inheriting all named styles, fonts, page layout, headers and footers, then rebuilds the content from a JSON spec.
+The script picks one of the two bundled templates based on the document type, inherits its named styles, fonts, page layout, headers and footers, then inserts the content from a JSON spec.
 
 ---
 
@@ -17,8 +18,8 @@ The script opens the master template as the base document, inheriting all named 
 
 Before doing anything else, ask the user which document type to produce:
 
-1. **Basic Document** — default for any restyling, form, report, internal doc. The output keeps the master template's cover page, Revision History page, and back-cover contact page; user content goes between Revision History and the back cover.
-2. **Brief** — triggered when the user asks for a "brief" specifically (e.g. "write a brief on X", "draft a brief about Y"). Same as Basic Document, but **the Revision History page is stripped**. Set `is_brief: true` in the JSON spec.
+1. **Basic Document** — default for any restyling, form, report, internal doc. Uses `Basic Document.docx`. The output keeps the master template's cover page, Revision History page, and back-cover contact page; user content goes between Revision History and the back cover.
+2. **Brief** — triggered when the user asks for a "brief" or any short/simple document (e.g. "write a brief on X", "draft a brief about Y", "I need a short doc"). Uses `Basic Letterhead.docx` — the lightest template, branded via the header and footer only, no cover page, no Revision History, no back cover. Set `is_brief: true` in the JSON spec.
 
 ---
 
@@ -56,7 +57,9 @@ Before doing anything else, ask the user which document type to produce:
 
 ## JSON Spec
 
-`title` and `subtitle` populate the cover page of the master template (they replace the `Document Title Goes Here` and `Document Subtitle` placeholders). `sections` are inserted between the Revision History page and the back-cover page. Set `is_brief: true` to strip the Revision History page.
+In **Basic Document** mode, `title` and `subtitle` populate the cover page of `Basic Document.docx` (they replace the `Document Title Goes Here` and `Document Subtitle` placeholders), and `sections` are inserted between the Revision History page and the back-cover page.
+
+In **Brief** mode (`is_brief: true`), the script opens `Basic Letterhead.docx` instead: `title` replaces the Title paragraph at the top, `subtitle` is ignored (the letterhead has no subtitle slot), and `sections` are inserted below the title. There is no cover, Revision History, or back cover.
 
 ```json
 {

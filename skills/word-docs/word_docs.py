@@ -17,6 +17,10 @@ TEMPLATE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     'templates', 'Basic Document.docx',
 )
+LETTERHEAD_TEMPLATE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    'templates', 'Basic Letterhead.docx',
+)
 
 BLUE = '1E5BB5'   # Header bottom border + first data row top border
 GRAY = 'D9D9D9'   # Table grid lines
@@ -282,9 +286,15 @@ def add_section(doc, section):
 
 
 def build(data):
+    if data.get('is_brief'):
+        _build_letterhead(data)
+    else:
+        _build_basic(data)
+
+
+def _build_basic(data):
     doc = Document(TEMPLATE)
     body = doc.element.body
-    is_brief = bool(data.get('is_brief', False))
 
     rev_start, rev_end = _find_revision_history_bounds(body)
     end_page_start = _find_end_page_start(body)
@@ -293,13 +303,44 @@ def build(data):
 
     detached_end_page = _detach_end_page(body, end_page_start)
     _strip_between_rev_history_and_end(body, rev_end)
-    if is_brief:
-        _remove_revision_history(body, rev_start, rev_end)
 
     for section in data.get('sections', []):
         add_section(doc, section)
 
     _reattach_end_page(body, detached_end_page)
+
+    out = data['output_path']
+    doc.save(out)
+    print(f'Saved: {out}')
+
+
+def _build_letterhead(data):
+    doc = Document(LETTERHEAD_TEMPLATE)
+    body = doc.element.body
+
+    title_p = next(
+        (p for p in doc.paragraphs if p.style and p.style.name == 'Title'),
+        None,
+    )
+    if title_p is not None and (title := data.get('title')):
+        for run in title_p.runs:
+            run.text = ''
+        if title_p.runs:
+            title_p.runs[0].text = title
+        else:
+            title_p.add_run(title)
+
+    if title_p is not None:
+        title_el = title_p._p
+        children = list(body)
+        title_idx = children.index(title_el)
+        for el in children[title_idx + 1:]:
+            if el.tag == qn('w:sectPr'):
+                break
+            body.remove(el)
+
+    for section in data.get('sections', []):
+        add_section(doc, section)
 
     out = data['output_path']
     doc.save(out)
