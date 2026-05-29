@@ -14,12 +14,12 @@ The script picks one of the two bundled templates based on the document type, in
 
 ---
 
-## Step 0 — Ask: Document Type
+## Step 0 — Always ask: high-level or basic branding?
 
-Before doing anything else, ask the user which document type to produce:
+Before doing anything else, **always** ask the user this question and surface it as two selectable options. Do not skip the question, do not infer the answer from context — even if the user has already used a keyword like "brief". This is the single decision that picks the template.
 
-1. **Basic Document** — default for any restyling, form, report, internal doc. Uses `Basic Document.docx`. The output keeps the master template's cover page, Revision History page, and back-cover contact page; user content goes between Revision History and the back cover.
-2. **Brief** — triggered when the user asks for a "brief" or any short/simple document (e.g. "write a brief on X", "draft a brief about Y", "I need a short doc"). Uses `Basic Letterhead.docx` — the lightest template, branded via the header and footer only, no cover page, no Revision History, no back cover. Set `is_brief: true` in the JSON spec.
+1. **High-level document** — uses `Basic Document.docx`. The full template: cover page, Revision History page, back-cover contact page. User content goes between Revision History and the back cover. Set `is_brief: false` (or omit the flag) in the JSON spec. Pick this when the doc is substantial, formal, or audience-facing: manuals, reports, policies, customer-facing deliverables.
+2. **Basic branding / brief** — uses `Basic Letterhead.docx`. The lightest template: branded only via the header and footer, no cover, no Revision History, no back cover. Triggered explicitly (the user picks this option) or when the user uses words like "brief", "letter", "short doc", "memo". Set `is_brief: true` in the JSON spec.
 
 ---
 
