@@ -9,6 +9,8 @@ Usage: python3 word_docs.py <data.json>
 import os
 import sys
 import json
+import shutil
+import subprocess
 from docx import Document
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
@@ -287,9 +289,45 @@ def add_section(doc, section):
 
 def build(data):
     if data.get('is_brief'):
-        _build_letterhead(data)
+        out = _build_letterhead(data)
     else:
-        _build_basic(data)
+        out = _build_basic(data)
+    _export_pdf(out)
+
+
+def _export_pdf(docx_path):
+    """Save a PDF next to the DOCX. Tries docx2pdf (drives Word, best fidelity on Mac),
+    falls back to LibreOffice headless. Skips silently if no converter is available."""
+    pdf_path = os.path.splitext(docx_path)[0] + '.pdf'
+
+    try:
+        from docx2pdf import convert
+        convert(docx_path, pdf_path)
+        print(f'Saved: {pdf_path}')
+        return pdf_path
+    except ImportError:
+        pass
+    except Exception as e:
+        print(f'docx2pdf failed: {e}; trying LibreOffice fallback.')
+
+    soffice = shutil.which('soffice') or shutil.which('libreoffice')
+    if soffice:
+        result = subprocess.run(
+            [soffice, '--headless', '--convert-to', 'pdf',
+             '--outdir', os.path.dirname(os.path.abspath(pdf_path)) or '.',
+             docx_path],
+            capture_output=True,
+        )
+        if os.path.exists(pdf_path):
+            print(f'Saved: {pdf_path}')
+            return pdf_path
+        msg = result.stderr.decode(errors='replace') or result.stdout.decode(errors='replace')
+        print(f'LibreOffice could not render this docx: {msg.strip()[:200]}\n'
+              f'Install docx2pdf (pip install docx2pdf) for full-fidelity Word-based conversion.')
+        return None
+
+    print('Warning: no PDF converter available (install docx2pdf or LibreOffice). DOCX saved only.')
+    return None
 
 
 def _build_basic(data):
@@ -312,6 +350,7 @@ def _build_basic(data):
     out = data['output_path']
     doc.save(out)
     print(f'Saved: {out}')
+    return out
 
 
 def _build_letterhead(data):
@@ -345,6 +384,7 @@ def _build_letterhead(data):
     out = data['output_path']
     doc.save(out)
     print(f'Saved: {out}')
+    return out
 
 
 # ---------------------------------------------------------------------------

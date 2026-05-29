@@ -8,7 +8,7 @@ description: Rebuild any Word document with TrustFlight brand styling using the 
 **Script:** `~/.claude/skills/word-docs/word_docs.py`  
 **Master template (full):** `~/.claude/skills/word-docs/templates/Basic Document.docx`  
 **Master template (letterhead):** `~/.claude/skills/word-docs/templates/Basic Letterhead.docx`  
-**Dependency:** `python-docx` (already installed)
+**Dependencies:** `python-docx` (required), `docx2pdf` (required for PDF export — `pip install docx2pdf`). On macOS, `docx2pdf` drives Word.app for full-fidelity rendering. LibreOffice headless is used as a fallback if installed.
 
 The script picks one of the two bundled templates based on the document type, inherits its named styles, fonts, page layout, headers and footers, then inserts the content from a JSON spec.
 
@@ -51,7 +51,7 @@ Before doing anything else, ask the user which document type to produce:
    ```bash
    python3 ~/.claude/skills/word-docs/word_docs.py /tmp/doc_data.json
    ```
-5. The script saves to `output_path` — always set this to the original source file path to override it.
+5. The script saves to `output_path` — always set this to the original source file path to override it. A PDF is automatically produced next to the DOCX with the same base name (e.g. `output.docx` + `output.pdf`).
 
 ---
 
