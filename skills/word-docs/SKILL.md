@@ -1,6 +1,6 @@
 ---
 name: word-docs
-description: Rebuild any Word document with TrustFlight brand styling using the master template. Use this skill whenever the user asks to restyle, brand, or recreate a Word document to match TrustFlight standards.
+description: Rebuild any Word document with TrustFlight brand styling using the master template. Use this skill whenever the user asks to restyle, brand, recreate, or draft a Word document (including a brief or a proposal) to match TrustFlight standards.
 ---
 
 # TrustFlight Word Branding Skill
@@ -18,8 +18,9 @@ The script opens the relevant master template as the base document, inheriting a
 
 Before doing anything else, ask the user which document type to produce:
 
-1. **Basic Document** — default for any restyling, form, report, internal doc. Follow the rest of this SKILL.md as-is.
-2. **Proposal** — only when the user specifically requests a proposal. Follow the **Proposal sub-flow** below instead of the basic process.
+1. **Basic Document** — default for any restyling, form, report, internal doc. Follow the rest of this SKILL.md as-is. The output keeps the master template's cover page, Revision History page, and back-cover contact page; user content goes between Revision History and the back cover.
+2. **Brief** — triggered when the user asks for a "brief" specifically (e.g. "write a brief on X", "draft a brief about Y"). Same as Basic Document, but **the Revision History page is stripped**. Set `is_brief: true` in the JSON spec.
+3. **Proposal** — only when the user specifically requests a proposal. Follow the **Proposal sub-flow** below instead of the basic process.
 
 ---
 
@@ -57,11 +58,14 @@ Before doing anything else, ask the user which document type to produce:
 
 ## JSON Spec
 
+`title` and `subtitle` populate the cover page of the master template (they replace the `Document Title Goes Here` and `Document Subtitle` placeholders). `sections` are inserted between the Revision History page and the back-cover page. Set `is_brief: true` to strip the Revision History page.
+
 ```json
 {
   "output_path": "/path/to/original.docx",
   "title": "DOCUMENT TITLE",
   "subtitle": "Optional subtitle line",
+  "is_brief": false,
   "sections": [
     {
       "heading": "SECTION NAME",

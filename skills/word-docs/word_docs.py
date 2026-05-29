@@ -293,20 +293,141 @@ def add_section(doc, section):
 
 def build(data):
     doc = Document(TEMPLATE)
-    clear_body(doc)
+    body = doc.element.body
+    is_brief = bool(data.get('is_brief', False))
 
-    if title := data.get('title'):
-        doc.add_paragraph(title, style='heading 1')
+    rev_start, rev_end = _find_revision_history_bounds(body)
+    end_page_start = _find_end_page_start(body)
 
-    if subtitle := data.get('subtitle'):
-        doc.add_paragraph(subtitle, style='heading 3')
+    _substitute_cover_placeholders(body, data)
+
+    detached_end_page = _detach_end_page(body, end_page_start)
+    _strip_between_rev_history_and_end(body, rev_end)
+    if is_brief:
+        _remove_revision_history(body, rev_start, rev_end)
 
     for section in data.get('sections', []):
         add_section(doc, section)
 
+    _reattach_end_page(body, detached_end_page)
+
     out = data['output_path']
     doc.save(out)
     print(f'Saved: {out}')
+
+
+# ---------------------------------------------------------------------------
+# Basic flow helpers — preserve template cover, revision history, end page
+# ---------------------------------------------------------------------------
+
+def _paragraph_text_of(el):
+    return ''.join(t.text or '' for t in el.iter(qn('w:t')))
+
+
+def _has_page_break(el):
+    if el.tag != qn('w:p'):
+        return False
+    for br in el.iter(qn('w:br')):
+        if br.get(qn('w:type')) == 'page':
+            return True
+    return False
+
+
+def _find_revision_history_bounds(body):
+    """Return (start_idx, end_idx_inclusive) of the Revision History block, or (None, None).
+    The block runs from the 'Revision History' heading through the next page break paragraph
+    (which terminates the page in the template)."""
+    children = list(body)
+    start = None
+    for i, el in enumerate(children):
+        if el.tag == qn('w:p') and _paragraph_text_of(el).strip() == 'Revision History':
+            start = i
+            break
+    if start is None:
+        return None, None
+    for j in range(start + 1, len(children)):
+        if children[j].tag == qn('w:sectPr'):
+            return start, j - 1
+        if _has_page_break(children[j]):
+            return start, j
+    return start, len(children) - 1
+
+
+def _find_end_page_start(body):
+    """The end/back page block begins at the last table in the body (the contact card)."""
+    children = list(body)
+    for i in range(len(children) - 1, -1, -1):
+        if children[i].tag == qn('w:tbl'):
+            return i
+    return None
+
+
+def _substitute_cover_placeholders(body, data):
+    mapping = {}
+    if title := data.get('title'):
+        mapping['Document Title Goes Here'] = title
+    if subtitle := data.get('subtitle'):
+        mapping['Document Subtitle'] = subtitle
+    if not mapping:
+        return
+    for t in body.iter(qn('w:t')):
+        if t.text:
+            new = t.text
+            for k, v in mapping.items():
+                if k in new:
+                    new = new.replace(k, v)
+            if new != t.text:
+                t.text = new
+
+
+def _detach_end_page(body, end_page_start):
+    """Remove and return the end page elements (everything from end_page_start up to but
+    not including sectPr). They get reattached after user content is added."""
+    if end_page_start is None:
+        return []
+    children = list(body)
+    detached = []
+    for el in children[end_page_start:]:
+        if el.tag == qn('w:sectPr'):
+            break
+        detached.append(el)
+        body.remove(el)
+    return detached
+
+
+def _strip_between_rev_history_and_end(body, rev_end):
+    """Remove the template's sample body content that sits between the Revision History
+    page and the end page (which has already been detached)."""
+    children = list(body)
+    start = (rev_end + 1) if rev_end is not None else None
+    if start is None:
+        return
+    end = len(children)
+    for i, el in enumerate(children):
+        if el.tag == qn('w:sectPr'):
+            end = i
+            break
+    for el in children[start:end]:
+        body.remove(el)
+
+
+def _remove_revision_history(body, rev_start, rev_end):
+    if rev_start is None or rev_end is None:
+        return
+    children = list(body)
+    for el in children[rev_start:rev_end + 1]:
+        body.remove(el)
+
+
+def _reattach_end_page(body, detached):
+    if not detached:
+        return
+    sectPr = body.find(qn('w:sectPr'))
+    for el in detached:
+        if sectPr is not None:
+            sectPr.addprevious(el)
+        else:
+            body.append(el)
 
 
 # ---------------------------------------------------------------------------
