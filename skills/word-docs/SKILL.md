@@ -1,16 +1,15 @@
 ---
 name: word-docs
-description: Rebuild any Word document with TrustFlight brand styling using the master template. Use this skill whenever the user asks to restyle, brand, recreate, or draft a Word document (including a brief or a proposal) to match TrustFlight standards.
+description: Rebuild any Word document with TrustFlight brand styling using the master template. Use this skill whenever the user asks to restyle, brand, recreate, or draft a Word document (including a brief) to match TrustFlight standards.
 ---
 
 # TrustFlight Word Branding Skill
 
 **Script:** `~/.claude/skills/word-docs/word_docs.py`  
-**Master template (Basic):** `~/.claude/skills/word-docs/templates/Basic Document.docx`  
-**Master template (Proposal):** `~/.claude/skills/word-docs/templates/Proposal Template.docx`  
+**Master template:** `~/.claude/skills/word-docs/templates/Basic Document.docx`  
 **Dependency:** `python-docx` (already installed)
 
-The script opens the relevant master template as the base document, inheriting all named styles, fonts, page layout, headers and footers, then rebuilds the content from a JSON spec.
+The script opens the master template as the base document, inheriting all named styles, fonts, page layout, headers and footers, then rebuilds the content from a JSON spec.
 
 ---
 
@@ -18,9 +17,8 @@ The script opens the relevant master template as the base document, inheriting a
 
 Before doing anything else, ask the user which document type to produce:
 
-1. **Basic Document** — default for any restyling, form, report, internal doc. Follow the rest of this SKILL.md as-is. The output keeps the master template's cover page, Revision History page, and back-cover contact page; user content goes between Revision History and the back cover.
+1. **Basic Document** — default for any restyling, form, report, internal doc. The output keeps the master template's cover page, Revision History page, and back-cover contact page; user content goes between Revision History and the back cover.
 2. **Brief** — triggered when the user asks for a "brief" specifically (e.g. "write a brief on X", "draft a brief about Y"). Same as Basic Document, but **the Revision History page is stripped**. Set `is_brief: true` in the JSON spec.
-3. **Proposal** — only when the user specifically requests a proposal. Follow the **Proposal sub-flow** below instead of the basic process.
 
 ---
 
@@ -104,87 +102,6 @@ To convert inches to twips: `inches × 1440`
 - First column of data rows → **Table Row Heading** style: bold label
 - Other data cells → **Normal** style
 - All table borders → `#D9D9D9` gray grid
-
----
-
-## Proposal Sub-Flow
-
-Use this flow **only when the user specifically asks for a proposal**. Do not trigger it for general document branding.
-
-**Master template:** `~/.claude/skills/word-docs/templates/Proposal Template.docx`
-
-### Step P1 — Ask which product(s) the proposal is for
-
-Ask the user which product or service this proposal covers. Multi-select allowed:
-
-- **Tech Log**
-- **Centrik 5**
-- **Smart Suite** (Smart Documents + Smart Regulations)
-
-The content baked into the proposal must match the selection. If the user picks Centrik 5 and Smart Suite, include both sections and **omit** Tech Log entirely. Same logic for any other combination.
-
-### Step P2 — Ask for the RFQ / RFP / Request for Submission
-
-Ask the user to attach the RFQ, RFP, or Request for Submission the prospect sent. The proposal structure must follow what the customer asked for: align section headings, scope coverage, evaluation criteria, and terminology to the prospect's document.
-
-If the user does not have one to attach, confirm before proceeding with the default proposal structure.
-
-### Step P3 — Build the proposal
-
-Run the script with `doc_type: "proposal"`:
-
-```json
-{
-  "doc_type": "proposal",
-  "output_path": "/path/to/TrustFlight Proposal - Acme.docx",
-  "products": ["centrik_5", "smart_suite"],
-  "placeholders": {
-    "[COMPANY]": "Acme Air",
-    "[PRODUCT]": "Centrik 5 and Smart Suite"
-  }
-}
-```
-
-```bash
-python3 ~/.claude/skills/word-docs/word_docs.py /tmp/proposal.json
-```
-
-**Allowed `products` values:** `tech_log`, `centrik_5`, `smart_suite` (one or more).
-
-The script opens `Proposal Template.docx`, removes the H1 blocks for any product **not** in `products` (the block runs from the product's "Technical Overview" H1 up to the next H1), then substring-replaces every key in `placeholders` across body, headers, and footers.
-
-Build rules:
-
-1. **Cover page and end page** — reuse as-is from the Proposal Template. Do not regenerate or restyle them. Only the dynamic placeholders (organisation name, deal owner, presented-to person, date) should be updated via the `placeholders` map.
-2. **Body content** — use the exact content structure already baked into the Proposal Template. Do not invent new sections, do not rewrite the boilerplate prose. Only swap `[COMPANY]`, `[PRODUCT]`, and other placeholders for the prospect's actual values.
-3. **Product-conditional sections** — include or exclude entire product blocks based on the Step P1 selection:
-   - **Tech Log block** — heading "Tech Log Technical Overview" + Capabilities Matrix + Implementation Schedule + Framework + Proposed Schedule + SLAs.
-   - **Centrik 5 block** — heading "Centrik 5 Technical Overview" + Capabilities Matrix + Implementation Schedule + Framework + Proposed Schedule + Integrations + Technical Description + SLAs + Training + Data Migration.
-   - **Smart Suite block** — heading "Smart Suite Technical Overview" + Smart Documents Overview + Capabilities + Roadmap + Smart Regulations Overview + Capabilities + Roadmap + Implementation Schedule + Framework + Proposed Schedule + SLAs.
-4. **Sections that always stay (regardless of product):** Company Overview and Strategic Vision, Product Capabilities (intro), Commercial Proposal, References, ISO 9001 Certification, ISO 27001 Certification.
-5. **Tailor the cover letter and value propositions** to the RFP. Strip the `[SAMPLE VALUE PROPOSITIONS]` block and replace with prospect-aligned bullets pulled from the RFP scope.
-6. **Save** to the path the user specifies. Default if none given: same folder as the source RFP, filename `TrustFlight Proposal - [COMPANY] - [Products].docx`.
-
-### Proposal section inventory (reference)
-
-Top-level structure of the Proposal Template (use this to decide what to keep / drop per product selection):
-
-| Section | Always include | Product-gated |
-|---|---|---|
-| Cover page (tables + title block) | Yes | — |
-| Contact Details / Copyright / TOC | Yes | — |
-| Cover letter | Yes | — |
-| Company Overview and Strategic Vision | Yes | — |
-| Product Capabilities (intro) | Yes | — |
-| Tech Log Technical Overview | — | Tech Log only |
-| Centrik 5 Technical Overview | — | Centrik 5 only |
-| Smart Suite Technical Overview | — | Smart Suite only |
-| Commercial Proposal | Yes | — |
-| References | Yes | — |
-| ISO 9001 / ISO 27001 Certifications | Yes | — |
-| End page | Yes | — |
-
----
 
 ## Example — Form with Tables (SRF pattern)
 

@@ -109,8 +109,7 @@ Key rules:
 Restyle any Word document to TrustFlight brand standards using the master template.  
 **Script:** `skills/word-docs/word_docs.py`  
 **Master template:** `skills/word-docs/templates/Basic Document.docx` (bundled)  
-**Proposal template:** `skills/word-docs/templates/Proposal Template.docx` (bundled)  
-**Can run in browser:** Yes — both templates ship with the skill.
+**Can run in browser:** Yes — template ships with the skill.
 
 ---
 
