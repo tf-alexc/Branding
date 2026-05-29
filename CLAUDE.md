@@ -108,8 +108,9 @@ Key rules:
 ### `word-docs` — Word document branding
 Restyle any Word document to TrustFlight brand standards using the master template.  
 **Script:** `skills/word-docs/word_docs.py`  
-**Master template:** `/Users/alexcraiu/Desktop/Documents/Word templates/Basic Document.docx`  
-**Can run in browser:** No — master template is local.
+**Master template:** `skills/word-docs/templates/Basic Document.docx` (bundled)  
+**Proposal template:** `skills/word-docs/templates/Proposal Template.docx` (bundled)  
+**Can run in browser:** Yes — both templates ship with the skill.
 
 ---
 
@@ -150,6 +151,6 @@ Claude Playground/
 | linkedin-holiday-generator | No | Yes |
 | linkedin-event-generator | No | Yes |
 | bsl-course-sheets | No | Yes |
-| word-docs | No | Yes |
+| word-docs | Yes | Yes |
 
 Skills marked "No" require desktop apps (Illustrator, InDesign, PowerPoint, Word) running locally via MCP.

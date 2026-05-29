@@ -13,7 +13,10 @@ from docx import Document
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
-TEMPLATE = '/Users/alexcraiu/Desktop/Documents/Word templates/Basic Document.docx'
+TEMPLATE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    'templates', 'Basic Document.docx',
+)
 PROPOSAL_TEMPLATE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     'templates', 'Proposal Template.docx',

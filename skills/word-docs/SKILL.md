@@ -6,7 +6,7 @@ description: Rebuild any Word document with TrustFlight brand styling using the 
 # TrustFlight Word Branding Skill
 
 **Script:** `~/.claude/skills/word-docs/word_docs.py`  
-**Master template (Basic):** `/Users/alexcraiu/Desktop/Documents/Word templates/Basic Document.docx`  
+**Master template (Basic):** `~/.claude/skills/word-docs/templates/Basic Document.docx`  
 **Master template (Proposal):** `~/.claude/skills/word-docs/templates/Proposal Template.docx`  
 **Dependency:** `python-docx` (already installed)
 
