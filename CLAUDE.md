@@ -113,6 +113,19 @@ Restyle any Word document to TrustFlight brand standards using the master templa
 
 ---
 
+### `whitepaper-builder` — Whitepapers and long-form reports
+Build TrustFlight-branded whitepapers from the master whitepaper template. Reuses a fixed set of page layouts (cover, TOC, hero, content, content_image, two_column) and keeps the static back cover untouched.  
+**Script:** `skills/whitepaper-builder/whitepaper_builder.py`  
+**Master template:** `/Users/alexcraiu/Desktop/Documents/Word templates/Whitepaper Template.docx`  
+**Can run in browser:** No — master template is local.
+
+Key rules:
+- Last page (back cover) is static, never edited.
+- Bottom-left footer on every body page is the `doc_title`.
+- Always pick from the predefined layouts. Never improvise inline styling.
+
+---
+
 ## File Structure
 
 ```
@@ -125,7 +138,8 @@ Claude Playground/
 │   ├── linkedin-event-generator/  # Event graphic Illustrator workflow
 │   ├── bsl-course-sheets/         # BSL PDF automation
 │   ├── course-dates-generator/    # Course dates PDF automation
-│   └── word-brand/                # Word document branding
+│   ├── word-brand/                # Word document branding
+│   └── whitepaper-builder/        # Whitepaper document automation
 ├── Illustrator Templates/         # Master .ai files for Illustrator skills
 ├── InDesign/
 │   ├── BSL Course Sheets/         # Templates, script, fonts, output PDFs
@@ -151,5 +165,6 @@ Claude Playground/
 | linkedin-event-generator | No | Yes |
 | bsl-course-sheets | No | Yes |
 | word-brand | No | Yes |
+| whitepaper-builder | No | Yes |
 
 Skills marked "No" require desktop apps (Illustrator, InDesign, PowerPoint, Word) running locally via MCP.
