@@ -69,6 +69,8 @@ Follow the structure implied by the brief (Step 1.2) or the agreed structure for
 
 ### Agenda Slide
 
+**Every deck must include an Agenda slide — no exceptions.** It is required regardless of deck length, audience, purpose, or whether the brief mentions one. If the brief does not specify an agenda, derive it from the section break titles and include it anyway. Place it directly after the title slide.
+
 The Agenda slide must always follow the **style and structure of the Agenda slide already in the brand template**. Do not redesign it, do not rebuild it from a blank layout, and do not substitute a different layout.
 
 - Clone the template's Agenda slide and edit it in place.
