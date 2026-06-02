@@ -60,11 +60,21 @@ Follow the structure implied by the brief (Step 1.2) or the agreed structure for
 ### Formatting and Styling
 
 - **Font:** Always Open Sans. No other font is permitted anywhere in the deck — not Arial, not Aptos, not Lato, not Calibri. Set `run.font.name = "Open Sans"` on every text run, including footers, page numbers, tables, charts, and callouts.
+- **Titles:** All slide titles in **Open Sans Light**. Never Regular, never Bold. This applies to every title placeholder, including section breaks and the agenda. Body copy stays in the template's default body weight.
 - **Colours and styling:** Follow the loaded template. Use the swatches, backgrounds, and accents that ship with the chosen brand's template — do not introduce colours from outside it.
 - **Slide layouts:** Vary layouts across the deck. Do not default every slide to a bulleted list.
   - Suggest interesting layouts where they fit the content: three-column, four-column, stat callouts, text + image, icon grids, timelines, numbered steps, quote slides.
   - Choose the layout per slide based on the content, not on a fixed sequence.
 - **Big numbers:** Whenever a slide leads with a large statistic or headline number, set it in **Open Sans Light, 50pt, Centrik Gold (`#FFD740`)**. Supporting copy beneath stays in the template's body style.
+
+### Agenda Slide
+
+The Agenda slide must always follow the **style and structure of the Agenda slide already in the brand template**. Do not redesign it, do not rebuild it from a blank layout, and do not substitute a different layout.
+
+- Clone the template's Agenda slide and edit it in place.
+- **Add or remove rows as needed** to match the deck's actual section count — keep the same row shape, spacing, type style, and accents as the existing rows.
+- New rows must visually match the template's existing rows exactly (same height, same fills, same text style). Duplicate an existing row rather than constructing one from scratch.
+- Populate each row with the title of the corresponding section break slide, in order.
 
 ### Stylising with Graphics and Iconography
 
