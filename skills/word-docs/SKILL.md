@@ -86,11 +86,33 @@ In **Brief** mode (`is_brief: true`), the script opens `Basic Letterhead.docx` i
       "paragraphs": [
         "First paragraph of body text.",
         "Second paragraph."
+      ],
+      "bullets": [
+        "Bullet one",
+        "Bullet two"
+      ],
+      "numbered": [
+        "First step",
+        "Second step"
       ]
     }
   ]
 }
 ```
+
+### Section content keys
+
+A section may combine any of `table`, `paragraphs`, `bullets`, and `numbered`. They render in that order: table → paragraphs → bullets → numbered. Use multiple sections if you need a different order.
+
+- **`paragraphs`** → `Normal` style.
+- **`bullets`** → `List Paragraph` style (the template's bulleted-list style). **Never** prefix items with `•`, `-`, `*`, or any other character — Word draws the bullet from the style. Adding a literal character creates a giant double-bullet.
+- **`numbered`** → `Numbered List` style. **Never** prefix items with `1.`, `1)`, etc. — the style numbers them.
+
+Both list styles inherit bullet character, indentation, and size directly from the master template, so they always match the brand.
+
+### Table of Contents
+
+The Basic Document template includes a TOC field. After every basic-mode build the script marks all field characters dirty and sets `<w:updateFields val="true"/>` in `settings.xml`, so Word refreshes the TOC automatically the next time the document is opened — including when `docx2pdf` opens it to produce the PDF. No manual "Update field" step required.
 
 ### col_widths (optional, in twips)
 If omitted, defaults are applied automatically:

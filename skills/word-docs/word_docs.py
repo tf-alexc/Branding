@@ -282,9 +282,12 @@ def add_section(doc, section):
 
         doc.add_paragraph()
 
-    elif 'paragraphs' in section:
-        for text in section['paragraphs']:
-            doc.add_paragraph(text)
+    for text in section.get('paragraphs', []):
+        doc.add_paragraph(text)
+    for text in section.get('bullets', []):
+        doc.add_paragraph(text, style='List Paragraph')
+    for text in section.get('numbered', []):
+        doc.add_paragraph(text, style='Numbered List')
 
 
 def build(data):
@@ -293,6 +296,26 @@ def build(data):
     else:
         out = _build_basic(data)
     _export_pdf(out)
+
+
+def _refresh_toc_fields(doc):
+    """Mark every field as dirty and turn on auto-update in settings so Word (and
+    docx2pdf, which drives Word) regenerates the TOC and page references on open."""
+    body = doc.element.body
+    touched = False
+    for fld in body.iter(qn('w:fldChar')):
+        fld.set(qn('w:dirty'), 'true')
+        touched = True
+    if not touched:
+        return
+    settings = doc.settings.element
+    existing = settings.find(qn('w:updateFields'))
+    if existing is None:
+        uf = OxmlElement('w:updateFields')
+        uf.set(qn('w:val'), 'true')
+        settings.append(uf)
+    else:
+        existing.set(qn('w:val'), 'true')
 
 
 def _export_pdf(docx_path):
@@ -346,6 +369,7 @@ def _build_basic(data):
         add_section(doc, section)
 
     _reattach_end_page(body, detached_end_page)
+    _refresh_toc_fields(doc)
 
     out = data['output_path']
     doc.save(out)
