@@ -1,6 +1,6 @@
 ---
 name: whitepaper-builder
-description: Build a TrustFlight-branded whitepaper from the master Whitepaper template. Use this skill whenever the user asks to draft, restyle, or recreate a whitepaper, long-form report, or thought-leadership document.
+description: Build a TrustFlight-branded whitepaper from the master Whitepaper template. Triggers on any request for a "high-level whitepaper", "whitepaper", "white paper", long-form report, thought-leadership document, or similar keywords (e.g. "draft a whitepaper on X", "write a high-level whitepaper", "restyle this whitepaper").
 ---
 
 # TrustFlight Whitepaper Builder
