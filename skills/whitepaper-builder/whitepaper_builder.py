@@ -1,349 +1,433 @@
 #!/usr/bin/env python3
 """
 TrustFlight Whitepaper Builder
-Builds a branded whitepaper from the master Whitepaper template.
+
+Builds a branded whitepaper PDF from the bundled master template PDF.
 
 Usage: python3 whitepaper_builder.py <data.json>
 
-The master template carries the cover layout, TOC layout, body-page header/
-footer chrome, and a static back cover. This script:
+The template is `Whitepaper Template.pdf` (bundled alongside this script).
+It carries 7 layouts (cover, TOC, hero, content, content side-callout,
+content with image, back cover). For each requested page, the script:
 
-  1. Opens the template.
-  2. Fills the cover placeholders.
-  3. Builds the TOC entries.
-  4. Emits one section per body page using named styles.
-  5. Writes `doc_title` into every body section's footer (bottom-left).
-  6. Leaves the final section (back cover) untouched.
+  1. Copies the matching layout page from the template.
+  2. Redacts the placeholder text within the layout's content regions.
+  3. Overlays the new content in Open Sans at the brand colours and sizes.
+  4. Writes `doc_title` into the bottom-left footer and the page number
+     into the bottom-right footer.
+
+The static back cover (page 7) is appended verbatim and never modified.
 """
 
-import sys
 import json
-import copy
+import sys
 from pathlib import Path
-from docx import Document
-from docx.shared import Pt, Cm, Inches, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
-from docx.enum.section import WD_SECTION
-from docx.oxml.ns import qn, nsmap
-from docx.oxml import OxmlElement
 
-TEMPLATE = '/Users/alexcraiu/Desktop/Documents/Word templates/Whitepaper Template.docx'
+import fitz  # PyMuPDF
 
-NAVY = '062955'
-CYAN = '16C2EE'
-AZURE = '479FF8'
-INK = '242D41'
-RULE_BLUE = '1E5BB5'
-CALLOUT_BG = '0A2A5A'
-SIDE_CALLOUT_BG = 'E4ECF7'
+# ---------------------------------------------------------------------------
+# Paths and brand constants
+# ---------------------------------------------------------------------------
+
+HERE = Path(__file__).resolve().parent
+TEMPLATE = HERE / 'Whitepaper Template.pdf'
+FONT_FILE = Path('/Users/alexcraiu/Library/Fonts/OpenSans-VariableFont_wdth,wght.ttf')
+
+# Layout index in the bundled template
+LAYOUT_PAGE = {
+    'cover': 0,
+    'toc': 1,
+    'hero': 2,
+    'content': 3,
+    'content_side_callout': 4,
+    'content_image': 5,
+    'back_cover': 6,
+}
+
+# Brand colours (0-1 RGB tuples for PyMuPDF)
+def rgb(hex_str):
+    h = hex_str.lstrip('#')
+    return tuple(int(h[i:i+2], 16) / 255 for i in (0, 2, 4))
+
+NAVY = rgb('062955')
+INK = rgb('242D41')
+CYAN = rgb('16C2EE')
+RULE_BLUE = rgb('1E5BB5')
+WHITE = rgb('FFFFFF')
+CALLOUT_BG = rgb('0A2A5A')
+SIDE_CALLOUT_BG = rgb('E4ECF7')
+FOOTER_GREY = rgb('7A8AA8')
+
+# Page geometry (US Letter — matches the template's 8.5 x 11 in @ 72dpi)
+PAGE_W, PAGE_H = 612, 792
+
+# Content regions — approximate rectangles measured from the template.
+# These are the redaction + overlay zones for each layout. Tune in-place
+# after running once against a real spec.
+REGIONS = {
+    'cover': {
+        'eyebrow':  fitz.Rect(72, 470, 540, 500),
+        'title':    fitz.Rect(72, 500, 540, 620),
+        'overview': fitz.Rect(72, 660, 540, 690),
+        'date':     fitz.Rect(72, 720, 540, 745),
+    },
+    'toc': {
+        'title':   fitz.Rect(54, 220, 540, 290),
+        'entries': fitz.Rect(54, 320, 540, 740),
+    },
+    'header': {
+        'eyebrow_right': fitz.Rect(360, 38, 580, 60),  # "WHERE AEROSPACE PLACES ITS TRUST"
+    },
+    'footer': {
+        'doc_title':  fitz.Rect(54, 752, 300, 772),
+        'page_num':   fitz.Rect(540, 752, 580, 772),
+    },
+    'hero': {
+        'image_band': fitz.Rect(0, 70, PAGE_W, 380),
+        'title':      fitz.Rect(54, 400, 558, 460),
+        'intro':      fitz.Rect(54, 470, 558, 510),
+        'subintro':   fitz.Rect(54, 512, 558, 530),
+        'body':       fitz.Rect(54, 555, 558, 650),
+        'callout':    fitz.Rect(54, 660, 558, 740),
+    },
+    'content': {
+        'eyebrow': fitz.Rect(54, 100, 558, 120),
+        'title':   fitz.Rect(54, 122, 558, 200),
+        'lead':    fitz.Rect(54, 210, 558, 260),
+        'body':    fitz.Rect(54, 265, 558, 740),
+    },
+    'content_side_callout': {
+        'title':       fitz.Rect(54, 100, 558, 180),
+        'body':        fitz.Rect(54, 195, 558, 740),
+        'callout_col': fitz.Rect(54, 400, 200, 740),
+    },
+    'content_image': {
+        'eyebrow': fitz.Rect(54, 100, 558, 120),
+        'title':   fitz.Rect(54, 122, 558, 200),
+        'image':   fitz.Rect(330, 215, 558, 430),
+        'lead':    fitz.Rect(54, 210, 320, 260),
+        'body':    fitz.Rect(54, 265, 558, 740),
+    },
+}
+
+FONT_ALIAS = 'opensans'
 
 
 # ---------------------------------------------------------------------------
-# Placeholder replacement (cover + footer)
+# Helpers
 # ---------------------------------------------------------------------------
 
-def _replace_in_paragraph(paragraph, mapping):
-    """Replace {{KEY}} tokens across a paragraph's runs, preserving the first
-    run's formatting. Tokens may span multiple runs."""
-    text = ''.join(run.text for run in paragraph.runs)
-    if not any(f'{{{{{k}}}}}' in text for k in mapping):
-        return False
-    for key, val in mapping.items():
-        text = text.replace(f'{{{{{key}}}}}', val or '')
-    for run in paragraph.runs[1:]:
-        run.text = ''
-    if paragraph.runs:
-        paragraph.runs[0].text = text
-    else:
-        paragraph.add_run(text)
-    return True
-
-
-def replace_in_document_body(doc, mapping):
-    for paragraph in doc.paragraphs:
-        _replace_in_paragraph(paragraph, mapping)
-    for table in doc.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                for paragraph in cell.paragraphs:
-                    _replace_in_paragraph(paragraph, mapping)
-
-
-def replace_in_headers_footers(doc, mapping, skip_last=True):
-    """Replace tokens in headers/footers for every section except the last
-    (which is the back cover and must stay intact)."""
-    sections = list(doc.sections)
-    last_idx = len(sections) - 1
-    for i, section in enumerate(sections):
-        if skip_last and i == last_idx:
-            continue
-        for part in (section.header, section.footer,
-                     section.first_page_header, section.first_page_footer,
-                     section.even_page_header, section.even_page_footer):
-            for paragraph in part.paragraphs:
-                _replace_in_paragraph(paragraph, mapping)
-            for table in part.tables:
-                for row in table.rows:
-                    for cell in row.cells:
-                        for paragraph in cell.paragraphs:
-                            _replace_in_paragraph(paragraph, mapping)
-
-
-# ---------------------------------------------------------------------------
-# Document structure
-# ---------------------------------------------------------------------------
-
-def _style(doc, name, fallback='Normal'):
-    """Return a named style if present, else fall back. Keeps the script
-    resilient if the template is missing a style — the visual will be off
-    but the build will not crash."""
+def _register_font(page):
+    """Try to register Open Sans on a page. Returns the font alias or None
+    on failure (caller should fall back to 'helv')."""
+    if not FONT_FILE.exists():
+        return None
     try:
-        return doc.styles[name]
-    except KeyError:
-        return doc.styles[fallback]
+        page.insert_font(fontname=FONT_ALIAS, fontfile=str(FONT_FILE))
+        return FONT_ALIAS
+    except Exception:
+        return None
 
 
-def find_back_cover_anchor(doc):
-    """Locate the first paragraph of the back-cover section so we can insert
-    body content BEFORE it. The back cover is the last section; its first
-    paragraph is the first body-paragraph after the previous section's sectPr.
-    Returns the element to insert before."""
-    body = doc.element.body
-    children = list(body)
-    section_breaks = [el for el in children
-                      if el.tag == qn('w:p')
-                      and el.find('.//' + qn('w:sectPr')) is not None]
-    if not section_breaks:
-        return body.find(qn('w:sectPr'))
-    last_break = section_breaks[-1]
-    idx = children.index(last_break)
-    if idx + 1 < len(children):
-        return children[idx + 1]
-    return body.find(qn('w:sectPr'))
+def _fontname(page):
+    return _register_font(page) or 'helv'
 
 
-def _new_para(style, text=''):
-    p = OxmlElement('w:p')
-    pPr = OxmlElement('w:pPr')
-    pStyle = OxmlElement('w:pStyle')
-    pStyle.set(qn('w:val'), style)
-    pPr.append(pStyle)
-    p.append(pPr)
-    if text:
-        r = OxmlElement('w:r')
-        t = OxmlElement('w:t')
-        t.text = text
-        t.set(qn('xml:space'), 'preserve')
-        r.append(t)
-        p.append(r)
-    return p
+def _redact(page, rect, fill=WHITE):
+    """White-box a region so we can overlay new content cleanly."""
+    page.add_redact_annot(rect, fill=fill)
+    page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE,
+                          graphics=fitz.PDF_REDACT_LINE_ART_NONE)
 
 
-def _new_section_break(cols=1):
-    """Build a paragraph with an embedded sectPr (a section break)."""
-    p = OxmlElement('w:p')
-    pPr = OxmlElement('w:pPr')
-    sectPr = OxmlElement('w:sectPr')
-    cols_el = OxmlElement('w:cols')
-    cols_el.set(qn('w:num'), str(cols))
-    cols_el.set(qn('w:space'), '708')
-    sectPr.append(cols_el)
-    pPr.append(sectPr)
-    p.append(pPr)
-    return p
+def _draw_text(page, rect, text, *, size, color, bold=False, align=0):
+    """Insert text inside a rect using HTML so we can flow long content."""
+    if not text:
+        return
+    weight = 700 if bold else 400
+    font_family = 'Open Sans' if FONT_FILE.exists() else 'Helvetica'
+    css = (f"font-family: '{font_family}'; font-size: {size}pt; "
+           f"font-weight: {weight}; color: rgb({int(color[0]*255)},"
+           f"{int(color[1]*255)},{int(color[2]*255)}); "
+           f"line-height: 1.4;")
+    html = f'<div style="{css}">{text}</div>'
+    try:
+        page.insert_htmlbox(rect, html)
+    except Exception:
+        # Fallback: plain insert_textbox without HTML
+        page.insert_textbox(rect, text, fontsize=size, color=color,
+                            fontname=_fontname(page), align=align)
 
 
-def _page_break_para():
-    p = OxmlElement('w:p')
-    r = OxmlElement('w:r')
-    br = OxmlElement('w:br')
-    br.set(qn('w:type'), 'page')
-    r.append(br)
-    p.append(r)
-    return p
-
-
-# ---------------------------------------------------------------------------
-# Body inserter
-# ---------------------------------------------------------------------------
-
-class BodyBuilder:
-    def __init__(self, doc):
-        self.doc = doc
-        self.anchor = find_back_cover_anchor(doc)
-        self.body = doc.element.body
-
-    def _insert(self, element):
-        self.anchor.addprevious(element)
-
-    def para(self, style, text):
-        if text is None:
-            return
-        self._insert(_new_para(style, text))
-
-    def bullet(self, text):
-        self._insert(_new_para('Whitepaper Bullet', text))
-
-    def page_break(self):
-        self._insert(_page_break_para())
-
-    def image(self, path, width_cm):
-        """Insert an image paragraph by going through python-docx, then move
-        the new paragraph into position before the anchor."""
-        if not path or not Path(path).expanduser().exists():
-            return
-        p = self.doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run()
-        run.add_picture(str(Path(path).expanduser()), width=Cm(width_cm))
-        self.body.remove(p._p)
-        self._insert(p._p)
+def _draw_html(page, rect, html):
+    try:
+        page.insert_htmlbox(rect, html)
+    except Exception:
+        pass
 
 
 # ---------------------------------------------------------------------------
 # Layout renderers
 # ---------------------------------------------------------------------------
 
-def render_toc(bld, entries):
-    bld.para('Whitepaper TOC Title', 'Table of Contents')
+def render_cover(page, cover):
+    r = REGIONS['cover']
+    for region in r.values():
+        _redact(page, region, fill=NAVY)
+
+    _draw_text(page, r['eyebrow'], cover.get('eyebrow', ''),
+               size=14, color=CYAN, bold=True)
+    _draw_text(page, r['title'], cover.get('title', ''),
+               size=44, color=WHITE)
+    _draw_text(page, r['overview'], cover.get('overview', ''),
+               size=12, color=NAVY, bold=True)
+    _draw_text(page, r['date'], cover.get('date', ''),
+               size=10, color=NAVY, bold=True)
+
+
+def render_toc(page, entries):
+    r = REGIONS['toc']
+    _redact(page, r['entries'], fill=WHITE)
+
+    rows_html = []
     for entry in entries:
-        line = f"{entry['page']}   {entry['title']}"
-        bld.para('Whitepaper TOC Entry', line)
-    bld.page_break()
+        rows_html.append(
+            f'<div style="display:flex; padding:14px 0; border-bottom:1px solid #DDE4F1;">'
+            f'<span style="font-size:24pt; color:#16C2EE; width:60px; '
+            f'font-weight:300;">{entry["page"]}</span>'
+            f'<span style="font-size:12pt; color:#242D41; padding-top:8px;">'
+            f'{entry["title"]}</span>'
+            f'</div>'
+        )
+    family = 'Open Sans' if FONT_FILE.exists() else 'Helvetica'
+    _draw_html(page, r['entries'],
+               f'<div style="font-family:\'{family}\';">{"".join(rows_html)}</div>')
 
 
-def render_hero(bld, page):
-    bld.image(page.get('hero_image'), width_cm=21.0)
-    bld.para('Whitepaper Title', page['title'])
-    if intro := page.get('intro'):
-        bld.para('Whitepaper Lead', intro)
-    if subintro := page.get('subintro'):
-        bld.para('Whitepaper Body', subintro)
-    for text in page.get('body', []):
-        bld.para('Whitepaper Body', text)
-    if callout := page.get('callout'):
-        bld.para('Whitepaper Callout Title', callout['title'])
-        bld.para('Whitepaper Callout Body', callout['body'])
-    bld.page_break()
+def render_hero(page, spec):
+    r = REGIONS['hero']
+    for region in (r['title'], r['intro'], r['subintro'], r['body'], r['callout']):
+        _redact(page, region, fill=NAVY if region is r['title'] else WHITE)
+
+    if img := spec.get('hero_image'):
+        if Path(img).expanduser().exists():
+            page.insert_image(r['image_band'], filename=str(Path(img).expanduser()),
+                              keep_proportion=True)
+
+    _draw_text(page, r['title'], spec.get('title', ''),
+               size=32, color=WHITE)
+    _draw_text(page, r['intro'], spec.get('intro', ''),
+               size=10, color=WHITE, bold=True)
+    _draw_text(page, r['subintro'], spec.get('subintro', ''),
+               size=10, color=WHITE)
+    _draw_text(page, r['body'], _join_body(spec.get('body', [])),
+               size=10, color=INK)
+
+    if callout := spec.get('callout'):
+        page.draw_rect(r['callout'], color=None, fill=CALLOUT_BG)
+        family = 'Open Sans' if FONT_FILE.exists() else 'Helvetica'
+        html = (f'<div style="font-family:\'{family}\'; padding:14px;">'
+                f'<div style="font-size:14pt; color:#16C2EE; font-weight:600; '
+                f'margin-bottom:6px;">{callout["title"]}</div>'
+                f'<div style="font-size:10pt; color:#FFFFFF;">{callout["body"]}</div>'
+                f'</div>')
+        _draw_html(page, r['callout'], html)
 
 
-def render_content(bld, page):
-    if eyebrow := page.get('eyebrow'):
-        bld.para('Whitepaper Eyebrow', eyebrow)
-    bld.para('Whitepaper Title', page['title'])
-    if lead := page.get('lead'):
-        bld.para('Whitepaper Lead', lead)
-    for text in page.get('body', []):
-        bld.para('Whitepaper Body', text)
-    for sub in page.get('subsections', []):
-        render_subsection(bld, sub)
-    bld.page_break()
+def render_content(page, spec):
+    r = REGIONS['content']
+    for region in r.values():
+        _redact(page, region, fill=WHITE)
+
+    if eyebrow := spec.get('eyebrow'):
+        _draw_text(page, r['eyebrow'], eyebrow, size=11, color=NAVY, bold=True)
+    _draw_text(page, r['title'], spec.get('title', ''),
+               size=32, color=NAVY)
+    if lead := spec.get('lead'):
+        _draw_text(page, r['lead'], lead, size=10, color=INK, bold=True)
+    _draw_text(page, r['body'],
+               _render_body_html(spec.get('body', []), spec.get('subsections', [])),
+               size=10, color=INK)
 
 
-def render_content_image(bld, page):
-    if eyebrow := page.get('eyebrow'):
-        bld.para('Whitepaper Eyebrow', eyebrow)
-    bld.para('Whitepaper Title', page['title'])
-    bld.image(page.get('image'), width_cm=8.5)
-    if lead := page.get('lead'):
-        bld.para('Whitepaper Lead', lead)
-    for text in page.get('body', []):
-        bld.para('Whitepaper Body', text)
-    for sub in page.get('subsections', []):
-        render_subsection(bld, sub)
-    bld.page_break()
+def render_content_side_callout(page, spec):
+    r = REGIONS['content_side_callout']
+    _redact(page, r['title'], fill=WHITE)
+    _redact(page, r['body'], fill=WHITE)
+
+    _draw_text(page, r['title'], spec.get('title', ''),
+               size=32, color=NAVY)
+
+    subs = spec.get('subsections', [])
+    callout_sub = next((s for s in subs if s.get('layout') == 'two_column'), None)
+    if callout_sub:
+        page.draw_rect(r['callout_col'], color=None, fill=SIDE_CALLOUT_BG)
+        cols = callout_sub.get('columns', [{}, {}])
+        family = 'Open Sans' if FONT_FILE.exists() else 'Helvetica'
+        left_html = (f'<div style="font-family:\'{family}\'; padding:14px; '
+                     f'color:#1E5BB5; font-size:14pt; font-weight:600;">'
+                     f'{cols[0].get("lead", "")}</div>')
+        _draw_html(page, r['callout_col'], left_html)
+
+    _draw_text(page, r['body'],
+               _render_body_html(spec.get('body', []), subs),
+               size=10, color=INK)
 
 
-def render_subsection(bld, sub):
-    if sub.get('layout') == 'two_column':
-        render_two_column(bld, sub['columns'])
-        return
-    if heading := sub.get('heading'):
-        bld.para('Whitepaper H2', heading)
-    if lead := sub.get('lead'):
-        bld.para('Whitepaper Lead', lead)
-    if intro := sub.get('intro'):
-        bld.para('Whitepaper Body', intro)
-    for text in sub.get('body', []):
-        bld.para('Whitepaper Body', text)
-    for text in sub.get('bullets', []):
-        bld.bullet(text)
+def render_content_image(page, spec):
+    r = REGIONS['content_image']
+    for key, region in r.items():
+        if key != 'image':
+            _redact(page, region, fill=WHITE)
+
+    if eyebrow := spec.get('eyebrow'):
+        _draw_text(page, r['eyebrow'], eyebrow, size=11, color=NAVY, bold=True)
+    _draw_text(page, r['title'], spec.get('title', ''),
+               size=32, color=NAVY)
+
+    if img := spec.get('image'):
+        if Path(img).expanduser().exists():
+            page.insert_image(r['image'], filename=str(Path(img).expanduser()),
+                              keep_proportion=True)
+
+    if lead := spec.get('lead'):
+        _draw_text(page, r['lead'], lead, size=10, color=INK, bold=True)
+    _draw_text(page, r['body'],
+               _render_body_html(spec.get('body', []), spec.get('subsections', [])),
+               size=10, color=INK)
 
 
-def render_two_column(bld, columns):
-    """Render two columns using a two-column section break. Content between
-    a column-start break and a column-end break lays out in columns."""
-    if len(columns) != 2:
-        raise ValueError('two_column layout requires exactly 2 columns')
-    bld._insert(_new_section_break(cols=2))
-    left, right = columns
-    is_side_callout = left.get('side_callout', False)
-    for col_idx, col in enumerate((left, right)):
-        if col_idx == 0 and is_side_callout:
-            if lead := col.get('lead'):
-                bld.para('Whitepaper Side Callout Title', lead)
-            for text in col.get('body', []):
-                bld.para('Whitepaper Side Callout Body', text)
-        else:
-            if lead := col.get('lead'):
-                bld.para('Whitepaper Lead', lead)
-            for text in col.get('body', []):
-                bld.para('Whitepaper Body', text)
-            for text in col.get('bullets', []):
-                bld.bullet(text)
-        if col_idx == 0:
-            # column break
-            p = OxmlElement('w:p')
-            r = OxmlElement('w:r')
-            br = OxmlElement('w:br')
-            br.set(qn('w:type'), 'column')
-            r.append(br)
-            p.append(r)
-            bld._insert(p)
-    bld._insert(_new_section_break(cols=1))
+# ---------------------------------------------------------------------------
+# Body HTML rendering
+# ---------------------------------------------------------------------------
+
+def _join_body(paragraphs):
+    return '<br/><br/>'.join(paragraphs or [])
 
 
-LAYOUTS = {
-    'hero': render_hero,
-    'content': render_content,
-    'content_image': render_content_image,
-}
+def _render_body_html(body, subsections):
+    family = 'Open Sans' if FONT_FILE.exists() else 'Helvetica'
+    parts = [f'<div style="font-family:\'{family}\'; font-size:10pt; color:#242D41;">']
+    for p in body or []:
+        parts.append(f'<p style="margin:0 0 10px 0;">{p}</p>')
+    for sub in subsections or []:
+        if sub.get('layout') == 'two_column':
+            parts.append(_render_two_column_html(sub))
+            continue
+        if h := sub.get('heading'):
+            parts.append(f'<div style="font-size:14pt; color:#1E5BB5; '
+                         f'font-weight:600; margin:14px 0 8px 0;">{h}</div>')
+        if lead := sub.get('lead'):
+            parts.append(f'<p style="font-weight:700; margin:0 0 8px 0;">{lead}</p>')
+        if intro := sub.get('intro'):
+            parts.append(f'<p style="margin:0 0 8px 0;">{intro}</p>')
+        for p in sub.get('body', []):
+            parts.append(f'<p style="margin:0 0 8px 0;">{p}</p>')
+        if bullets := sub.get('bullets'):
+            parts.append('<ul style="margin:4px 0 8px 16px; padding:0;">')
+            for b in bullets:
+                parts.append(f'<li style="margin:0 0 4px 0;">{b}</li>')
+            parts.append('</ul>')
+    parts.append('</div>')
+    return ''.join(parts)
+
+
+def _render_two_column_html(sub):
+    cols = sub.get('columns', [{}, {}])
+    family = 'Open Sans' if FONT_FILE.exists() else 'Helvetica'
+    html = (f'<table style="width:100%; font-family:\'{family}\'; '
+            f'font-size:10pt; color:#242D41; margin-top:10px;">'
+            f'<tr style="vertical-align:top;">')
+    for i, col in enumerate(cols):
+        html += '<td style="width:50%; padding:0 8px;">'
+        if lead := col.get('lead'):
+            html += f'<p style="font-weight:700; margin:0 0 8px 0;">{lead}</p>'
+        for p in col.get('body', []):
+            html += f'<p style="margin:0 0 8px 0;">{p}</p>'
+        for b in col.get('bullets', []):
+            html += f'<p style="margin:0 0 4px 16px;">{b}</p>'
+        html += '</td>'
+    html += '</tr></table>'
+    return html
+
+
+# ---------------------------------------------------------------------------
+# Footer (doc title + page number) — applied to every body page
+# ---------------------------------------------------------------------------
+
+def write_footer(page, doc_title, page_num):
+    r = REGIONS['footer']
+    _redact(page, r['doc_title'], fill=NAVY if page_num == 'cover' else WHITE)
+    _redact(page, r['page_num'], fill=WHITE)
+    if doc_title:
+        _draw_text(page, r['doc_title'], doc_title,
+                   size=9, color=FOOTER_GREY)
+    if isinstance(page_num, int):
+        _draw_text(page, r['page_num'], str(page_num),
+                   size=9, color=FOOTER_GREY, align=2)
 
 
 # ---------------------------------------------------------------------------
 # Build
 # ---------------------------------------------------------------------------
 
-def build(data):
-    doc = Document(TEMPLATE)
+LAYOUTS = {
+    'hero': render_hero,
+    'content': render_content,
+    'content_side_callout': render_content_side_callout,
+    'content_image': render_content_image,
+}
 
-    cover = data.get('cover', {})
+
+def _copy_layout(out_pdf, src_pdf, layout_key):
+    src_idx = LAYOUT_PAGE[layout_key]
+    out_pdf.insert_pdf(src_pdf, from_page=src_idx, to_page=src_idx)
+    return out_pdf[-1]
+
+
+def build(data):
+    if not TEMPLATE.exists():
+        raise FileNotFoundError(f'Bundled template not found: {TEMPLATE}')
+    if not FONT_FILE.exists():
+        print(f'WARNING: Open Sans not found at {FONT_FILE}. '
+              f'Falling back to Helvetica.', file=sys.stderr)
+
+    src = fitz.open(str(TEMPLATE))
+    out = fitz.open()
+
     doc_title = data.get('doc_title', '')
 
-    replace_in_document_body(doc, {
-        'EYEBROW': cover.get('eyebrow', ''),
-        'TITLE': cover.get('title', ''),
-        'OVERVIEW': cover.get('overview', ''),
-        'DATE': cover.get('date', ''),
-    })
-    replace_in_headers_footers(doc, {'DOC_TITLE': doc_title}, skip_last=True)
+    # Cover
+    cover_page = _copy_layout(out, src, 'cover')
+    render_cover(cover_page, data.get('cover', {}))
 
-    bld = BodyBuilder(doc)
+    # TOC
+    page_counter = 2
+    if entries := data.get('toc'):
+        toc_page = _copy_layout(out, src, 'toc')
+        render_toc(toc_page, entries)
+        write_footer(toc_page, doc_title, page_counter)
+        page_counter += 1
 
-    if toc := data.get('toc'):
-        render_toc(bld, toc)
-
-    for page in data.get('pages', []):
-        layout = page.get('layout')
-        renderer = LAYOUTS.get(layout)
-        if renderer is None:
+    # Body pages
+    for spec in data.get('pages', []):
+        layout = spec.get('layout')
+        if layout not in LAYOUTS:
             raise ValueError(f"Unknown layout: {layout!r}. "
                              f"Use one of: {sorted(LAYOUTS)}")
-        renderer(bld, page)
+        body_page = _copy_layout(out, src, layout)
+        LAYOUTS[layout](body_page, spec)
+        write_footer(body_page, doc_title, page_counter)
+        page_counter += 1
 
-    out = data['output_path']
-    doc.save(out)
-    print(f'Saved: {out}')
+    # Static back cover — appended verbatim
+    _copy_layout(out, src, 'back_cover')
+
+    output_path = data['output_path']
+    out.save(output_path, garbage=4, deflate=True)
+    out.close()
+    src.close()
+    print(f'Saved: {output_path}')
 
 
 if __name__ == '__main__':

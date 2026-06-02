@@ -114,11 +114,11 @@ Restyle any Word document to TrustFlight brand standards using the master templa
 ---
 
 ### `whitepaper-builder` — Whitepapers and long-form reports
-Build TrustFlight-branded whitepapers from the master whitepaper template. Reuses a fixed set of page layouts (cover, TOC, hero, content, content_image, two_column) and keeps the static back cover untouched.  
+Build TrustFlight-branded whitepaper PDFs from the bundled master PDF template. Reuses a fixed set of page layouts (cover, TOC, hero, content, content_side_callout, content_image) and keeps the static back cover untouched.  
 **Trigger:** any request for a "high-level whitepaper", "whitepaper", "white paper", long-form report, or similar.  
 **Script:** `skills/whitepaper-builder/whitepaper_builder.py`  
-**Master template:** `/Users/alexcraiu/Desktop/Documents/Word templates/Whitepaper Template.docx`  
-**Can run in browser:** No — master template is local.
+**Master template (PDF, bundled with the skill):** `skills/whitepaper-builder/Whitepaper Template.pdf`  
+**Can run in browser:** No — Open Sans font is loaded from the local machine.
 
 Key rules:
 - Last page (back cover) is static, never edited.

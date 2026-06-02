@@ -1,31 +1,31 @@
 ---
 name: whitepaper-builder
-description: Build a TrustFlight-branded whitepaper from the master Whitepaper template. Triggers on any request for a "high-level whitepaper", "whitepaper", "white paper", long-form report, thought-leadership document, or similar keywords (e.g. "draft a whitepaper on X", "write a high-level whitepaper", "restyle this whitepaper").
+description: Build a TrustFlight-branded whitepaper from the bundled PDF master template. Triggers on any request for a "high-level whitepaper", "whitepaper", "white paper", long-form report, thought-leadership document, or similar keywords (e.g. "draft a whitepaper on X", "write a high-level whitepaper", "restyle this whitepaper").
 ---
 
 # TrustFlight Whitepaper Builder
 
 **Script:** `~/.claude/skills/whitepaper-builder/whitepaper_builder.py`
-**Master template (Word, used by the script):** `/Users/alexcraiu/Desktop/Documents/Word templates/Whitepaper Template.docx`
-**Visual reference (PDF, bundled with the skill):** `~/.claude/skills/whitepaper-builder/Whitepaper Template.pdf`
-**Dependency:** `python-docx` (already installed)
+**Master template (PDF, bundled with the skill):** `~/.claude/skills/whitepaper-builder/Whitepaper Template.pdf`
+**Font:** `/Users/alexcraiu/Library/Fonts/OpenSans-VariableFont_wdth,wght.ttf`
+**Dependency:** `PyMuPDF` (already installed)
 
-The bundled PDF is the canonical visual reference for every layout, colour, and type spec in this skill. Open it whenever you need to verify a layout choice or check that the master Word template still matches the brand intent. The script itself reads only the `.docx` template.
+The bundled PDF is the canonical template **and** the visual reference for every layout, colour, and type spec in this skill. The script opens it, clones the correct page for each requested layout, redacts the placeholder content, overlays the new content in Open Sans, and emits a new PDF. The **back cover (page 7) is copied verbatim** and never edited.
 
-The script opens the master template as the base document, inheriting all named styles, fonts, headers, footers, page backgrounds, and the **static back cover**. It then injects cover content, builds the table of contents, and lays out body pages using a small set of reusable layouts. The back cover (last page) is never altered.
+Open the bundled PDF whenever you need to verify a layout choice, colour, or type spec — it is the source of truth.
 
 ---
 
-## Brand styling reference (from the master template)
+## Brand styling reference (from the bundled PDF)
 
 | Element | Spec |
 |---|---|
-| Body font | Open Sans, 10pt, `#242D41` |
-| Cover title | Open Sans Light, 44pt, `#FFFFFF` |
+| Body | Open Sans Regular, 10pt, `#242D41` |
+| Cover title | Open Sans Light, 44pt, `#FFFFFF` on navy `#062955` |
 | Cover eyebrow | Open Sans Bold, 14pt, `#16C2EE` (cyan), letter-spaced |
-| Cover overview | Open Sans SemiBold, 12pt, `#062955` (on light band) |
+| Cover overview | Open Sans SemiBold, 12pt, `#062955` on light band |
 | Cover date | Open Sans SemiBold, 10pt, `#062955` |
-| TOC title | Open Sans Light, 44pt, `#FFFFFF` (on navy) |
+| TOC title | Open Sans Light, 44pt, `#FFFFFF` on navy |
 | TOC entry number | Open Sans Light, 24pt, `#16C2EE` |
 | TOC entry title | Open Sans Regular, 12pt, `#242D41` |
 | Page eyebrow | Open Sans Bold, 11pt, `#062955`, letter-spaced |
@@ -34,33 +34,27 @@ The script opens the master template as the base document, inheriting all named 
 | Lead paragraph | Open Sans Bold, 10pt, `#242D41` |
 | Body paragraph | Open Sans Regular, 10pt, `#242D41` |
 | Bulleted list | Open Sans Regular, 10pt, `#242D41`, cyan square bullet |
-| Callout box title | Open Sans SemiBold, 14pt, `#16C2EE` on `#0A2A5A` |
-| Callout box body | Open Sans Regular, 10pt, `#FFFFFF` on `#0A2A5A` |
-| Side-callout title | Open Sans SemiBold, 14pt, `#1E5BB5` on `#E4ECF7` |
-| Side-callout body | Open Sans Regular, 10pt, `#242D41` on `#E4ECF7` |
-| Header (running) | TrustFlight logo (left) + `WHERE AEROSPACE PLACES ITS TRUST` (right, Open Sans Bold 8pt, letter-spaced, `#FFFFFF` on navy) |
-| Footer (running) | Document short title (bottom-left, Open Sans Regular 9pt, `#7A8AA8`) + page number (bottom-right) |
-
-### Named styles available in the template
-
-`Whitepaper Cover Title`, `Whitepaper Cover Eyebrow`, `Whitepaper Cover Overview`, `Whitepaper Cover Date`, `Whitepaper TOC Title`, `Whitepaper TOC Number`, `Whitepaper TOC Entry`, `Whitepaper Eyebrow`, `Whitepaper Title`, `Whitepaper H2`, `Whitepaper Lead`, `Whitepaper Body`, `Whitepaper Bullet`, `Whitepaper Callout Title`, `Whitepaper Callout Body`, `Whitepaper Side Callout Title`, `Whitepaper Side Callout Body`, `Whitepaper Caption`.
+| Callout box (dark) | navy `#0A2A5A` bg, cyan title, white body |
+| Side-callout (light) | `#E4ECF7` bg, blue title `#1E5BB5`, ink body |
+| Running header | TrustFlight logo (left), `WHERE AEROSPACE PLACES ITS TRUST` (right) on navy |
+| Running footer | Document short title (bottom-left, `#7A8AA8`), page number (bottom-right) |
 
 ---
 
 ## Page layouts
 
-The script supports a fixed set of reusable layouts. **Always pick one of these — never invent a new layout.** Reuse the same layout across pages whenever the content fits, so the document looks consistent.
+The script reuses the seven pages of the bundled PDF as canonical layouts. **Always pick one from this list — never invent a new layout.** Reuse the same layout across pages whenever the content fits, so the document stays visually consistent.
 
-| `layout` | When to use | Required fields |
-|---|---|---|
-| `cover` | Front page (page 1) — emitted automatically from top-level `cover` block. | n/a (top-level keys) |
-| `toc` | Table of contents (page 2) — emitted automatically from top-level `toc` block. | n/a (top-level keys) |
-| `hero` | First body page after TOC, or any section opener with a strong photo. Hero image fills top half; title and intro sit on the navy band underneath. | `title`, `hero_image`, `intro`, optional `subintro`, `body`, `callout` |
-| `content` | Standard body page. Eyebrow + title at top, then prose, headings, and bullets. | `title`, optional `eyebrow`, `lead`, `body`, `subsections` |
-| `content_image` | Body page with a supporting image floated right (used for `The TrustFlight Approach`-style pages). | `title`, `image`, optional `eyebrow`, `lead`, `body`, `subsections` |
-| `two_column` | A subsection that needs side-by-side prose, or a left-rail callout next to right-side body (used for `Declaration of Compliance` and `What Auditors Are Finding`). | `columns` (array of 2) |
+| `layout` | Source page in template | When to use | Required fields |
+|---|---|---|---|
+| `cover` | Page 1 | Front page. Emitted automatically from the top-level `cover` block. | (top-level keys) |
+| `toc` | Page 2 | Table of contents. Emitted automatically from the top-level `toc` block. | (top-level keys) |
+| `hero` | Page 3 | First body page after TOC, or any section opener with a strong photo. Hero image fills top half. | `title`, `hero_image`, `intro`, optional `subintro`, `body`, `callout` |
+| `content` | Page 4 | Standard body page. Eyebrow + title at top, then prose, headings, bullets. | `title`, optional `eyebrow`, `lead`, `body`, `subsections` |
+| `content_side_callout` | Page 5 | Body page with a left-rail callout next to right-side body. | `title`, `body`, `subsections` (one must use the `two_column` nested layout with `side_callout: true`) |
+| `content_image` | Page 6 | Body page with a supporting image floated right. | `title`, `image`, optional `eyebrow`, `lead`, `body`, `subsections` |
 
-**Static back cover:** the last page in the master template (contacts page) is preserved verbatim. Do not include it in the JSON.
+**Static back cover:** page 7 of the template is appended verbatim. Do not include it in the JSON.
 
 ---
 
@@ -76,15 +70,15 @@ The script supports a fixed set of reusable layouts. **Always pick one of these 
 
 ## Process
 
-1. **Read the source content** (Word doc, PDF, brief, or notes) and identify: cover info, TOC entries, body pages.
-2. **Choose layouts** — reuse the same layout type across similar pages.
+1. **Read the source content** (PDF, brief, or notes) and identify: cover info, TOC entries, body pages.
+2. **Choose layouts** from the table above. Reuse the same layout type across similar pages.
 3. **Map to the JSON spec** below. Keep `doc_title` short (it shows in every footer).
 4. **Write a temp JSON file** (e.g. `/tmp/whitepaper.json`).
 5. **Run the script:**
    ```bash
    python3 ~/.claude/skills/whitepaper-builder/whitepaper_builder.py /tmp/whitepaper.json
    ```
-6. The script saves to `output_path`. The static back cover is preserved untouched.
+6. The script saves a PDF to `output_path`. The static back cover is appended automatically.
 
 ---
 
@@ -92,7 +86,7 @@ The script supports a fixed set of reusable layouts. **Always pick one of these 
 
 ```json
 {
-  "output_path": "/path/to/whitepaper.docx",
+  "output_path": "/path/to/whitepaper.pdf",
   "doc_title": "Part 5 SMS",
   "cover": {
     "eyebrow": "DOCUMENT EYEBROW",
@@ -175,24 +169,26 @@ The script supports a fixed set of reusable layouts. **Always pick one of these 
 
 ### Field reference
 
-- `output_path` — absolute path to save to (overrides original source).
+- `output_path` — absolute path to save to (a `.pdf`).
 - `doc_title` — short title shown in the bottom-left footer of every body page.
 - `cover.eyebrow` — small caps, cyan accent (e.g. `PART 5 SMS WHITE PAPER`).
 - `cover.title` — main title, no more than two lines.
 - `cover.overview` — single short line, sits in the light band under the title.
 - `cover.date` — month and year, e.g. `April 2026`.
-- `toc[]` — `{ "page": "03", "title": "..." }`. Pages are emitted in the order they appear; the script does not auto-number.
-- `pages[]` — body pages, in order. Each must have a `layout`.
+- `toc[]` — `{ "page": "03", "title": "..." }`. Entries are rendered in order; the script does not auto-number.
+- `pages[]` — body pages in order. Each must have a `layout` from the table above.
 
 ### Layout fields
 
-**`hero`** — `title`, `hero_image`, `intro` (bold, on navy band), `subintro` (regular, on navy band), `body[]`, `callout { title, body }` (renders as a navy box at the foot).
+**`hero`** — `title`, `hero_image`, `intro` (bold, on navy band), `subintro` (regular, on navy band), `body[]`, `callout { title, body }` (renders as a navy box at the foot of the page).
 
 **`content`** — `eyebrow` (caps), `title`, `lead` (bold opening paragraph), `body[]`, `subsections[]`. Each subsection has `heading`, optional `intro`/`lead`, `body[]`, `bullets[]`, or a nested `layout: "two_column"` with `columns[2]`.
 
-**`content_image`** — same as `content` but with an `image` floated to the right of the body.
+**`content_side_callout`** — same fields as `content`. The first subsection should be a `two_column` with `side_callout: true` to render the left rail in the light blue panel style.
 
-**`two_column`** (as nested subsection layout) — `columns` is an array of exactly two objects, each with `{ lead, body[], bullets[] }`. Left column is narrower (label rail), right column carries the body. Use this for the side-callout pattern (e.g. `What Auditors Are Finding`).
+**`content_image`** — same as `content`, plus an `image` floated to the right of the body.
+
+**`two_column`** (nested under a subsection) — `columns` is an array of exactly two objects, each with `{ lead, body[], bullets[] }`. Use this for the side-callout pattern (e.g. `What Auditors Are Finding`) or two-column prose (e.g. `Declaration of Compliance`).
 
 ---
 
@@ -200,7 +196,7 @@ The script supports a fixed set of reusable layouts. **Always pick one of these 
 
 ```json
 {
-  "output_path": "/Users/alexcraiu/Downloads/Part-5-SMS-Whitepaper.docx",
+  "output_path": "/Users/alexcraiu/Downloads/Part-5-SMS-Whitepaper.pdf",
   "doc_title": "Part 5 SMS",
   "cover": {
     "eyebrow": "PART 5 SMS WHITE PAPER",
@@ -233,8 +229,10 @@ The script supports a fixed set of reusable layouts. **Always pick one of these 
 
 ## Implementation notes
 
-- The script never edits the **last section** (back cover) of the master template. It inserts new sections **before** it.
-- The footer `doc_title` is written into every body section's footer XML, but the back cover footer is left alone.
-- Hero and content images are inserted at the page's full content width, cropped via a rounded-rectangle frame (Azure `#479FF8` 1pt outline, per brand rules).
-- If `python-docx` cannot represent a shape (e.g. the curved decorative cutouts), the master template carries that shape natively — the script only fills text and inserts pictures.
-- If you need a new layout, add it to the script's `LAYOUTS` dispatch table and document it here. Do not improvise inline styling.
+- The script **never edits page 7** of the template. It always appends it verbatim as the final page.
+- The footer `doc_title` is written into the bottom-left of every page from page 2 onwards; the cover and back cover are excluded.
+- Page numbers in the bottom-right of body pages are written by the script in sequence (starting at 2 for the TOC).
+- Hero, content, and content_image images are inserted at the page's full content width, behind the cyan rounded-frame element from the template.
+- Open Sans is loaded from `~/Library/Fonts/OpenSans-VariableFont_wdth,wght.ttf`. If the file is missing, the script falls back to PyMuPDF's `helv` Helvetica (and warns).
+- If a content block overflows its layout's body region, the script appends an extra copy of the same layout (without the eyebrow/title) so the run continues on a consistent-looking page.
+- New layouts must be added to the `LAYOUTS` dispatch table in the script AND documented in the table above. Never improvise inline styling.
