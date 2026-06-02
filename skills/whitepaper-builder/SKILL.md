@@ -6,8 +6,11 @@ description: Build a TrustFlight-branded whitepaper from the master Whitepaper t
 # TrustFlight Whitepaper Builder
 
 **Script:** `~/.claude/skills/whitepaper-builder/whitepaper_builder.py`
-**Master template:** `/Users/alexcraiu/Desktop/Documents/Word templates/Whitepaper Template.docx`
+**Master template (Word, used by the script):** `/Users/alexcraiu/Desktop/Documents/Word templates/Whitepaper Template.docx`
+**Visual reference (PDF, bundled with the skill):** `~/.claude/skills/whitepaper-builder/Whitepaper Template.pdf`
 **Dependency:** `python-docx` (already installed)
+
+The bundled PDF is the canonical visual reference for every layout, colour, and type spec in this skill. Open it whenever you need to verify a layout choice or check that the master Word template still matches the brand intent. The script itself reads only the `.docx` template.
 
 The script opens the master template as the base document, inheriting all named styles, fonts, headers, footers, page backgrounds, and the **static back cover**. It then injects cover content, builds the table of contents, and lays out body pages using a small set of reusable layouts. The back cover (last page) is never altered.
 
