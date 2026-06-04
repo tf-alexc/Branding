@@ -105,12 +105,12 @@ Key rules:
 
 ---
 
-### `word-docs` — Word document branding
+### `trustflight-word-branding` — Word document branding
 Restyle any Word document to TrustFlight brand standards using the master template.  
-**Script:** `skills/word-docs/word_docs.py`  
+**Script:** `skills/trustflight-word-branding/trustflight_word_branding.py`  
 **Master templates (bundled):**
-- `skills/word-docs/templates/Basic Document.docx` — full doc with cover, Revision History, back cover.
-- `skills/word-docs/templates/Basic Letterhead.docx` — letterhead for briefs and short docs (`is_brief: true`).
+- `skills/trustflight-word-branding/templates/Basic Document.docx` — full doc with cover, Revision History, back cover.
+- `skills/trustflight-word-branding/templates/Basic Letterhead.docx` — letterhead for briefs and short docs (`is_brief: true`).
 
 **Can run in browser:** Yes — templates ship with the skill.
 
@@ -128,7 +128,7 @@ Claude Playground/
 │   ├── linkedin-event-generator/  # Event graphic Illustrator workflow
 │   ├── bsl-course-sheets/         # BSL PDF automation
 │   ├── course-dates-generator/    # Course dates PDF automation
-│   └── word-docs/                # Word document branding
+│   └── trustflight-word-branding/                # Word document branding
 ├── Illustrator Templates/         # Master .ai files for Illustrator skills
 ├── InDesign/
 │   ├── BSL Course Sheets/         # Templates, script, fonts, output PDFs
@@ -153,6 +153,6 @@ Claude Playground/
 | linkedin-holiday-generator | No | Yes |
 | linkedin-event-generator | No | Yes |
 | bsl-course-sheets | No | Yes |
-| word-docs | Yes | Yes |
+| trustflight-word-branding | Yes | Yes |
 
 Skills marked "No" require desktop apps (Illustrator, InDesign, PowerPoint, Word) running locally via MCP.
