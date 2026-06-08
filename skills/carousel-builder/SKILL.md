@@ -11,12 +11,14 @@ Heavily summarise an article, brief, or any source material into a short LinkedI
 
 ## Templates (one per brand, never modified)
 
+Templates live **inside the skill folder** so the skill is fully self-contained — they ship with the upload.
+
 | Brand | Template path |
 |-------|---------------|
-| Baines Simmons | `/Users/alexcraiu/Desktop/Claude Playground/Carousel PDFs/Carousel - Baines Simmons - Template.pdf` |
-| Redline | `/Users/alexcraiu/Desktop/Claude Playground/Carousel PDFs/Carousel - Redline - Template.pdf` |
-| Kenyon | `/Users/alexcraiu/Desktop/Claude Playground/Carousel PDFs/Carousel - Kenyon - Template.pdf` |
-| TrustFlight | `/Users/alexcraiu/Desktop/Claude Playground/Carousel PDFs/Carousel - TrustFlight - Template.pdf` |
+| Baines Simmons | `~/.claude/skills/carousel-builder/Carousel - Baines Simmons - Template.pdf` |
+| Redline | `~/.claude/skills/carousel-builder/Carousel - Redline - Template.pdf` |
+| Kenyon | `~/.claude/skills/carousel-builder/Carousel - Kenyon - Template.pdf` |
+| TrustFlight | `~/.claude/skills/carousel-builder/Carousel - TrustFlight - Template.pdf` |
 
 All brand templates share the **same structure, layout, fonts, background graphics, and page geometry**. The only differences between brands are:
 - The **header logo** (top-left)
@@ -116,8 +118,8 @@ PYEOF
 
 ```bash
 python3 - << 'PYEOF'
-import fitz
-doc = fitz.open("/Users/alexcraiu/Desktop/Claude Playground/Carousel PDFs/Carousel - Baines Simmons - Template.pdf")
+import fitz, os
+doc = fitz.open(os.path.expanduser("~/.claude/skills/carousel-builder/Carousel - Baines Simmons - Template.pdf"))
 for i, page in enumerate(doc):
     print(f"--- page {i+1} ---")
     print(page.get_text("dict"))

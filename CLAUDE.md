@@ -107,7 +107,7 @@ Key rules:
 
 ### `carousel-builder` — LinkedIn carousel PDFs
 Summarise an article or brief into a short LinkedIn carousel (max 6 slides, intro and outro included) using a brand-specific PDF template. Templates share structure across brands — only logo and footer URLs differ.  
-**Templates:** `Carousel PDFs/Carousel - [Brand] - Template.pdf` (Baines Simmons, Redline, Kenyon, TrustFlight)  
+**Templates:** `skills/carousel-builder/Carousel - [Brand] - Template.pdf` (bundled with the skill — Baines Simmons live; Redline, Kenyon, TrustFlight pending)  
 **Output:** `Carousel PDFs/Carousel - [Brand]/`  
 **Trigger:** "carousel", "LinkedIn carousel", "multi-page LinkedIn post", or similar.  
 **Can run in browser:** Yes — uses WebFetch + Python/PyMuPDF, no local apps needed.
@@ -147,7 +147,7 @@ Claude Playground/
 │   ├── BSL Course Sheets/         # Templates, script, fonts, output PDFs
 │   └── indesign-mcp/              # Local InDesign MCP server
 ├── Course PDFs/                   # Course date PDF templates (Redline, BSL, Kenyon)
-├── Carousel PDFs/                 # LinkedIn carousel PDF templates + output (per brand)
+├── Carousel PDFs/                 # Generated LinkedIn carousel PDFs (templates live inside the skill)
 ├── Claude Presentations/          # All generated PowerPoint files
 ├── Events Generated/              # Exported event graphic JPGs
 ├── fill_course_pdf.py             # Course dates script (root copy)
