@@ -92,6 +92,12 @@ Implementation: measure the rendered label width using the same font/size/letter
 7. **Closing title + final description** (outro, last page): short closing line and a one-or-two-line wrap-up. Must not overlap or push into the contact pills below.
 8. **Outro contact pills**: leave the template's two contact pills exactly as-is (website + email). They are brand-specific and baked into the template.
 9. **Brand voice:** follow `skills/brand-framework/SKILL.md`. No em dashes (use comma, colon, or rewrite). "Visit our website" = `https://www.trustflight.com`. Open Sans only.
+10. **Suggested LinkedIn caption:** after generating the PDF, propose a social media caption to go with the carousel post.
+    - Length: medium — long enough to hook and summarise (roughly 3 to 6 short sentences or ~80 to 150 words), short enough to scan. Never a wall of text, never a one-liner.
+    - Tone: professional, confident, informative. Not overly friendly, no hype, no "Hey everyone!" openers.
+    - Emojis: use a few, sparingly and on-brand (e.g. ✈️ 🛡️ 📊 🔍). One in the opener and one or two more in the body is plenty. Avoid emoji-as-bullet runs.
+    - Hashtags: suggest around five, all relevant to the topic and the brand (e.g. `#AviationSafety #JustCulture #SMS #SafetyCulture #BainesSimmons`). Place them on their own line at the end.
+    - Output the caption block in the final reply, clearly labelled, so the user can copy it straight into LinkedIn.
 
 ---
 
@@ -176,6 +182,7 @@ Use that dump to lock in per-page constants, then bake them into `fill_carousel_
 5. **Confirm with the user** before generating, especially if the source is ambiguous or you had to make heavy editorial calls.
 6. **Run `build_carousel(...)`** — generates the PDF into `Carousel PDFs/Carousel - [Brand]/`.
 7. **Report back**: brand used, page count, output path. Then `open` the folder.
+8. **Suggest a LinkedIn caption** (see Content Rule 10) — include the caption text and ~5 hashtags in the reply.
 
 ---
 
