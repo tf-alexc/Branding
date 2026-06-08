@@ -61,14 +61,16 @@ If brand is ambiguous, ask the user.
 
 ## Page Anatomy
 
-The Baines Simmons template (4 pages) sets the structure for every brand:
+The carousel template (4 pages) sets the structure for every brand:
 
 | Page | Role | Editable regions |
 |------|------|-----------------|
 | 1 | **Intro / Cover** | Subtitle pill, Post title (large), Description (paragraph under title) |
-| 2 | **Content** | Subtitle pill, Body text (large, fills page) |
-| 3 | **Content** | Subtitle pill, Body text (large, fills page) |
+| 2 | **Content** | Subtitle pill, Page title (large), Description (short paragraph) |
+| 3 | **Content** | Subtitle pill, Page title (large), Description (short paragraph) |
 | 4 | **Outro / Closing** | Subtitle pill, Closing title (large), Final description (short), two **contact pills** (website + email) |
+
+Every page shares the same anatomy: subtitle pill at the top-left, a large title underneath, and a description paragraph under that. Content pages 2 and 3 use a **page title + description**, not a single body paragraph — the new structure replaces the old body-block design.
 
 Static elements (never edit): brand header logo, top-right line graphic, side-decoration line patterns, navy gradient background, footer URL strip, next-arrow circle (pages 1–3 only — outro has no arrow).
 
@@ -76,7 +78,7 @@ Static elements (never edit): brand header logo, top-right line graphic, side-de
 - Baines Simmons → `bainessimmons.com` / `hello@bainessimmons.com`
 - Redline → (per Redline template, e.g. `redlineassured.com` / `hello@redlineassured.com`)
 - Kenyon → (per Kenyon template, e.g. `kenyoninternational.com` / `hello@kenyoninternational.com`)
-- TrustFlight → (per TrustFlight template, e.g. `trustflight.com` / `hello@trustflight.com`)
+- TrustFlight → `trustflight.com` / `sales@trustflight.com`
 
 Treat the outro contact pills as **template-fixed text**. Do not rewrite, shorten, or replace them — they ship inside the brand's template PDF as-is. Only the closing title, final description, and subtitle pill change on the outro.
 
@@ -84,23 +86,18 @@ Treat the outro contact pills as **template-fixed text**. Do not rewrite, shorte
 
 ## Blog Image Companion
 
-After the carousel is generated, **always ask the user (y/n) whether they also want a blog post image** to go with it. Example prompt:
-
-> "Carousel saved. Do you also want a matching blog post image for this article? (y/n)"
-
-If **yes**:
+A matching blog post image is **always generated alongside the carousel** — no y/n prompt, no opt-in. Every carousel run produces both a carousel PDF and a blog image JPG.
 
 1. **Pick the brand's page** from `Blog Image - Template.pdf` using the page index table above. Do not touch other pages.
-2. **Reuse the carousel cover's text verbatim** — same subtitle pill label, same post title, same description that already went onto the carousel's intro slide. Do not re-ask the user for these; the blog image and carousel cover share a copy block by design.
-3. **Apply the same subtitle pill hug-the-text rule** as the carousel (see "Subtitle Pill Sizing" below). Pill width = label width + symmetric padding, never shorter than the label.
-4. **Cover-then-write** the placeholder text on the page, exactly like the carousel pipeline.
-5. **Export as JPG** (not PDF). Render at high resolution suitable for LinkedIn / blog hero use — minimum 1500 px wide. Use PyMuPDF: `page.get_pixmap(matrix=fitz.Matrix(scale, scale))` with `scale` chosen so output width ≥ 1500 px, then `pix.save("...jpg", jpg_quality=92)`.
-6. **Save** alongside the carousel in `Carousel PDFs/Carousel - [Brand]/Blog Image - [Brand] - [Post Title].jpg`.
-7. **Confirm** in the reply: blog image path, dimensions.
+2. **Reuse the carousel cover's subtitle pill and post title verbatim** — same label, same title that already went onto the carousel's intro slide. The blog image and carousel cover share that copy block by design.
+3. **Description must be no longer than 2 lines of text** on the rendered blog image. Three lines is too long, the visual gets cramped. If the carousel cover description is longer than 2 lines, write a **shorter, tighter version** specifically for the blog image — keep the same idea, drop or compress wording until it fits in 2 lines at the template's font size and column width. Don't truncate mid-sentence; rewrite.
+4. **Apply the same subtitle pill hug-the-text rule** as the carousel (see "Subtitle Pill Sizing" below). Pill width = label width + symmetric padding, never shorter than the label.
+5. **Cover-then-write** the placeholder text on the page, exactly like the carousel pipeline.
+6. **Export as JPG** (not PDF). Render at high resolution suitable for LinkedIn / blog hero use — minimum 1500 px wide. Use PyMuPDF: `page.get_pixmap(matrix=fitz.Matrix(scale, scale))` with `scale` chosen so output width ≥ 1500 px, then `pix.save("...jpg", jpg_quality=92)`.
+7. **Save** alongside the carousel in `Carousel PDFs/Carousel - [Brand]/Blog Image - [Brand] - [Post Title].jpg`.
+8. **Confirm** in the reply: blog image path, dimensions, and whether the description was rewritten to fit the 2-line cap.
 
-If **no**: skip silently, no extra file produced.
-
-The blog image layout intentionally mirrors the carousel's intro slide (subtitle pill, post title, description, same header logo, same line graphics), so when a user posts both, they read as a matched pair.
+The blog image layout intentionally mirrors the carousel's intro slide (subtitle pill, post title, short description, same header logo, same line graphics), so when a user posts both, they read as a matched pair.
 
 ---
 
@@ -126,7 +123,7 @@ Implementation: measure the rendered label width using the same font/size/letter
 3. **Subtitle pill** (`[VERY SHORT SUBTITLE LABEL]`): all caps, very short (max ~25 characters). Treat as a section/topic chip, not a sentence. Same label can repeat across pages or change per page — match the source material's flow. **The pill container must hug the label** — see "Subtitle Pill Sizing" above.
 4. **Post title** (page 1): the carousel headline. Keep punchy, can wrap to 2 lines.
 5. **Description** (page 1): short paragraph under the title — a teaser, can run a few lines.
-6. **Body text** (content pages): heavy summary of one point per page. Stay within the visible text area defined by the template — do not push past the bottom edge of the column.
+6. **Content slides** (pages 2 and 3): each carries a **page title** (large) and a **description** (short paragraph under the title). Page title = one punchy line, max 2 lines. Description = short paragraph, max 3 to 4 lines. Stay within the visible text area, do not push past the bottom edge of the column.
 7. **Closing title + final description** (outro, last page): short closing line and a one-or-two-line wrap-up. Must not overlap or push into the contact pills below.
 8. **Outro contact pills**: leave the template's two contact pills exactly as-is (website + email). They are brand-specific and baked into the template.
 9. **Brand voice:** follow `skills/brand-framework/SKILL.md`. No em dashes (use comma, colon, or rewrite). "Visit our website" = `https://www.trustflight.com`. Open Sans only.
@@ -175,8 +172,17 @@ build_carousel(
     },
     content=[
         # 2 to 4 content slides between cover and outro. Total slides incl. cover + outro must be <= 6.
-        {"subtitle": "WHAT IT IS", "body": "Just culture treats honest mistakes as learning opportunities, not punishable offences."},
-        {"subtitle": "WHY IT MATTERS", "body": "Crews who fear blame stop reporting. Without reports, hazards stay hidden."},
+        # Each content slide has a page title + short description (not a single body block).
+        {
+            "subtitle": "WHAT IT IS",
+            "title": "Honest mistakes are learning opportunities",
+            "description": "Just culture separates error from violation, so crews report freely.",
+        },
+        {
+            "subtitle": "WHY IT MATTERS",
+            "title": "Fear of blame hides hazards",
+            "description": "Without reports, the operation loses its early warning system.",
+        },
     ],
     outro={
         "subtitle": "GET IN TOUCH",
@@ -204,8 +210,7 @@ Use that dump to lock in per-page constants, then bake them into `fill_carousel_
 
 - `SUBTITLE_ANCHOR` — left edge x + baseline y for the subtitle pill (shared across pages 1–4).
 - `SUBTITLE_PAD_X`, `SUBTITLE_HEIGHT`, `SUBTITLE_RADIUS`, `SUBTITLE_STROKE` — pill geometry for the hug-the-text logic.
-- `TITLE_RECT` (page 1) and `DESCRIPTION_RECT` (page 1) — cover layout.
-- `BODY_RECT` — content pages 2 and 3.
+- `TITLE_RECT`, `DESCRIPTION_RECT` — shared across pages 1, 2, 3 (cover and content slides all use the same title + description layout).
 - `CLOSING_TITLE_RECT`, `CLOSING_DESCRIPTION_RECT` — outro page only.
 - **Do NOT** define rects for the outro contact pills; they stay as the template renders them.
 
@@ -219,8 +224,8 @@ Use that dump to lock in per-page constants, then bake them into `fill_carousel_
 4. **Draft the slide map**: post title, description, subtitle pills, body text per page.
 5. **Confirm with the user** before generating, especially if the source is ambiguous or you had to make heavy editorial calls.
 6. **Run `build_carousel(...)`** — generates the PDF into `Carousel PDFs/Carousel - [Brand]/`.
-7. **Report back**: brand used, page count, output path. Then `open` the folder.
-8. **Ask if a blog image is wanted (y/n)** — see "Blog Image Companion" above. If yes, generate the JPG using the same cover copy and save it alongside the carousel. If no, skip.
+7. **Always generate the blog image companion** — see "Blog Image Companion" above. Pick the brand's page from `Blog Image - Template.pdf`, reuse the carousel cover's subtitle pill + title, write a 2-line description, export as JPG into the same folder as the carousel. Never skip this step and never ask the user to opt in.
+8. **Report back**: brand used, carousel page count, carousel PDF path, blog image JPG path. Then `open` the folder.
 9. **Suggest a LinkedIn caption** (see Content Rule 10) — include the caption text and ~5 hashtags in the reply.
 
 ---
