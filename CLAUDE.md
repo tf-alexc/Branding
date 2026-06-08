@@ -105,6 +105,21 @@ Key rules:
 
 ---
 
+### `carousel-builder` — LinkedIn carousel PDFs
+Summarise an article or brief into a short LinkedIn carousel (max 6 slides, intro and outro included) using a brand-specific PDF template. Templates share structure across brands — only logo and footer URLs differ.  
+**Templates:** `Carousel PDFs/Carousel - [Brand] - Template.pdf` (Baines Simmons, Redline, Kenyon, TrustFlight)  
+**Output:** `Carousel PDFs/Carousel - [Brand]/`  
+**Trigger:** "carousel", "LinkedIn carousel", "multi-page LinkedIn post", or similar.  
+**Can run in browser:** Yes — uses WebFetch + Python/PyMuPDF, no local apps needed.
+
+Key rules:
+- Max 6 slides total, intro and outro included.
+- If the template is shorter than the needed page count, duplicate one of the inner content pages at random (never the intro or outro).
+- Output must look identical to the template — only text changes.
+- Currently only the Baines Simmons template exists; Redline, Kenyon, and TrustFlight are pending.
+
+---
+
 ### `word-brand` — Word document branding
 Restyle any Word document to TrustFlight brand standards using the master template.  
 **Script:** `skills/word-brand/word_brand.py`  
@@ -125,12 +140,14 @@ Claude Playground/
 │   ├── linkedin-event-generator/  # Event graphic Illustrator workflow
 │   ├── bsl-course-sheets/         # BSL PDF automation
 │   ├── course-dates-generator/    # Course dates PDF automation
+│   ├── carousel-builder/          # LinkedIn carousel PDF automation
 │   └── word-brand/                # Word document branding
 ├── Illustrator Templates/         # Master .ai files for Illustrator skills
 ├── InDesign/
 │   ├── BSL Course Sheets/         # Templates, script, fonts, output PDFs
 │   └── indesign-mcp/              # Local InDesign MCP server
 ├── Course PDFs/                   # Course date PDF templates (Redline, BSL, Kenyon)
+├── Carousel PDFs/                 # LinkedIn carousel PDF templates + output (per brand)
 ├── Claude Presentations/          # All generated PowerPoint files
 ├── Events Generated/              # Exported event graphic JPGs
 ├── fill_course_pdf.py             # Course dates script (root copy)
@@ -146,6 +163,7 @@ Claude Playground/
 | brand-framework (reference) | Yes | Yes |
 | ppt-design-system | Partial | Yes |
 | course-dates-generator | Yes | Yes |
+| carousel-builder | Yes | Yes |
 | linkedin-ad-generator | No | Yes |
 | linkedin-holiday-generator | No | Yes |
 | linkedin-event-generator | No | Yes |
