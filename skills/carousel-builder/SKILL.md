@@ -216,6 +216,17 @@ Use that dump to lock in per-page constants, then bake them into `fill_carousel_
 
 ---
 
+## Execution Style — Be Fast, Stay Quiet
+
+- **Minimal narration.** Do not describe what you are about to do, what you just did, or what you are thinking. The user does not want a play-by-play. State only: (a) one short line acknowledging the request, (b) the final report at the end. Nothing in between unless blocked.
+- **No "Now I will..." / "Let me..." / "I'll start by..." sentences.** Cut them.
+- **Batch everything.** Fetch the source, distil the slide map, render the carousel, and render the blog image in as few tool calls as possible. Use a single Python heredoc that opens PyMuPDF once, processes both the carousel and the blog image, and saves both — do not run a separate script per file.
+- **Parallelise where independent.** WebFetch + reading any reference files at the start can go in one batched tool call.
+- **No mid-task confirmations.** Only ask the user a question if (a) the brand is genuinely ambiguous, or (b) the editorial calls were so heavy you need a sanity check. Otherwise generate and report.
+- **End-of-task report = 3 lines max.** Carousel path, blog image path, then the LinkedIn caption block. Skip "I have generated…" preambles.
+
+---
+
 ## Step-by-Step
 
 1. **Identify the source material** the user provided (article URL, brief, raw text). Fetch with `WebFetch` if it's a URL.
