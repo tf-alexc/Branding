@@ -13,12 +13,27 @@ Heavily summarise an article, brief, or any source material into a short LinkedI
 
 Templates live **inside the skill folder** so the skill is fully self-contained — they ship with the upload.
 
+### Carousel templates (one PDF per brand)
+
 | Brand | Template path |
 |-------|---------------|
 | Baines Simmons | `~/.claude/skills/carousel-builder/Carousel - Baines Simmons - Template.pdf` |
 | Redline | `~/.claude/skills/carousel-builder/Carousel - Redline - Template.pdf` |
 | Kenyon | `~/.claude/skills/carousel-builder/Carousel - Kenyon - Template.pdf` |
 | TrustFlight | `~/.claude/skills/carousel-builder/Carousel - TrustFlight - Template.pdf` |
+
+### Blog image template (single multi-page PDF, one page per brand)
+
+`~/.claude/skills/carousel-builder/Blog Image - Template.pdf` — pick the relevant page by brand:
+
+| Brand | Page (1-indexed) | Page index (0-indexed) |
+|-------|-----------------|------------------------|
+| Baines Simmons | 1 | 0 |
+| Redline | 2 | 1 |
+| Kenyon | 3 | 2 |
+| TrustFlight | 4 | 3 |
+
+When generating a blog image, **extract only the relevant brand's page** from this PDF, render it, and export as **JPG**. Never include the other pages in the output.
 
 All brand templates share the **same structure, layout, fonts, background graphics, and page geometry**. The only differences between brands are:
 - The **header logo** (top-left)
@@ -27,7 +42,8 @@ All brand templates share the **same structure, layout, fonts, background graphi
 This means the same coordinate map applies to every brand template.
 
 **Output folder:** `/Users/alexcraiu/Desktop/Claude Playground/Carousel PDFs/Carousel - [Brand]/`  
-**Output filename:** `Carousel - [Brand] - [Post Title].pdf`
+**Output filename (carousel):** `Carousel - [Brand] - [Post Title].pdf`  
+**Output filename (blog image):** `Blog Image - [Brand] - [Post Title].jpg` (saved in the same folder as the carousel it accompanies)
 
 ---
 
@@ -66,9 +82,31 @@ Treat the outro contact pills as **template-fixed text**. Do not rewrite, shorte
 
 ---
 
+## Blog Image Companion
+
+After the carousel is generated, **always ask the user (y/n) whether they also want a blog post image** to go with it. Example prompt:
+
+> "Carousel saved. Do you also want a matching blog post image for this article? (y/n)"
+
+If **yes**:
+
+1. **Pick the brand's page** from `Blog Image - Template.pdf` using the page index table above. Do not touch other pages.
+2. **Reuse the carousel cover's text verbatim** — same subtitle pill label, same post title, same description that already went onto the carousel's intro slide. Do not re-ask the user for these; the blog image and carousel cover share a copy block by design.
+3. **Apply the same subtitle pill hug-the-text rule** as the carousel (see "Subtitle Pill Sizing" below). Pill width = label width + symmetric padding, never shorter than the label.
+4. **Cover-then-write** the placeholder text on the page, exactly like the carousel pipeline.
+5. **Export as JPG** (not PDF). Render at high resolution suitable for LinkedIn / blog hero use — minimum 1500 px wide. Use PyMuPDF: `page.get_pixmap(matrix=fitz.Matrix(scale, scale))` with `scale` chosen so output width ≥ 1500 px, then `pix.save("...jpg", jpg_quality=92)`.
+6. **Save** alongside the carousel in `Carousel PDFs/Carousel - [Brand]/Blog Image - [Brand] - [Post Title].jpg`.
+7. **Confirm** in the reply: blog image path, dimensions.
+
+If **no**: skip silently, no extra file produced.
+
+The blog image layout intentionally mirrors the carousel's intro slide (subtitle pill, post title, description, same header logo, same line graphics), so when a user posts both, they read as a matched pair.
+
+---
+
 ## Subtitle Pill Sizing — Hug The Text
 
-The rounded-rectangle subtitle pill (top-left of every page) must **hug the length of its text label** on each slide independently:
+The rounded-rectangle subtitle pill (top-left of every carousel slide **and** the blog image) must **hug the length of its text label** on each slide independently:
 
 - Pill width = label text width + symmetric horizontal padding (match the padding used in the template's default pill, roughly the width of one tracked character on each side).
 - Pill is **never shorter than the label** — the label must never visually touch or overflow the rounded ends.
@@ -182,7 +220,8 @@ Use that dump to lock in per-page constants, then bake them into `fill_carousel_
 5. **Confirm with the user** before generating, especially if the source is ambiguous or you had to make heavy editorial calls.
 6. **Run `build_carousel(...)`** — generates the PDF into `Carousel PDFs/Carousel - [Brand]/`.
 7. **Report back**: brand used, page count, output path. Then `open` the folder.
-8. **Suggest a LinkedIn caption** (see Content Rule 10) — include the caption text and ~5 hashtags in the reply.
+8. **Ask if a blog image is wanted (y/n)** — see "Blog Image Companion" above. If yes, generate the JPG using the same cover copy and save it alongside the carousel. If no, skip.
+9. **Suggest a LinkedIn caption** (see Content Rule 10) — include the caption text and ~5 hashtags in the reply.
 
 ---
 
