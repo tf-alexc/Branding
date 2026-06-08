@@ -51,8 +51,8 @@ This means the same coordinate map applies to every brand template.
 
 Pick the template by matching the source material's owner:
 - Article on `bainessimmons.com`, BSL course, or safety services topic → **Baines Simmons**
-- Article on `redlineassured.com`, aviation security topic → **Redline**
-- Article on `kenyoninternational.com`, emergency response topic → **Kenyon**
+- Article on `trustredline.co.uk`, aviation security topic → **Redline**
+- Article on `kenyoninternational.com`, emergency response / crisis topic → **Kenyon**
 - Anything else, or generic TrustFlight product content (Centrik, TechLog, SmartSuite) → **TrustFlight**
 
 If brand is ambiguous, ask the user.
@@ -76,8 +76,8 @@ Static elements (never edit): brand header logo, top-right line graphic, side-de
 
 **Outro contact pills** are part of the template and must stay an exact match for the brand:
 - Baines Simmons → `bainessimmons.com` / `hello@bainessimmons.com`
-- Redline → (per Redline template, e.g. `redlineassured.com` / `hello@redlineassured.com`)
-- Kenyon → (per Kenyon template, e.g. `kenyoninternational.com` / `hello@kenyoninternational.com`)
+- Redline → `trustredline.co.uk` / `sales@trustredline.co.uk`
+- Kenyon → `kenyoninternational.com` / `kenyon@kenyoninternational.com`
 - TrustFlight → `trustflight.com` / `sales@trustflight.com`
 
 Treat the outro contact pills as **template-fixed text**. Do not rewrite, shorten, or replace them — they ship inside the brand's template PDF as-is. Only the closing title, final description, and subtitle pill change on the outro.
@@ -247,4 +247,4 @@ Use that dump to lock in per-page constants, then bake them into `fill_carousel_
 - **Identical look.** The output PDF must be visually indistinguishable from the template except for the swapped text. Do not add new graphics, recolour anything, or move elements.
 - **Open Sans only.** Embed Open Sans via `OpenSans-VariableFont_wdth,wght.ttf` for any inserted text. Match the weight visible in the template (header is semi-bold; subtitle pill is bold uppercase; title and body are regular).
 - **Cover-then-write.** For each editable region, draw a rectangle filled with the local background colour (or use a transparent overlay technique) to wipe the placeholder, then insert the new text on top. Sample the navy at the text location — the template has a gradient, so a flat fill may leave a visible seam on light areas of pages 1 and 4.
-- **Currently only the Baines Simmons template exists.** Until Redline, Kenyon, and TrustFlight templates are added, refuse to generate for those brands and tell the user the template is pending.
+- **All four brand templates are live** (Baines Simmons, Redline, Kenyon, TrustFlight) and bundled with the skill.

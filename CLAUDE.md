@@ -107,7 +107,7 @@ Key rules:
 
 ### `carousel-builder` — LinkedIn carousel PDFs
 Summarise an article or brief into a short LinkedIn carousel (max 6 slides, intro and outro included) using a brand-specific PDF template. Templates share structure across brands — only logo and footer URLs differ.  
-**Templates:** `skills/carousel-builder/Carousel - [Brand] - Template.pdf` (bundled with the skill — Baines Simmons and TrustFlight live; Redline, Kenyon pending). Blog image companion template (`Blog Image - Template.pdf`) is also bundled with the skill, one page per brand.  
+**Templates:** `skills/carousel-builder/Carousel - [Brand] - Template.pdf` (bundled with the skill — all four brands live: Baines Simmons, Redline, Kenyon, TrustFlight). Blog image companion template (`Blog Image - Template.pdf`) is also bundled with the skill, one page per brand.  
 **Output:** `Carousel PDFs/Carousel - [Brand]/`  
 **Trigger:** "carousel", "LinkedIn carousel", "multi-page LinkedIn post", or similar.  
 **Can run in browser:** Yes — uses WebFetch + Python/PyMuPDF, no local apps needed.
@@ -117,7 +117,7 @@ Key rules:
 - If the template is shorter than the needed page count, duplicate one of the inner content pages at random (never the intro or outro).
 - Output must look identical to the template — only text changes.
 - Always generates a matching blog post image (JPG) alongside the carousel PDF — no opt-in, blog description capped at 2 lines.
-- Baines Simmons and TrustFlight templates are live; Redline and Kenyon are pending.
+- All four brand templates (Baines Simmons, Redline, Kenyon, TrustFlight) are live and bundled with the skill.
 
 ---
 
