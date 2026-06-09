@@ -9,9 +9,64 @@ Heavily summarise an article, brief, or any source material into a short LinkedI
 
 ---
 
+## How To Run This Skill (read this first)
+
+**Do not search the filesystem for templates, fonts, or the fill script.** They are all bundled inside this skill folder at `~/.claude/skills/carousel-builder/`. The `build()` function knows where to find them — just import and call it.
+
+**Never** run `find`, `Glob`, or directory listings looking for `Carousel - *.pdf`, `Blog Image - *.pdf`, `OpenSans-*.ttf`, or `fill_carousel_pdf.py`. They are right next to `SKILL.md`. Searching wastes seconds per run and there is nothing to find that isn't already here.
+
+**The canonical workflow is a single Python call:**
+
+```bash
+python3 - << 'PYEOF'
+import sys, os
+sys.path.insert(0, os.path.expanduser("~/.claude/skills/carousel-builder"))
+from fill_carousel_pdf import build
+
+result = build(
+    brand="Baines Simmons",          # "Baines Simmons" | "Redline" | "Kenyon" | "TrustFlight"
+    cover={
+        "subtitle": "Just Culture",
+        "title": "Building a Just Culture in Aviation Safety",
+        "description": "Why blame-free reporting protects crews, exposes hazards, and saves lives.",
+    },
+    content=[
+        # 1 to 4 content slides. Total slides (cover + content + outro) must be <= 6.
+        {"subtitle": "What it is",
+         "title": "Honest mistakes are learning opportunities",
+         "description": "Just culture separates error from violation, so crews report freely."},
+        {"subtitle": "Why it matters",
+         "title": "Fear of blame hides hazards",
+         "description": "Without reports, the operation loses its early warning system."},
+    ],
+    outro={
+        "subtitle": "Get in touch",
+        "title": "Start your safety culture review",
+        "description": "Talk to our team about a tailored review for your operation.",
+    },
+    blog_description="Why blame-free reporting protects crews and saves lives.",  # 2 lines max
+    output_dir=os.path.expanduser("~/Desktop/Claude Playground/Carousel PDFs"),
+)
+print(result)
+PYEOF
+```
+
+This single call produces **both** the carousel PDF and the matching blog image JPG, hugged subtitle pills, fitted titles, and an open output folder path. After that, write the LinkedIn caption directly into the reply (see Content Rule 10).
+
+`build()` handles, with no further instruction needed:
+- Picking the right brand template.
+- Cloning or dropping content pages so the deck matches `len(content)`.
+- Hug-the-text subtitle pill on every page (carousel and blog).
+- Auto-shrinking the title font when copy is long.
+- Leaving the brand-specific outro contact pills intact.
+- Rendering the blog JPG from the correct brand page of the bundled multi-brand template.
+- Sanitising the post title for the filename.
+
+---
+
 ## Templates (one per brand, never modified)
 
-Templates live **inside the skill folder** so the skill is fully self-contained — they ship with the upload.
+All four brand templates and the multi-brand blog template ship inside this skill folder. The script reads them via `Path(__file__).parent` — no path configuration required.
 
 ### Carousel templates (one PDF per brand)
 
@@ -151,68 +206,22 @@ The Baines Simmons template ships with **4 pages**. The carousel cap is **6 page
 
 ## Generation Method
 
-**Python + PyMuPDF** (mirrors `course-dates-generator`). Edits the brand template's PDF directly so all background graphics, fonts, and layout stay byte-identical to the template.
+**Python + PyMuPDF (`fitz`).** The bundled `fill_carousel_pdf.py` does all the work. Coordinates, fonts, pill geometry, and brand-specific outro pills are already baked into the script — no inspection or coordinate hunting on every run.
 
-**Script:** `/Users/alexcraiu/.claude/skills/carousel-builder/fill_carousel_pdf.py` *(to be authored once all four brand templates exist — currently only Baines Simmons exists; coordinates need to be inspected with `page.get_text("dict")` and locked in once.)*
+Under the hood, for each filled page the script:
+1. Redacts the original pill drawing (vector + tracked text) with transparent fill — the gradient flows through cleanly, no seam.
+2. Redacts the title + description placeholder text spans.
+3. Draws a new pill whose width = label text width + symmetric padding (the hug-the-text rule).
+4. Inserts the new title with auto-shrink, and the new description with auto-shrink.
+5. Leaves the brand-specific outro contact pills (`bainessimmons.com` / `hello@…` etc.) untouched.
 
-**Workflow once the script exists:**
-
-```bash
-python3 - << 'PYEOF'
-import sys
-sys.path.insert(0, "/Users/alexcraiu/.claude/skills/carousel-builder")
-from fill_carousel_pdf import build_carousel
-
-build_carousel(
-    brand="Baines Simmons",          # "Baines Simmons" | "Redline" | "Kenyon" | "TrustFlight"
-    cover={
-        "subtitle": "JUST CULTURE",
-        "title": "Building a Just Culture in Aviation Safety",
-        "description": "Why blame-free reporting protects crews, exposes hazards, and saves lives.",
-    },
-    content=[
-        # 2 to 4 content slides between cover and outro. Total slides incl. cover + outro must be <= 6.
-        # Each content slide has a page title + short description (not a single body block).
-        {
-            "subtitle": "WHAT IT IS",
-            "title": "Honest mistakes are learning opportunities",
-            "description": "Just culture separates error from violation, so crews report freely.",
-        },
-        {
-            "subtitle": "WHY IT MATTERS",
-            "title": "Fear of blame hides hazards",
-            "description": "Without reports, the operation loses its early warning system.",
-        },
-    ],
-    outro={
-        "subtitle": "GET IN TOUCH",
-        "title": "Start your safety culture review",
-        "description": "Talk to our team about a tailored review for your operation.",
-        # Contact pills (website + email) are template-fixed per brand — never set here.
-    },
-)
-PYEOF
-```
-
-**Coordinate inspection (one-off, when each new brand template lands):**
+If something looks wrong (e.g. coordinates shift after a new template upload), inspect with:
 
 ```bash
-python3 - << 'PYEOF'
-import fitz, os
-doc = fitz.open(os.path.expanduser("~/.claude/skills/carousel-builder/Carousel - Baines Simmons - Template.pdf"))
-for i, page in enumerate(doc):
-    print(f"--- page {i+1} ---")
-    print(page.get_text("dict"))
-PYEOF
+python3 -c "import fitz, os; d=fitz.open(os.path.expanduser('~/.claude/skills/carousel-builder/Carousel - Baines Simmons - Template.pdf')); [print(i, p.get_text('dict')) for i, p in enumerate(d)]"
 ```
 
-Use that dump to lock in per-page constants, then bake them into `fill_carousel_pdf.py`. Because every brand template shares geometry, one coordinate map covers all four brands. Required constants:
-
-- `SUBTITLE_ANCHOR` — left edge x + baseline y for the subtitle pill (shared across pages 1–4).
-- `SUBTITLE_PAD_X`, `SUBTITLE_HEIGHT`, `SUBTITLE_RADIUS`, `SUBTITLE_STROKE` — pill geometry for the hug-the-text logic.
-- `TITLE_RECT`, `DESCRIPTION_RECT` — shared across pages 1, 2, 3 (cover and content slides all use the same title + description layout).
-- `CLOSING_TITLE_RECT`, `CLOSING_DESCRIPTION_RECT` — outro page only.
-- **Do NOT** define rects for the outro contact pills; they stay as the template renders them.
+and update the constants at the top of `fill_carousel_pdf.py`. Do **not** rewrite the fill logic from scratch — just adjust the rect / colour constants.
 
 ---
 
@@ -229,22 +238,18 @@ Use that dump to lock in per-page constants, then bake them into `fill_carousel_
 
 ## Step-by-Step
 
-1. **Identify the source material** the user provided (article URL, brief, raw text). Fetch with `WebFetch` if it's a URL.
-2. **Pick the brand** template based on the source.
-3. **Distil to bullet points** — one core idea per content slide, max 4 content slides between intro and outro.
-4. **Draft the slide map**: post title, description, subtitle pills, body text per page.
-5. **Confirm with the user** before generating, especially if the source is ambiguous or you had to make heavy editorial calls.
-6. **Run `build_carousel(...)`** — generates the PDF into `Carousel PDFs/Carousel - [Brand]/`.
-7. **Always generate the blog image companion** — see "Blog Image Companion" above. Pick the brand's page from `Blog Image - Template.pdf`, reuse the carousel cover's subtitle pill + title, write a 2-line description, export as JPG into the same folder as the carousel. Never skip this step and never ask the user to opt in.
-8. **Report back**: brand used, carousel page count, carousel PDF path, blog image JPG path. Then `open` the folder.
-9. **Suggest a LinkedIn caption** (see Content Rule 10) — include the caption text and ~5 hashtags in the reply.
+1. Fetch the source (WebFetch on a URL, or use the brief the user pasted).
+2. Pick the brand from the source.
+3. Distil the slide map in your head (cover + 1–4 content + outro, ≤ 6 total). For each slide: subtitle label, page title, short description.
+4. Write a tight 2-line `blog_description` derived from the cover description.
+5. Run **one** `build(...)` call (see "How To Run This Skill" at the top). It produces the carousel PDF and the blog image JPG together.
+6. Reply in 3 short lines: carousel PDF path, blog image JPG path, then the LinkedIn caption + ~5 hashtags. Nothing else.
 
 ---
 
 ## Important Notes
 
-- **Never modify the templates.** `fitz.open(template)` reads; `doc.save(output_path)` writes a new file.
-- **Identical look.** The output PDF must be visually indistinguishable from the template except for the swapped text. Do not add new graphics, recolour anything, or move elements.
-- **Open Sans only.** Embed Open Sans via `OpenSans-VariableFont_wdth,wght.ttf` for any inserted text. Match the weight visible in the template (header is semi-bold; subtitle pill is bold uppercase; title and body are regular).
-- **Cover-then-write.** For each editable region, draw a rectangle filled with the local background colour (or use a transparent overlay technique) to wipe the placeholder, then insert the new text on top. Sample the navy at the text location — the template has a gradient, so a flat fill may leave a visible seam on light areas of pages 1 and 4.
+- **Never modify the templates.** `fill_carousel_pdf.py` opens them read-only and saves new files into the user's output folder.
+- **Don't improvise on geometry.** All rects, font sizes, pill dimensions, and brand colours are baked into the script. Use `build()` — do not write per-call drawing logic in a heredoc.
+- **Open Sans is bundled** (Light / Regular / Bold / SemiBold `.ttf` files sit alongside `SKILL.md`). The script references them via `Path(__file__).parent`. No system font lookup, no font search, no re-upload.
 - **All four brand templates are live** (Baines Simmons, Redline, Kenyon, TrustFlight) and bundled with the skill.
