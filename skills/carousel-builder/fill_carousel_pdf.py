@@ -173,26 +173,33 @@ def _draw_pill(page, label, *, pill_left, pill_top, pill_h, pad_x, fontsize, fil
 
 
 def _redact_carousel_placeholders(page):
-    """Redact the original pill drawing and the title + description text. Uses
-    transparent redaction so the gradient under the pill stays intact and the
-    new (hug-fit) pill draws cleanly with no seam. Contact pills (size 39.28)
-    and footer URLs (size 20) are left untouched."""
+    """Two-pass clean-up:
+    1. Fully remove the original pill drawing (fill + stroke) with aggressive
+       line-art removal — otherwise the pill's stroke survives the default
+       redaction and shows as a doubled outline next to the new (hugged) pill.
+    2. Remove the title + description placeholder text spans without touching
+       line art (gradient waves, decoration stripes) or the arrow image (which
+       lives at the bottom of the page and would otherwise be clipped by the
+       last description line's redaction box, leaving a grey bar)."""
+    # Pass 1 — pill: nuke vectors inside the pill rect, leave images alone.
+    page.add_redact_annot(PILL_COVER, fill=None)
+    page.apply_redactions(
+        images=fitz.PDF_REDACT_IMAGE_NONE,
+        graphics=fitz.PDF_REDACT_LINE_ART_REMOVE_IF_TOUCHED,
+    )
+    # Pass 2 — title + description text only. Spare images and line art.
     spans = [s for blk in page.get_text("dict")["blocks"] if blk.get("type") == 0
              for line in blk["lines"] for s in line["spans"]]
-    # Pill: full removal (vector + tracked text). PILL_COVER matches the
-    # original pill bounds tightly so the redaction does not touch surrounding
-    # decoration paths.
-    page.add_redact_annot(PILL_COVER, fill=None)
-    # Title (size 120.85) and description (size 80) text only. Leave anything
-    # else (subtitle 26.15 which we already covered, contact 39.28, footer 20)
-    # alone.
     for s in spans:
         sz = s["size"]
         if "S U B T I T L E" in s["text"]:
             continue
         if 70 < sz < 90 or sz > 100:
             page.add_redact_annot(_pad_rect(s["bbox"]), fill=None)
-    page.apply_redactions()
+    page.apply_redactions(
+        images=fitz.PDF_REDACT_IMAGE_NONE,
+        graphics=fitz.PDF_REDACT_LINE_ART_NONE,
+    )
 
 
 def _fill_carousel_page(page, *, subtitle, title, description):
@@ -208,16 +215,23 @@ def _fill_carousel_page(page, *, subtitle, title, description):
 
 
 def _redact_blog_placeholders(page):
-    """Same approach as the carousel: redact the original pill drawing and
-    placeholder text spans, leave the rest of the template untouched."""
+    """Same two-pass approach as the carousel: aggressive vector removal for
+    the pill, conservative text-only removal for the placeholders."""
+    page.add_redact_annot(BLOG_PILL_COVER, fill=None)
+    page.apply_redactions(
+        images=fitz.PDF_REDACT_IMAGE_NONE,
+        graphics=fitz.PDF_REDACT_LINE_ART_REMOVE_IF_TOUCHED,
+    )
     spans = [s for blk in page.get_text("dict")["blocks"] if blk.get("type") == 0
              for line in blk["lines"] for s in line["spans"]]
-    page.add_redact_annot(BLOG_PILL_COVER, fill=None)
     for s in spans:
         if "S U B T I T L E" in s["text"]:
             continue
         page.add_redact_annot(_pad_rect(s["bbox"]), fill=None)
-    page.apply_redactions()
+    page.apply_redactions(
+        images=fitz.PDF_REDACT_IMAGE_NONE,
+        graphics=fitz.PDF_REDACT_LINE_ART_NONE,
+    )
 
 
 def _fill_blog_page(page, *, subtitle, title, description):
