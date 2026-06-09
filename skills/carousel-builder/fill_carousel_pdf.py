@@ -79,6 +79,13 @@ BLOG_TITLE_SIZES = (120, 110, 100, 90, 80, 70, 60)
 BLOG_DESC_SIZES = (80, 72, 64, 56)
 
 _FONT_BOLD_OBJ = fitz.Font(fontfile=FONT_BOLD)
+_FONT_LIGHT_OBJ = fitz.Font(fontfile=FONT_LIGHT)
+
+LINE_HEIGHT_FACTOR = 1.2
+# insert_textbox tacks on roughly 0.3 * fontsize of ascender padding above the
+# first line on top of (n_lines * size * lineheight). Account for it so our
+# fit prediction matches PyMuPDF's actual rendering.
+ASCENT_OVERHEAD = 0.3
 
 
 def _track(label: str) -> str:
@@ -95,17 +102,57 @@ def _pad_rect(bbox, p: float = 2.0) -> fitz.Rect:
     return fitz.Rect(r.x0 - p, r.y0 - p, r.x1 + p, r.y1 + p)
 
 
-def _fit_text(page, rect, text, sizes, color):
-    """Insert text into rect, shrinking until it fits. Returns final font size."""
+def _wrap_lines(font: fitz.Font, text: str, fontsize: float, max_width: float):
+    """Greedy word wrap. Returns (lines, longest_word_width)."""
+    words = text.split()
+    if not words:
+        return [""], 0.0
+    space_w = font.text_length(" ", fontsize=fontsize)
+    lines: list[str] = []
+    cur: list[str] = []
+    cur_w = 0.0
+    longest_word = 0.0
+    for w in words:
+        ww = font.text_length(w, fontsize=fontsize)
+        longest_word = max(longest_word, ww)
+        if not cur:
+            cur = [w]
+            cur_w = ww
+        elif cur_w + space_w + ww <= max_width:
+            cur.append(w)
+            cur_w += space_w + ww
+        else:
+            lines.append(" ".join(cur))
+            cur = [w]
+            cur_w = ww
+    if cur:
+        lines.append(" ".join(cur))
+    return lines, longest_word
+
+
+def _pick_fitting_size(font: fitz.Font, text: str, rect: fitz.Rect, sizes) -> float:
+    """Largest size from `sizes` whose wrapped layout fits inside `rect`."""
     for size in sizes:
-        rc = page.insert_textbox(
-            rect, text,
-            fontname="osL", fontfile=FONT_LIGHT, fontsize=size,
-            color=color, align=0,
-        )
-        if rc >= 0:
+        lines, longest_word = _wrap_lines(font, text, size, rect.width)
+        if longest_word > rect.width:
+            continue  # a single word overflows — must shrink
+        total_h = (len(lines) * LINE_HEIGHT_FACTOR + ASCENT_OVERHEAD) * size
+        if total_h <= rect.height:
             return size
-    raise ValueError(f"Text did not fit at any size: {text!r}")
+    return sizes[-1]
+
+
+def _fit_text(page, rect, text, sizes, color):
+    """Insert text into rect at the largest size that wraps cleanly inside it.
+    The fit is computed BEFORE any drawing happens, so we never leave ghost
+    glyphs from oversized attempts on the page."""
+    size = _pick_fitting_size(_FONT_LIGHT_OBJ, text, rect, sizes)
+    page.insert_textbox(
+        rect, text,
+        fontname="osL", fontfile=FONT_LIGHT, fontsize=size,
+        color=color, align=0, lineheight=LINE_HEIGHT_FACTOR,
+    )
+    return size
 
 
 def _draw_pill(page, label, *, pill_left, pill_top, pill_h, pad_x, fontsize, fill, stroke):
