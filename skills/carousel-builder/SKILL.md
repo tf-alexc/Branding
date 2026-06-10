@@ -176,13 +176,14 @@ Implementation: measure the rendered label width using the same font/size/letter
 1. **Hard cap: 6 slides total**, intro and outro included. Never exceed.
 2. **Heavily summarise.** Carousels are scan-friendly — strip everything to essentials. Each content page should communicate one idea.
 3. **Subtitle pill** (`[VERY SHORT SUBTITLE LABEL]`): all caps, very short (max ~25 characters). Treat as a section/topic chip, not a sentence. Same label can repeat across pages or change per page — match the source material's flow. **The pill container must hug the label** — see "Subtitle Pill Sizing" above.
-4. **Post title** (page 1): the carousel headline. Keep punchy, can wrap to 2 lines.
+4. **Post title** (page 1): the carousel headline. **Keep it short — aim for 5 to 8 words, hard cap at 10.** One punchy line is the goal, two if absolutely necessary. Cut adjectives, hedges, and explanatory clauses. "Where annual audits trip up real Manex 19 implementation" is too wordy; "Why annual audits miss the gap" is better.
 5. **Description** (page 1): short paragraph under the title — a teaser, can run a few lines.
-6. **Content slides** (pages 2 and 3): each carries a **page title** (large) and a **description** (short paragraph under the title). Page title = one punchy line, max 2 lines. Description = short paragraph, max 3 to 4 lines. Stay within the visible text area, do not push past the bottom edge of the column.
-7. **Closing title + final description** (outro, last page): short closing line and a one-or-two-line wrap-up. Must not overlap or push into the contact pills below.
+6. **Content slides** (pages 2 and 3): each carries a **page title** (large) and a **description** (short paragraph under the title). **Page title = 4 to 8 words, hard cap at 10.** One punchy line, never more than two. Description = short paragraph, max 3 to 4 lines. Stay within the visible text area, do not push past the bottom edge of the column.
+7. **Closing title + final description** (outro, last page): closing title = 4 to 8 words. Final description = one or two lines. Must not overlap or push into the contact pills below.
 8. **Outro contact pills**: leave the template's two contact pills exactly as-is (website + email). They are brand-specific and baked into the template.
-9. **Brand voice:** follow `skills/brand-framework/SKILL.md`. No em dashes (use comma, colon, or rewrite). "Visit our website" = `https://www.trustflight.com`. Open Sans only.
-10. **Suggested LinkedIn caption:** after generating the PDF, propose a social media caption to go with the carousel post.
+9. **No duplicate slides.** Every content slide must carry a distinct idea — distinct subtitle pill, distinct title, distinct description. Near-duplicates (two slides saying the same thing in different words) are forbidden. If you only have N genuinely distinct points, output N + 2 slides (cover + N content + outro). Better to ship a 3-slide carousel than to pad with repeats. If `content` would end up with fewer than 1 distinct slide, ask the user for more source material before generating.
+10. **Brand voice:** follow `skills/brand-framework/SKILL.md`. No em dashes (use comma, colon, or rewrite). "Visit our website" = `https://www.trustflight.com`. Open Sans only.
+11. **Suggested LinkedIn caption:** after generating the PDF, propose a social media caption to go with the carousel post.
     - Length: medium — long enough to hook and summarise (roughly 3 to 6 short sentences or ~80 to 150 words), short enough to scan. Never a wall of text, never a one-liner.
     - Tone: professional, confident, informative. Not overly friendly, no hype, no "Hey everyone!" openers.
     - Emojis: use a few, sparingly and on-brand (e.g. ✈️ 🛡️ 📊 🔍). One in the opener and one or two more in the body is plenty. Avoid emoji-as-bullet runs.

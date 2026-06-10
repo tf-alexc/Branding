@@ -280,6 +280,27 @@ def build(
     if total_slides > 6:
         raise ValueError(f"Too many slides: {total_slides} > 6 cap.")
 
+    # No-duplicate guard: every content slide must carry a distinct idea.
+    # We catch exact title or description repeats. Near-duplicates with
+    # different wording are still the caller's responsibility to avoid.
+    titles_seen: dict[str, int] = {}
+    descs_seen: dict[str, int] = {}
+    for i, slide in enumerate(content):
+        t = slide["title"].strip().lower()
+        d = slide["description"].strip().lower()
+        if t in titles_seen:
+            raise ValueError(
+                f"Duplicate content slide titles at index {titles_seen[t]} and {i}: {slide['title']!r}. "
+                "Every content slide must carry a distinct idea."
+            )
+        if d in descs_seen:
+            raise ValueError(
+                f"Duplicate content slide descriptions at index {descs_seen[d]} and {i}. "
+                "Every content slide must carry a distinct idea."
+            )
+        titles_seen[t] = i
+        descs_seen[d] = i
+
     output_dir = Path(output_dir)
     brand_dir = output_dir / f"Carousel - {brand}"
     brand_dir.mkdir(parents=True, exist_ok=True)
