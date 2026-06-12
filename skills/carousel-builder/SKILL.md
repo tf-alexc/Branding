@@ -15,6 +15,8 @@ Heavily summarise an article, brief, or any source material into a short LinkedI
 
 **Never** run `find`, `Glob`, or directory listings looking for `Carousel - *.pdf`, `Blog Image - *.pdf`, `OpenSans-*.ttf`, or `fill_carousel_pdf.py`. They are right next to `SKILL.md`. Searching wastes seconds per run and there is nothing to find that isn't already here.
 
+**Dependencies:** `PyMuPDF` (a.k.a. `fitz`) and `segno` (QR codes for the v2 BSL outro). If a run fails with `ModuleNotFoundError: No module named 'segno'`, install it once with `pip install segno`. PyMuPDF is already in use for the existing course-dates skill.
+
 **Two flavours, dispatched by brand:**
 
 - **Baines Simmons** runs the new **v2** template with four specialised content layouts (`paragraph`, `bullets`, `checklist`, `quote`). Each content slide carries a `type` field that picks the layout. The outro has no contact pills — a template-fixed CTA pill ("READ THE FULL ARTICLE") sits at the bottom instead. The cover has a "CONTINUE READING" CTA pill that also stays template-fixed.
@@ -69,6 +71,7 @@ result = build(
         "description": "Talk to our team about a tailored review for your operation.",
     },
     blog_description="Why blame-free reporting protects crews and saves lives.",  # 2 lines max
+    source_url="https://www.bainessimmons.com/insights/just-culture-aviation",   # drives the outro QR code
     output_dir=os.path.expanduser("~/Desktop/Claude Playground/Carousel PDFs"),
 )
 print(result)
@@ -238,18 +241,19 @@ Implementation: measure the rendered label width using the same font/size/letter
 4. **Post title** (cover, page 1): the carousel headline. **5 to 8 words, hard cap at 10.** One punchy line is the goal, two if absolutely necessary. Cut adjectives, hedges, and explanatory clauses. *"Where annual audits trip up real Manex 19 implementation"* (10 words, wordy) → *"Why annual audits miss the gap"* (6 words, punchy).
 5. **Description** (cover): short paragraph under the title. v1 brands allow a few lines; on v2 BSL it sits between title and CTA pill so keep it 2 to 3 lines max.
 6. **Content slide titles** (all slide types): **4 to 8 words, hard cap at 10.** One punchy line, never more than two.
-7. **Content slide bodies** depend on the slide type:
-   - **paragraph** (v2 BSL only): `body` = one prose paragraph, 3 to 5 sentences, breathes vertically.
-   - **bullets** (v2 BSL only): `items` = list of 1 to 4 strings, each a short noun phrase or sentence fragment (~3 to 8 words). Parallel structure: all start with verbs, or all noun phrases — not a mix.
-   - **checklist** (v2 BSL only): `items` = list of 1 to 4 actionable items. Each starts with a verb ("Run a culture survey", "Map decision lines").
+7. **Content slide bodies** depend on the slide type. **Keep everything concise — short, scannable lines. Don't pad paragraphs with hedges or recap.**
+   - **paragraph** (v2 BSL only): `body` = one tight prose paragraph, **2 to 4 sentences** that breathe vertically. If it runs longer than 4 sentences, split it across two paragraph slides or trim. Never use a paragraph slide as a dumping ground.
+   - **bullets** (v2 BSL only): `items` = list of 1 to 4 strings. **Each item MUST fit on one row inside its container — never two rows.** That means roughly 3 to 7 words per item, depending on word length. Available row width is ~953pt at 51pt; the script auto-shrinks down to 32pt and will raise `ValueError` if an item still overflows. If that fires, shorten the item. Parallel structure: all start with verbs, or all noun phrases — not a mix.
+   - **checklist** (v2 BSL only): `items` = list of 1 to 4 actionable items. Same one-row-per-item rule as bullets. Each starts with a verb ("Run a culture survey", "Map decision lines").
    - **quote** (v2 BSL only): `quote` = a short memorable line, ~10 to 25 words. `attribution` (optional) = name, role, optionally org.
    - **v1 brands**: every content slide is `description` = short paragraph, max 3 to 4 lines.
 8. **Closing title + final description** (outro): closing title = 4 to 8 words. Description = one or two lines on v2 BSL (keep clear of the CTA pill below), or up to a few lines on v1 brands.
 9. **No duplicate slides.** Every content slide must carry a distinct idea — distinct subtitle pill, distinct title, distinct body / items / quote. Near-duplicates (two slides saying the same thing in different words) are forbidden. If you only have N genuinely distinct points, output N + 2 slides (cover + N content + outro). Better to ship a 3-slide carousel than to pad with repeats. The script also raises `ValueError` if two content slides share an exact title.
 10. **Slide-type picking** (v2 BSL): match the layout to the content shape. Mostly prose → `paragraph`. Parallel short items → `bullets` (or `checklist` if they are actions to take). Memorable quotable line → `quote` (max one per carousel). When in doubt, default to `paragraph`.
 11. **Outro CTA / contact pills**: leave template-fixed. Do not try to rewrite them — the script preserves them automatically.
-12. **Brand voice:** follow `skills/brand-framework/SKILL.md`. No em dashes (use comma, colon, or rewrite). "Visit our website" = `https://www.trustflight.com`. Open Sans only.
-13. **Suggested LinkedIn caption:** after generating the PDF, propose a social media caption to go with the carousel post.
+12. **Outro QR code (v2 BSL only):** the red rectangle in the bottom-right of the BSL outro template is a **QR code placeholder linking to the source article**. Pass the article URL as `source_url` to `build()` and the script generates a QR code (high error correction, white modules on transparent background so the gradient shows through) and overlays it on the placeholder. If you omit `source_url`, the red placeholder is redacted away so the output never ships with a raw red square.
+13. **Brand voice:** follow `skills/brand-framework/SKILL.md`. No em dashes (use comma, colon, or rewrite). "Visit our website" = `https://www.trustflight.com`. Open Sans only.
+14. **Suggested LinkedIn caption:** after generating the PDF, propose a social media caption to go with the carousel post.
     - Length: medium — long enough to hook and summarise (roughly 3 to 6 short sentences or ~80 to 150 words), short enough to scan. Never a wall of text, never a one-liner.
     - Tone: professional, confident, informative. Not overly friendly, no hype, no "Hey everyone!" openers.
     - Emojis: use a few, sparingly and on-brand (e.g. ✈️ 🛡️ 📊 🔍). One in the opener and one or two more in the body is plenty. Avoid emoji-as-bullet runs.

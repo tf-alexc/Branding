@@ -11,6 +11,7 @@ Usage:
         ],
         outro={"subtitle": "GET IN TOUCH", "title": "...", "description": "..."},
         blog_description="Short 2-line version for the blog image.",
+        source_url="https://example.com/article",   # v2 BSL only — drives the QR
         output_dir="/Users/alexcraiu/Desktop/Claude Playground/Carousel PDFs",
     )
 
@@ -19,6 +20,7 @@ filesystem for them — they live next to this script.
 """
 from __future__ import annotations
 
+import io
 import re
 from pathlib import Path
 
@@ -313,7 +315,30 @@ V2_LIST_CONTAINERS = [
 ]
 V2_LIST_TEXT_X = 167.0      # text starts after the icon
 V2_LIST_TEXT_RIGHT = 1120.0
+V2_LIST_TEXT_WIDTH = V2_LIST_TEXT_RIGHT - V2_LIST_TEXT_X  # 953
 V2_LIST_ITEM_SIZES = (51, 46, 41, 36, 32)
+
+
+def _fit_single_line(page, *, x, baseline_y, max_width, text, sizes, color, fontfile, fontname):
+    """Insert `text` on ONE line, shrinking from sizes[0] until it fits the
+    given width. Raises if even the smallest size overflows — the caller
+    (or the user upstream) needs to shorten the item, since two rows per
+    list item is explicitly forbidden by the content rules."""
+    font = _FONT_LIGHT_OBJ if fontfile == FONT_LIGHT else _FONT_BOLD_OBJ
+    for size in sizes:
+        if font.text_length(text, fontsize=size) <= max_width:
+            page.insert_text(
+                fitz.Point(x, baseline_y + size / 3),
+                text,
+                fontname=fontname, fontfile=fontfile, fontsize=size,
+                color=color,
+            )
+            return size
+    raise ValueError(
+        f"List item too long to fit on one row at any size: {text!r}. "
+        f"Max width is {max_width:.0f}pt; shorten the item."
+    )
+
 
 # Quote slide — title 100pt, indented quote 78pt, attribution under.
 V2_QUOTE_TITLE_RECT = fitz.Rect(70, 340, 1170, 610)
@@ -322,6 +347,21 @@ V2_QUOTE_RECT = fitz.Rect(190, 620, 1130, 1010)
 V2_QUOTE_SIZES = (78, 70, 62, 54, 46)
 V2_QUOTE_ATTR_RECT = fitz.Rect(190, 1050, 1130, 1190)
 V2_QUOTE_ATTR_SIZES = (60, 50, 42, 36, 30)
+
+# Outro QR-code placeholder (the red square on the source template).
+V2_OUTRO_QR_RECT = fitz.Rect(783, 1033, 1050, 1300)
+
+
+def _make_qr_png_bytes(url: str) -> bytes:
+    """Generate a high-error-correction QR code PNG (transparent background,
+    white modules) for the given URL. Transparent background lets the navy
+    gradient show through; white modules match the brand text colour."""
+    import segno
+    qr = segno.make(url, error="h")
+    buf = io.BytesIO()
+    # scale=20 yields plenty of resolution for the 267x268 placement rect.
+    qr.save(buf, kind="png", scale=20, dark="white", light=None, border=2)
+    return buf.getvalue()
 
 
 def _redact_v2_pill_only(page):
@@ -408,16 +448,18 @@ def _fill_v2_list_slide(page, *, subtitle, title, items):
     _redact_v2_text_spans(page, [(115, 125), (48, 54)])
     _draw_v2_pill(page, subtitle)
     _fit_text(page, V2_TITLE_RECT_120, title, V2_TITLE_SIZES_120, WHITE)
+    # Single-line per item. The script raises if an item is too long even at
+    # the smallest size — content rule forbids two-row items.
     for i, item in enumerate(items):
         container = V2_LIST_CONTAINERS[i]
-        # Vertically centre text inside the container, leaving room for the icon.
-        text_rect = fitz.Rect(
-            V2_LIST_TEXT_X,
-            container.y0 + 18,
-            V2_LIST_TEXT_RIGHT,
-            container.y1 - 18,
+        baseline_y = container.y0 + container.height / 2
+        _fit_single_line(
+            page,
+            x=V2_LIST_TEXT_X, baseline_y=baseline_y,
+            max_width=V2_LIST_TEXT_WIDTH,
+            text=item, sizes=V2_LIST_ITEM_SIZES, color=WHITE,
+            fontfile=FONT_LIGHT, fontname="osL",
         )
-        _fit_text(page, text_rect, item, V2_LIST_ITEM_SIZES, WHITE)
 
 
 def _fill_v2_bullets(page, *, subtitle, title, items):
@@ -443,21 +485,36 @@ def _fill_v2_quote(page, *, subtitle, title, quote, attribution=None):
         _fit_text(page, V2_QUOTE_ATTR_RECT, attribution, V2_QUOTE_ATTR_SIZES, DESC_COLOR)
 
 
-def _fill_v2_outro(page, *, subtitle, title, description):
+def _fill_v2_outro(page, *, subtitle, title, description, source_url=None):
     """Page 5 — title + final description. The CTA pill ("READ THE FULL
     ARTICLE") at size 31.78pt is template-fixed and left intact. The new BSL
-    outro has no contact pills (replaced by the CTA)."""
+    outro has no contact pills (replaced by the CTA).
+
+    The red rectangle in the bottom-right of the template is a QR code
+    placeholder. If `source_url` is provided, we redact the red rectangle and
+    overlay a QR code that links to the source article. If not provided, we
+    redact it anyway so the empty page doesn't ship with a giant red square."""
+    # Pass 0: remove the red QR placeholder. Done first so the redaction does
+    # not interact with the pill / text passes below.
+    page.add_redact_annot(V2_OUTRO_QR_RECT, fill=None)
+    page.apply_redactions(
+        images=fitz.PDF_REDACT_IMAGE_NONE,
+        graphics=fitz.PDF_REDACT_LINE_ART_REMOVE_IF_TOUCHED,
+    )
     _redact_v2_pill_only(page)
     _redact_v2_text_spans(page, [(115, 125), (75, 85)])
     _draw_v2_pill(page, subtitle)
     _fit_text(page, V2_TITLE_RECT_120, title, V2_TITLE_SIZES_120, WHITE)
     _fit_text(page, V2_COVER_DESC_RECT, description, V2_COVER_DESC_SIZES, DESC_COLOR)
+    if source_url:
+        page.insert_image(V2_OUTRO_QR_RECT, stream=_make_qr_png_bytes(source_url))
 
 
-def _build_v2_carousel(*, brand, cover, content, outro, carousel_path):
+def _build_v2_carousel(*, brand, cover, content, outro, carousel_path, source_url=None):
     """Generate the v2 BSL carousel. Content entries pick which template page
     to use via a `type` field. The selected pages are stitched in order
-    between the cover and the outro."""
+    between the cover and the outro. `source_url` drives the QR code rendered
+    over the red placeholder on the outro page."""
     page_order = [V2_COVER_PAGE]
     for c in content:
         t = c.get("type")
@@ -487,7 +544,7 @@ def _build_v2_carousel(*, brand, cover, content, outro, carousel_path):
         elif t == "quote":
             _fill_v2_quote(page, subtitle=c["subtitle"], title=c["title"],
                            quote=c["quote"], attribution=c.get("attribution"))
-    _fill_v2_outro(doc[-1], **outro)
+    _fill_v2_outro(doc[-1], **outro, source_url=source_url)
 
     doc.save(str(carousel_path), deflate=True)
     doc.close()
@@ -500,6 +557,7 @@ def build(
     content: list,
     outro: dict,
     blog_description: str | None = None,
+    source_url: str | None = None,
     output_dir: str | Path,
 ):
     """Generate the carousel PDF and the matching blog image JPG.
@@ -507,13 +565,17 @@ def build(
     Args:
         brand: One of "Baines Simmons", "Redline", "Kenyon", "TrustFlight".
         cover: {"subtitle", "title", "description"} for page 1.
-        content: list of 1..4 dicts, each {"subtitle", "title", "description"}.
-                 Total slides incl. cover + outro <= 6. If `content` has fewer
-                 entries than the template's content pages, the extra template
-                 pages are dropped. If more, content pages are cloned.
+        content: 1..4 dicts. v1 brands take {"subtitle", "title", "description"};
+                 v2 Baines Simmons takes a `type` discriminator plus the fields
+                 that type needs (paragraph: body; bullets/checklist: items;
+                 quote: quote + optional attribution).
         outro: {"subtitle", "title", "description"} for the final page.
         blog_description: 2-line description specifically for the blog image.
                           Defaults to cover["description"] if not provided.
+        source_url: URL of the source article. On v2 Baines Simmons this is
+                    encoded into a QR code overlaid on the red placeholder on
+                    the outro. Ignored on v1 brands. If omitted on v2 BSL, the
+                    red placeholder is redacted but no QR is rendered.
         output_dir: parent folder. A subfolder `Carousel - [Brand]/` is created.
 
     Returns:
@@ -554,7 +616,7 @@ def build(
     if brand in V2_BRANDS:
         _build_v2_carousel(
             brand=brand, cover=cover, content=content, outro=outro,
-            carousel_path=carousel_path,
+            carousel_path=carousel_path, source_url=source_url,
         )
     else:
         _build_v1_carousel(
