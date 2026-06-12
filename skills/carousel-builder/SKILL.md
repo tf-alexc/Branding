@@ -15,7 +15,14 @@ Heavily summarise an article, brief, or any source material into a short LinkedI
 
 **Never** run `find`, `Glob`, or directory listings looking for `Carousel - *.pdf`, `Blog Image - *.pdf`, `OpenSans-*.ttf`, or `fill_carousel_pdf.py`. They are right next to `SKILL.md`. Searching wastes seconds per run and there is nothing to find that isn't already here.
 
-**The canonical workflow is a single Python call:**
+**Two flavours, dispatched by brand:**
+
+- **Baines Simmons** runs the new **v2** template with four specialised content layouts (`paragraph`, `bullets`, `checklist`, `quote`). Each content slide carries a `type` field that picks the layout. The outro has no contact pills — a template-fixed CTA pill ("READ THE FULL ARTICLE") sits at the bottom instead. The cover has a "CONTINUE READING" CTA pill that also stays template-fixed.
+- **Redline, Kenyon, TrustFlight** run the legacy **v1** template — every content slide is `title + description`, and the outro keeps its two brand-specific contact pills.
+
+`build()` picks the right pipeline from the `brand` argument. You never call v1/v2 directly.
+
+### v2 Baines Simmons example
 
 ```bash
 python3 - << 'PYEOF'
@@ -24,20 +31,37 @@ sys.path.insert(0, os.path.expanduser("~/.claude/skills/carousel-builder"))
 from fill_carousel_pdf import build
 
 result = build(
-    brand="Baines Simmons",          # "Baines Simmons" | "Redline" | "Kenyon" | "TrustFlight"
+    brand="Baines Simmons",
     cover={
         "subtitle": "Just Culture",
-        "title": "Building a Just Culture in Aviation Safety",
+        "title": "Building a Just Culture",
         "description": "Why blame-free reporting protects crews, exposes hazards, and saves lives.",
     },
     content=[
-        # 1 to 4 content slides. Total slides (cover + content + outro) must be <= 6.
-        {"subtitle": "What it is",
-         "title": "Honest mistakes are learning opportunities",
-         "description": "Just culture separates error from violation, so crews report freely."},
-        {"subtitle": "Why it matters",
-         "title": "Fear of blame hides hazards",
-         "description": "Without reports, the operation loses its early warning system."},
+        # Mix and match any combination of paragraph / bullets / checklist / quote.
+        # Total slides (cover + content + outro) must be <= 6, so up to 4 content slides.
+        {"type": "paragraph",
+         "subtitle": "What it is",
+         "title": "Honest mistakes are learning",
+         "body": "Just culture separates error from violation. Crews report freely. The operation learns from near misses instead of hiding them."},
+        {"type": "bullets",
+         "subtitle": "Three signals",
+         "title": "Three early warnings",
+         "items": ["Reporting rate dropping",
+                   "Same hazards recurring",
+                   "Findings closed without fix",
+                   "Audit fatigue"]},                       # 1 to 4 items
+        {"type": "checklist",
+         "subtitle": "Where to start",
+         "title": "Your first 90 days",
+         "items": ["Run a culture survey",
+                   "Map decision lines",
+                   "Brief crews on the policy"]},
+        {"type": "quote",
+         "subtitle": "On reporting",
+         "title": "A safer way to learn",
+         "quote": "The crew who hides the mistake denies us the lesson.",
+         "attribution": "Capt. M. Walsh, Safety Director"},  # attribution is optional
     ],
     outro={
         "subtitle": "Get in touch",
@@ -51,16 +75,43 @@ print(result)
 PYEOF
 ```
 
-This single call produces **both** the carousel PDF and the matching blog image JPG, hugged subtitle pills, fitted titles, and an open output folder path. After that, write the LinkedIn caption directly into the reply (see Content Rule 10).
+### v1 Redline / Kenyon / TrustFlight example
+
+```python
+result = build(
+    brand="TrustFlight",  # or "Redline" / "Kenyon"
+    cover={"subtitle": "...", "title": "...", "description": "..."},
+    content=[
+        # Every content slide is plain title + description on v1 brands.
+        {"subtitle": "...", "title": "...", "description": "..."},
+        {"subtitle": "...", "title": "...", "description": "..."},
+    ],
+    outro={"subtitle": "...", "title": "...", "description": "..."},
+    blog_description="2-line tighter version for the blog image.",
+    output_dir="...",
+)
+```
+
+### Slide-type picker (BSL only)
+
+When generating a BSL carousel, **Claude picks the `type` for each content slide based on what the source material best fits**:
+- **paragraph** — one prose idea that breathes. Use when the point is conceptual and benefits from a few full sentences.
+- **bullets** — 2 to 4 short parallel items that share a structure ("three signs of...", "key drivers", "what changes").
+- **checklist** — 2 to 4 short action items the reader could tick off ("steps to take", "do today", "before the audit").
+- **quote** — a memorable one-liner with attribution. Use sparingly; one quote slide per carousel is the ceiling.
+
+Show the user the draft slide map (subtitle / title / type / body or items) before generation and let them override.
 
 `build()` handles, with no further instruction needed:
-- Picking the right brand template.
-- Cloning or dropping content pages so the deck matches `len(content)`.
+- Picking the right brand template (v1 vs v2).
+- Picking and ordering the right template content pages for v2 BSL based on slide types.
+- Cloning or dropping content pages so the deck matches `len(content)` on v1 brands.
 - Hug-the-text subtitle pill on every page (carousel and blog).
-- Auto-shrinking the title font when copy is long.
-- Leaving the brand-specific outro contact pills intact.
+- Auto-shrinking title / body / item fonts when copy is long.
+- Leaving the brand-specific outro contact pills (v1) or CTA pills (v2 BSL) intact.
 - Rendering the blog JPG from the correct brand page of the bundled multi-brand template.
 - Sanitising the post title for the filename.
+- Raising a `ValueError` if two content slides share a title (no-duplicate guard).
 
 ---
 
@@ -116,26 +167,34 @@ If brand is ambiguous, ask the user.
 
 ## Page Anatomy
 
-The carousel template (4 pages) sets the structure for every brand:
+### v2 Baines Simmons (6 source pages, 4 specialised content layouts)
 
-| Page | Role | Editable regions |
+| Source page | Role | Editable fields | Static elements (do not touch) |
+|------|------|-----------------|-------------------------------|
+| 0 | **Cover** | subtitle, title (120pt), description (80pt) | Header logo, "CONTINUE READING ›" CTA pill, footer URLs |
+| 1 | **Content — paragraph** | subtitle, title (90pt), body (72pt, multi-paragraph) | Header, next-arrow image, footer |
+| 2 | **Content — bullets** | subtitle, title (120pt), 1–4 items in rounded pills with cyan dots | Header, next-arrow, footer |
+| 3 | **Content — checklist** | subtitle, title (120pt), 1–4 items in rounded pills with green checks | Header, next-arrow, footer |
+| 4 | **Content — quote** | subtitle, title (100pt), quote (78pt indented), attribution (optional) | Header, quote-mark glyph, next-arrow, footer |
+| 5 | **Outro** | subtitle, closing title (120pt), final description (80pt) | Header, "READ THE FULL ARTICLE" CTA pill, footer |
+
+The new BSL outro has **no contact pills**. The CTA pill ("READ THE FULL ARTICLE") replaces them and stays template-fixed.
+
+### v1 Redline / Kenyon / TrustFlight (4 source pages)
+
+| Source page | Role | Editable fields |
 |------|------|-----------------|
-| 1 | **Intro / Cover** | Subtitle pill, Post title (large), Description (paragraph under title) |
-| 2 | **Content** | Subtitle pill, Page title (large), Description (short paragraph) |
-| 3 | **Content** | Subtitle pill, Page title (large), Description (short paragraph) |
-| 4 | **Outro / Closing** | Subtitle pill, Closing title (large), Final description (short), two **contact pills** (website + email) |
+| 0 | **Cover** | subtitle, title (120pt), description (80pt) |
+| 1 | **Content** | subtitle, title (120pt), description (80pt) |
+| 2 | **Content** | subtitle, title (120pt), description (80pt) |
+| 3 | **Outro** | subtitle, closing title, final description, two **contact pills** |
 
-Every page shares the same anatomy: subtitle pill at the top-left, a large title underneath, and a description paragraph under that. Content pages 2 and 3 use a **page title + description**, not a single body paragraph — the new structure replaces the old body-block design.
-
-Static elements (never edit): brand header logo, top-right line graphic, side-decoration line patterns, navy gradient background, footer URL strip, next-arrow circle (pages 1–3 only — outro has no arrow).
-
-**Outro contact pills** are part of the template and must stay an exact match for the brand:
-- Baines Simmons → `bainessimmons.com` / `hello@bainessimmons.com`
+**Outro contact pills (v1 brands only)** stay template-fixed:
 - Redline → `trustredline.co.uk` / `sales@trustredline.co.uk`
 - Kenyon → `kenyoninternational.com` / `kenyon@kenyoninternational.com`
 - TrustFlight → `trustflight.com` / `sales@trustflight.com`
 
-Treat the outro contact pills as **template-fixed text**. Do not rewrite, shorten, or replace them — they ship inside the brand's template PDF as-is. Only the closing title, final description, and subtitle pill change on the outro.
+Treat the outro contact pills (v1) and the cover/outro CTA pills (v2 BSL) as **template-fixed text**. Do not rewrite, shorten, or replace them. They are baked into the template PDF and the script preserves them automatically.
 
 ---
 
@@ -173,17 +232,24 @@ Implementation: measure the rendered label width using the same font/size/letter
 
 ## Content Rules
 
-1. **Hard cap: 6 slides total**, intro and outro included. Never exceed.
+1. **Hard cap: 6 slides total**, cover and outro included. Never exceed.
 2. **Heavily summarise.** Carousels are scan-friendly — strip everything to essentials. Each content page should communicate one idea.
-3. **Subtitle pill** (`[VERY SHORT SUBTITLE LABEL]`): all caps, very short (max ~25 characters). Treat as a section/topic chip, not a sentence. Same label can repeat across pages or change per page — match the source material's flow. **The pill container must hug the label** — see "Subtitle Pill Sizing" above.
-4. **Post title** (page 1): the carousel headline. **Keep it short — aim for 5 to 8 words, hard cap at 10.** One punchy line is the goal, two if absolutely necessary. Cut adjectives, hedges, and explanatory clauses. "Where annual audits trip up real Manex 19 implementation" is too wordy; "Why annual audits miss the gap" is better.
-5. **Description** (page 1): short paragraph under the title — a teaser, can run a few lines.
-6. **Content slides** (pages 2 and 3): each carries a **page title** (large) and a **description** (short paragraph under the title). **Page title = 4 to 8 words, hard cap at 10.** One punchy line, never more than two. Description = short paragraph, max 3 to 4 lines. Stay within the visible text area, do not push past the bottom edge of the column.
-7. **Closing title + final description** (outro, last page): closing title = 4 to 8 words. Final description = one or two lines. Must not overlap or push into the contact pills below.
-8. **Outro contact pills**: leave the template's two contact pills exactly as-is (website + email). They are brand-specific and baked into the template.
-9. **No duplicate slides.** Every content slide must carry a distinct idea — distinct subtitle pill, distinct title, distinct description. Near-duplicates (two slides saying the same thing in different words) are forbidden. If you only have N genuinely distinct points, output N + 2 slides (cover + N content + outro). Better to ship a 3-slide carousel than to pad with repeats. If `content` would end up with fewer than 1 distinct slide, ask the user for more source material before generating.
-10. **Brand voice:** follow `skills/brand-framework/SKILL.md`. No em dashes (use comma, colon, or rewrite). "Visit our website" = `https://www.trustflight.com`. Open Sans only.
-11. **Suggested LinkedIn caption:** after generating the PDF, propose a social media caption to go with the carousel post.
+3. **Subtitle pill** (`[VERY SHORT SUBTITLE LABEL]`): all caps, very short (max ~25 characters). Treat as a section/topic chip, not a sentence. **The pill container must hug the label** — see "Subtitle Pill Sizing" below.
+4. **Post title** (cover, page 1): the carousel headline. **5 to 8 words, hard cap at 10.** One punchy line is the goal, two if absolutely necessary. Cut adjectives, hedges, and explanatory clauses. *"Where annual audits trip up real Manex 19 implementation"* (10 words, wordy) → *"Why annual audits miss the gap"* (6 words, punchy).
+5. **Description** (cover): short paragraph under the title. v1 brands allow a few lines; on v2 BSL it sits between title and CTA pill so keep it 2 to 3 lines max.
+6. **Content slide titles** (all slide types): **4 to 8 words, hard cap at 10.** One punchy line, never more than two.
+7. **Content slide bodies** depend on the slide type:
+   - **paragraph** (v2 BSL only): `body` = one prose paragraph, 3 to 5 sentences, breathes vertically.
+   - **bullets** (v2 BSL only): `items` = list of 1 to 4 strings, each a short noun phrase or sentence fragment (~3 to 8 words). Parallel structure: all start with verbs, or all noun phrases — not a mix.
+   - **checklist** (v2 BSL only): `items` = list of 1 to 4 actionable items. Each starts with a verb ("Run a culture survey", "Map decision lines").
+   - **quote** (v2 BSL only): `quote` = a short memorable line, ~10 to 25 words. `attribution` (optional) = name, role, optionally org.
+   - **v1 brands**: every content slide is `description` = short paragraph, max 3 to 4 lines.
+8. **Closing title + final description** (outro): closing title = 4 to 8 words. Description = one or two lines on v2 BSL (keep clear of the CTA pill below), or up to a few lines on v1 brands.
+9. **No duplicate slides.** Every content slide must carry a distinct idea — distinct subtitle pill, distinct title, distinct body / items / quote. Near-duplicates (two slides saying the same thing in different words) are forbidden. If you only have N genuinely distinct points, output N + 2 slides (cover + N content + outro). Better to ship a 3-slide carousel than to pad with repeats. The script also raises `ValueError` if two content slides share an exact title.
+10. **Slide-type picking** (v2 BSL): match the layout to the content shape. Mostly prose → `paragraph`. Parallel short items → `bullets` (or `checklist` if they are actions to take). Memorable quotable line → `quote` (max one per carousel). When in doubt, default to `paragraph`.
+11. **Outro CTA / contact pills**: leave template-fixed. Do not try to rewrite them — the script preserves them automatically.
+12. **Brand voice:** follow `skills/brand-framework/SKILL.md`. No em dashes (use comma, colon, or rewrite). "Visit our website" = `https://www.trustflight.com`. Open Sans only.
+13. **Suggested LinkedIn caption:** after generating the PDF, propose a social media caption to go with the carousel post.
     - Length: medium — long enough to hook and summarise (roughly 3 to 6 short sentences or ~80 to 150 words), short enough to scan. Never a wall of text, never a one-liner.
     - Tone: professional, confident, informative. Not overly friendly, no hype, no "Hey everyone!" openers.
     - Emojis: use a few, sparingly and on-brand (e.g. ✈️ 🛡️ 📊 🔍). One in the opener and one or two more in the body is plenty. Avoid emoji-as-bullet runs.
@@ -194,27 +260,26 @@ Implementation: measure the rendered label width using the same font/size/letter
 
 ## Slide Count Logic
 
-The Baines Simmons template ships with **4 pages**. The carousel cap is **6 pages**. Decide page count from the source material:
+Total slides (cover + content + outro) must be **≤ 6**. Floor is 3 (cover + 1 content + outro).
 
-- If 3 distilled points fit cleanly: output 4 pages (1 intro + 2 content + 1 outro = use template as-is).
-- If 4 distilled points: output 5 pages — duplicate one middle content page.
-- If 5 distilled points: output 6 pages — duplicate two middle content pages.
-- Never output fewer than 3 pages and never more than 6.
+- **v2 Baines Simmons** has 6 source pages (cover + 4 specialised content layouts + outro). The script `select()`s the cover, the content pages you asked for in your `content` list (in order, repeats allowed — e.g. two `paragraph` slides are fine), and the outro. Unused content layouts are dropped automatically.
+- **v1 brands** have 4 source pages. If you ask for 1 content slide, the script drops one of the template's two content pages. If you ask for 3–4, it clones a content page accordingly.
 
-**Duplication rule** (when template is too short): duplicate one of the **inner content pages at random** (never the intro, never the outro). Insert the copy directly after the page it was cloned from, then fill it with the new content. This preserves the bookend pages while extending the middle.
+In both cases the script handles the page count. You only have to keep `len(content) + 2 ≤ 6`.
 
 ---
 
 ## Generation Method
 
-**Python + PyMuPDF (`fitz`).** The bundled `fill_carousel_pdf.py` does all the work. Coordinates, fonts, pill geometry, and brand-specific outro pills are already baked into the script — no inspection or coordinate hunting on every run.
+**Python + PyMuPDF (`fitz`).** The bundled `fill_carousel_pdf.py` does all the work. Coordinates, fonts, pill geometry, brand-specific outro pills (v1) and CTA pills (v2) are already baked into the script — no inspection or coordinate hunting on every run.
 
 Under the hood, for each filled page the script:
-1. Redacts the original pill drawing (vector + tracked text) with transparent fill — the gradient flows through cleanly, no seam.
-2. Redacts the title + description placeholder text spans.
-3. Draws a new pill whose width = label text width + symmetric padding (the hug-the-text rule).
-4. Inserts the new title with auto-shrink, and the new description with auto-shrink.
-5. Leaves the brand-specific outro contact pills (`bainessimmons.com` / `hello@…` etc.) untouched.
+1. Redacts the original subtitle pill drawing (vector + tracked text) with transparent fill so the gradient flows through cleanly, no seam.
+2. Redacts only the placeholder text spans matching the layout's expected font sizes (e.g. 120pt title + 80pt description on cover; 90pt title + 72pt body on a v2 BSL paragraph slide).
+3. Draws a new subtitle pill whose width = label text width + symmetric padding (the hug-the-text rule).
+4. Inserts each text field with auto-shrink — measured fit before drawing, so no oversized ghosts.
+5. On v2 BSL list slides: redacts unused item containers via line-art removal, and covers the orphan icon image (which lives inside a form XObject the redaction cannot reach) with a flat fill that matches the gradient at that y-band.
+6. Leaves the brand-specific outro contact pills (v1) and the cover/outro CTA pills (v2 BSL) untouched.
 
 If something looks wrong (e.g. coordinates shift after a new template upload), inspect with:
 
@@ -241,7 +306,9 @@ and update the constants at the top of `fill_carousel_pdf.py`. Do **not** rewrit
 
 1. Fetch the source (WebFetch on a URL, or use the brief the user pasted).
 2. Pick the brand from the source.
-3. Distil the slide map in your head (cover + 1–4 content + outro, ≤ 6 total). For each slide: subtitle label, page title, short description.
+3. Distil the slide map (cover + 1–4 content + outro, ≤ 6 total). For each content slide:
+   - **v2 BSL**: pick the slide `type` (paragraph / bullets / checklist / quote) that best fits the content shape, then write the matching fields.
+   - **v1 brands**: write subtitle + title + description.
 4. Write a tight 2-line `blog_description` derived from the cover description.
 5. Run **one** `build(...)` call (see "How To Run This Skill" at the top). It produces the carousel PDF and the blog image JPG together.
 6. Reply in 3 short lines: carousel PDF path, blog image JPG path, then the LinkedIn caption + ~5 hashtags. Nothing else.

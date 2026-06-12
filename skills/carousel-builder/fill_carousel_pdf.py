@@ -246,6 +246,253 @@ def _fill_blog_page(page, *, subtitle, title, description):
     _fit_text(page, BLOG_DESC_RECT, description, BLOG_DESC_SIZES, DESC_COLOR)
 
 
+def _build_v1_carousel(*, brand, cover, content, outro, carousel_path):
+    """v1 pipeline: 4-page template with two interchangeable content pages.
+    Used by Redline, Kenyon, and TrustFlight. Content slides all have the
+    same title + description shape."""
+    doc = fitz.open(str(CAROUSEL_TEMPLATES[brand]))
+    template_content_pages = 2
+    needed_content_pages = len(content)
+    if needed_content_pages < template_content_pages:
+        for _ in range(template_content_pages - needed_content_pages):
+            doc.delete_page(1)
+    elif needed_content_pages > template_content_pages:
+        for _ in range(needed_content_pages - template_content_pages):
+            doc.copy_page(1, to=2)
+    outro_idx = 1 + needed_content_pages
+    _fill_carousel_page(doc[0], **cover)
+    for i, slide in enumerate(content):
+        _fill_carousel_page(doc[1 + i], **slide)
+    _fill_carousel_page(doc[outro_idx], **outro)
+    doc.save(str(carousel_path), deflate=True)
+    doc.close()
+
+
+# ============================================================================
+# v2 (new Baines Simmons template): typed content slides + CTA pills
+# ----------------------------------------------------------------------------
+# The new BSL template is six pages with four specialised content layouts.
+# Pages: 0=cover, 1=paragraph, 2=bullets, 3=checklist, 4=quote, 5=outro.
+# Each content slide takes a `type` discriminator picking which template page.
+# The cover and outro both have a template-fixed CTA pill ("CONTINUE READING"
+# / "READ THE FULL ARTICLE") that we leave untouched.
+# ============================================================================
+
+V2_BRANDS = {"Baines Simmons"}
+
+V2_TYPE_PAGE = {
+    "paragraph": 1,
+    "bullets":   2,
+    "checklist": 3,
+    "quote":     4,
+}
+V2_COVER_PAGE = 0
+V2_OUTRO_PAGE = 5
+
+# Shared geometry — title at 120pt fits in this rect on cover, bullets,
+# checklist, and outro pages.
+V2_TITLE_RECT_120 = fitz.Rect(70, 320, 1170, 630)
+V2_TITLE_SIZES_120 = (120, 110, 100, 90, 80, 70, 60)
+
+# Cover + outro description (tighter than v1 because the CTA pill sits below).
+V2_COVER_DESC_RECT = fitz.Rect(70, 660, 1170, 970)
+V2_COVER_DESC_SIZES = (80, 72, 64, 56)
+
+# Paragraph slide — smaller title (90pt), big body block.
+V2_PARAGRAPH_TITLE_RECT = fitz.Rect(70, 340, 1170, 590)
+V2_PARAGRAPH_TITLE_SIZES = (90, 80, 70, 60)
+V2_PARAGRAPH_BODY_RECT = fitz.Rect(70, 620, 1170, 1200)
+V2_PARAGRAPH_BODY_SIZES = (72, 64, 56, 48, 42)
+
+# List items (bullets + checklist share container geometry).
+V2_LIST_CONTAINERS = [
+    fitz.Rect(56.5, 655.5, 1154.0, 768.0),
+    fitz.Rect(56.5, 794.0, 1154.0, 907.0),
+    fitz.Rect(56.5, 932.5, 1154.0, 1045.0),
+    fitz.Rect(56.5, 1069.4, 1154.0, 1182.0),
+]
+V2_LIST_TEXT_X = 167.0      # text starts after the icon
+V2_LIST_TEXT_RIGHT = 1120.0
+V2_LIST_ITEM_SIZES = (51, 46, 41, 36, 32)
+
+# Quote slide — title 100pt, indented quote 78pt, attribution under.
+V2_QUOTE_TITLE_RECT = fitz.Rect(70, 340, 1170, 610)
+V2_QUOTE_TITLE_SIZES = (100, 90, 80, 70, 60)
+V2_QUOTE_RECT = fitz.Rect(190, 620, 1130, 1010)
+V2_QUOTE_SIZES = (78, 70, 62, 54, 46)
+V2_QUOTE_ATTR_RECT = fitz.Rect(190, 1050, 1130, 1190)
+V2_QUOTE_ATTR_SIZES = (60, 50, 42, 36, 30)
+
+
+def _redact_v2_pill_only(page):
+    """Two-pass pill clearance plus optional extra rect (used for unused list
+    container removal)."""
+    page.add_redact_annot(PILL_COVER, fill=None)
+    page.apply_redactions(
+        images=fitz.PDF_REDACT_IMAGE_NONE,
+        graphics=fitz.PDF_REDACT_LINE_ART_REMOVE_IF_TOUCHED,
+    )
+
+
+def _redact_v2_text_spans(page, size_ranges):
+    """Redact placeholder text whose font size falls inside any (lo, hi) range.
+    Leaves vector decorations and images untouched."""
+    spans = [s for blk in page.get_text("dict")["blocks"] if blk.get("type") == 0
+             for line in blk["lines"] for s in line["spans"]]
+    for s in spans:
+        if "S U B T I T L E" in s["text"]:
+            continue
+        sz = s["size"]
+        if any(lo <= sz <= hi for lo, hi in size_ranges):
+            page.add_redact_annot(_pad_rect(s["bbox"]), fill=None)
+    page.apply_redactions(
+        images=fitz.PDF_REDACT_IMAGE_NONE,
+        graphics=fitz.PDF_REDACT_LINE_ART_NONE,
+    )
+
+
+def _draw_v2_pill(page, label):
+    _draw_pill(
+        page, label,
+        pill_left=PILL_LEFT, pill_top=PILL_TOP, pill_h=PILL_HEIGHT,
+        pad_x=PILL_PAD_X, fontsize=PILL_FONTSIZE,
+        fill=CAROUSEL_PILL_FILL, stroke=CAROUSEL_PILL_STROKE,
+    )
+
+
+def _fill_v2_cover(page, *, subtitle, title, description):
+    """Page 0 of the v2 template. Title 120pt, description 80pt. The CTA pill
+    ("CONTINUE READING") at size 42.57pt is template-fixed and left intact."""
+    _redact_v2_pill_only(page)
+    _redact_v2_text_spans(page, [(115, 125), (75, 85)])
+    _draw_v2_pill(page, subtitle)
+    _fit_text(page, V2_TITLE_RECT_120, title, V2_TITLE_SIZES_120, WHITE)
+    _fit_text(page, V2_COVER_DESC_RECT, description, V2_COVER_DESC_SIZES, DESC_COLOR)
+
+
+def _fill_v2_paragraph(page, *, subtitle, title, body):
+    """Title 90pt, body 72pt. Use this layout when the slide is one prose
+    paragraph that should breathe."""
+    _redact_v2_pill_only(page)
+    _redact_v2_text_spans(page, [(85, 95), (70, 75)])
+    _draw_v2_pill(page, subtitle)
+    _fit_text(page, V2_PARAGRAPH_TITLE_RECT, title, V2_PARAGRAPH_TITLE_SIZES, WHITE)
+    _fit_text(page, V2_PARAGRAPH_BODY_RECT, body, V2_PARAGRAPH_BODY_SIZES, DESC_COLOR)
+
+
+def _fill_v2_list_slide(page, *, subtitle, title, items):
+    """Shared logic for bullets and checklist. 1 to 4 items. The list-item
+    icons (cyan dot or green check) ship as embedded images inside a form
+    XObject that PyMuPDF's `apply_redactions` cannot reach — so the container
+    vector is redacted, and the icon area is painted over with a flat navy
+    that matches the gradient at that position."""
+    if not 1 <= len(items) <= 4:
+        raise ValueError(f"List slide needs 1 to 4 items, got {len(items)}")
+    # Pass 1: pill + unused container vectors (touched-removal kills the
+    # rounded-rect drawing entirely). Images stay untouched.
+    page.add_redact_annot(PILL_COVER, fill=None)
+    for i in range(len(items), 4):
+        page.add_redact_annot(V2_LIST_CONTAINERS[i], fill=None)
+    page.apply_redactions(
+        images=fitz.PDF_REDACT_IMAGE_NONE,
+        graphics=fitz.PDF_REDACT_LINE_ART_REMOVE_IF_TOUCHED,
+    )
+    # Cover any orphan icon image (icons live at x≈75-155 inside each slot).
+    # Use a fill close to the gradient at that y-band so the patch is subtle.
+    ICON_COVER_FILL = (0.0, 13 / 255, 70 / 255)
+    for i in range(len(items), 4):
+        container = V2_LIST_CONTAINERS[i]
+        icon_cover = fitz.Rect(70, container.y0 + 16, 160, container.y1 - 16)
+        page.draw_rect(icon_cover, color=None, fill=ICON_COVER_FILL, overlay=True)
+    # Pass 2: title (120pt) + item text (51pt) placeholders.
+    _redact_v2_text_spans(page, [(115, 125), (48, 54)])
+    _draw_v2_pill(page, subtitle)
+    _fit_text(page, V2_TITLE_RECT_120, title, V2_TITLE_SIZES_120, WHITE)
+    for i, item in enumerate(items):
+        container = V2_LIST_CONTAINERS[i]
+        # Vertically centre text inside the container, leaving room for the icon.
+        text_rect = fitz.Rect(
+            V2_LIST_TEXT_X,
+            container.y0 + 18,
+            V2_LIST_TEXT_RIGHT,
+            container.y1 - 18,
+        )
+        _fit_text(page, text_rect, item, V2_LIST_ITEM_SIZES, WHITE)
+
+
+def _fill_v2_bullets(page, *, subtitle, title, items):
+    """Page 2 — items shown with cyan bullet dots in rounded containers."""
+    _fill_v2_list_slide(page, subtitle=subtitle, title=title, items=items)
+
+
+def _fill_v2_checklist(page, *, subtitle, title, items):
+    """Page 3 — items shown with green checkmarks in rounded containers."""
+    _fill_v2_list_slide(page, subtitle=subtitle, title=title, items=items)
+
+
+def _fill_v2_quote(page, *, subtitle, title, quote, attribution=None):
+    """Page 4 — large quote with optional attribution line."""
+    _redact_v2_pill_only(page)
+    # Title 100pt, quote 77.66pt. Attribution placeholder is also 77.66pt and
+    # gets caught by the same range, which is what we want.
+    _redact_v2_text_spans(page, [(95, 105), (75, 82)])
+    _draw_v2_pill(page, subtitle)
+    _fit_text(page, V2_QUOTE_TITLE_RECT, title, V2_QUOTE_TITLE_SIZES, WHITE)
+    _fit_text(page, V2_QUOTE_RECT, quote, V2_QUOTE_SIZES, DESC_COLOR)
+    if attribution:
+        _fit_text(page, V2_QUOTE_ATTR_RECT, attribution, V2_QUOTE_ATTR_SIZES, DESC_COLOR)
+
+
+def _fill_v2_outro(page, *, subtitle, title, description):
+    """Page 5 — title + final description. The CTA pill ("READ THE FULL
+    ARTICLE") at size 31.78pt is template-fixed and left intact. The new BSL
+    outro has no contact pills (replaced by the CTA)."""
+    _redact_v2_pill_only(page)
+    _redact_v2_text_spans(page, [(115, 125), (75, 85)])
+    _draw_v2_pill(page, subtitle)
+    _fit_text(page, V2_TITLE_RECT_120, title, V2_TITLE_SIZES_120, WHITE)
+    _fit_text(page, V2_COVER_DESC_RECT, description, V2_COVER_DESC_SIZES, DESC_COLOR)
+
+
+def _build_v2_carousel(*, brand, cover, content, outro, carousel_path):
+    """Generate the v2 BSL carousel. Content entries pick which template page
+    to use via a `type` field. The selected pages are stitched in order
+    between the cover and the outro."""
+    page_order = [V2_COVER_PAGE]
+    for c in content:
+        t = c.get("type")
+        if t not in V2_TYPE_PAGE:
+            raise ValueError(
+                f"Unknown slide type {t!r}. Use one of {sorted(V2_TYPE_PAGE)}"
+            )
+        page_order.append(V2_TYPE_PAGE[t])
+    page_order.append(V2_OUTRO_PAGE)
+
+    doc = fitz.open(str(CAROUSEL_TEMPLATES[brand]))
+    doc.select(page_order)
+
+    _fill_v2_cover(doc[0], **cover)
+    for i, c in enumerate(content):
+        page = doc[1 + i]
+        t = c["type"]
+        if t == "paragraph":
+            _fill_v2_paragraph(page, subtitle=c["subtitle"], title=c["title"],
+                               body=c["body"])
+        elif t == "bullets":
+            _fill_v2_bullets(page, subtitle=c["subtitle"], title=c["title"],
+                             items=c["items"])
+        elif t == "checklist":
+            _fill_v2_checklist(page, subtitle=c["subtitle"], title=c["title"],
+                               items=c["items"])
+        elif t == "quote":
+            _fill_v2_quote(page, subtitle=c["subtitle"], title=c["title"],
+                           quote=c["quote"], attribution=c.get("attribution"))
+    _fill_v2_outro(doc[-1], **outro)
+
+    doc.save(str(carousel_path), deflate=True)
+    doc.close()
+
+
 def build(
     *,
     brand: str,
@@ -281,25 +528,19 @@ def build(
         raise ValueError(f"Too many slides: {total_slides} > 6 cap.")
 
     # No-duplicate guard: every content slide must carry a distinct idea.
-    # We catch exact title or description repeats. Near-duplicates with
-    # different wording are still the caller's responsibility to avoid.
+    # Keys on the title only, since the v1 and v2 schemas have different
+    # supporting fields (description / body / items / quote) but always
+    # include a title.
     titles_seen: dict[str, int] = {}
-    descs_seen: dict[str, int] = {}
     for i, slide in enumerate(content):
         t = slide["title"].strip().lower()
-        d = slide["description"].strip().lower()
         if t in titles_seen:
             raise ValueError(
-                f"Duplicate content slide titles at index {titles_seen[t]} and {i}: {slide['title']!r}. "
-                "Every content slide must carry a distinct idea."
-            )
-        if d in descs_seen:
-            raise ValueError(
-                f"Duplicate content slide descriptions at index {descs_seen[d]} and {i}. "
-                "Every content slide must carry a distinct idea."
+                f"Duplicate content slide titles at index {titles_seen[t]} "
+                f"and {i}: {slide['title']!r}. Every content slide must carry "
+                "a distinct idea."
             )
         titles_seen[t] = i
-        descs_seen[d] = i
 
     output_dir = Path(output_dir)
     brand_dir = output_dir / f"Carousel - {brand}"
@@ -310,32 +551,16 @@ def build(
     blog_path = brand_dir / f"Blog Image - {brand} - {safe_title}.jpg"
 
     # --- Carousel ---
-    doc = fitz.open(str(CAROUSEL_TEMPLATES[brand]))
-    # Template has 4 pages: cover, 2 content, outro. Adjust the content section.
-    # Pages are 0-indexed: 0=cover, 1=content, 2=content, 3=outro.
-    template_content_pages = 2
-    needed_content_pages = len(content)
-    if needed_content_pages < template_content_pages:
-        # Drop excess content pages (delete from page index 1 forward).
-        for _ in range(template_content_pages - needed_content_pages):
-            doc.delete_page(1)
-    elif needed_content_pages > template_content_pages:
-        # Clone page 1 (a content page) to grow the deck.
-        for _ in range(needed_content_pages - template_content_pages):
-            doc.copy_page(1, to=2)
-
-    # Re-index outro after content adjustments.
-    outro_idx = 1 + needed_content_pages
-
-    _fill_carousel_page(doc[0], **cover)
-    for i, slide in enumerate(content):
-        _fill_carousel_page(doc[1 + i], **slide)
-    _fill_carousel_page(doc[outro_idx], **outro)
-
-    # garbage=0: aggressive cleanup wipes shared font glyphs used by the outro
-    # contact pills (size 39.28 OpenSans-Regular). Default save preserves them.
-    doc.save(str(carousel_path), deflate=True)
-    doc.close()
+    if brand in V2_BRANDS:
+        _build_v2_carousel(
+            brand=brand, cover=cover, content=content, outro=outro,
+            carousel_path=carousel_path,
+        )
+    else:
+        _build_v1_carousel(
+            brand=brand, cover=cover, content=content, outro=outro,
+            carousel_path=carousel_path,
+        )
 
     # --- Blog image ---
     blog_doc = fitz.open(str(BLOG_TEMPLATE))
