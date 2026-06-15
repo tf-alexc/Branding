@@ -251,21 +251,27 @@ def _fill_blog_page(page, *, subtitle, title, description):
 def _build_v1_carousel(*, brand, cover, content, outro, carousel_path):
     """v1 pipeline: 4-page template with two interchangeable content pages.
     Used by Redline, Kenyon, and TrustFlight. Content slides all have the
-    same title + description shape."""
-    doc = fitz.open(str(CAROUSEL_TEMPLATES[brand]))
-    template_content_pages = 2
-    needed_content_pages = len(content)
-    if needed_content_pages < template_content_pages:
-        for _ in range(template_content_pages - needed_content_pages):
-            doc.delete_page(1)
-    elif needed_content_pages > template_content_pages:
-        for _ in range(needed_content_pages - template_content_pages):
-            doc.copy_page(1, to=2)
-    outro_idx = 1 + needed_content_pages
+    same title + description shape.
+
+    Built via insert_pdf so each output page has its own content stream —
+    doc.copy_page() left clones sharing the source stream, causing later
+    fills to bleed into earlier pages (every content slide ended up showing
+    the same — usually the last — title and description)."""
+    src = fitz.open(str(CAROUSEL_TEMPLATES[brand]))
+    doc = fitz.open()
+    doc.insert_pdf(src, from_page=0, to_page=0)  # cover
+    for _ in content:
+        # v1 has interchangeable content pages 1 and 2. Use page 1 as the
+        # source for every content slide — they have identical layouts.
+        doc.insert_pdf(src, from_page=1, to_page=1)
+    doc.insert_pdf(src, from_page=3, to_page=3)  # outro
+    src.close()
+
     _fill_carousel_page(doc[0], **cover)
     for i, slide in enumerate(content):
         _fill_carousel_page(doc[1 + i], **slide)
-    _fill_carousel_page(doc[outro_idx], **outro)
+    _fill_carousel_page(doc[-1], **outro)
+
     doc.save(str(carousel_path), deflate=True)
     doc.close()
 
@@ -514,19 +520,26 @@ def _build_v2_carousel(*, brand, cover, content, outro, carousel_path, source_ur
     """Generate the v2 BSL carousel. Content entries pick which template page
     to use via a `type` field. The selected pages are stitched in order
     between the cover and the outro. `source_url` drives the QR code rendered
-    over the red placeholder on the outro page."""
-    page_order = [V2_COVER_PAGE]
+    over the red placeholder on the outro page.
+
+    NOTE: we build the deck via insert_pdf, not doc.select(), because select()
+    with a repeated source index produces pages that share the same content
+    stream — filling one would bleed into the others (two paragraph slides
+    would end up showing the same body). insert_pdf gives each output page an
+    independent content stream so fills stay isolated."""
+    src = fitz.open(str(CAROUSEL_TEMPLATES[brand]))
+    doc = fitz.open()  # empty target
+    doc.insert_pdf(src, from_page=V2_COVER_PAGE, to_page=V2_COVER_PAGE)
     for c in content:
         t = c.get("type")
         if t not in V2_TYPE_PAGE:
             raise ValueError(
                 f"Unknown slide type {t!r}. Use one of {sorted(V2_TYPE_PAGE)}"
             )
-        page_order.append(V2_TYPE_PAGE[t])
-    page_order.append(V2_OUTRO_PAGE)
-
-    doc = fitz.open(str(CAROUSEL_TEMPLATES[brand]))
-    doc.select(page_order)
+        idx = V2_TYPE_PAGE[t]
+        doc.insert_pdf(src, from_page=idx, to_page=idx)
+    doc.insert_pdf(src, from_page=V2_OUTRO_PAGE, to_page=V2_OUTRO_PAGE)
+    src.close()
 
     _fill_v2_cover(doc[0], **cover)
     for i, c in enumerate(content):
