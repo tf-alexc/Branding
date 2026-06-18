@@ -113,6 +113,18 @@ Restyle any Word document to TrustFlight brand standards using the master templa
 
 ---
 
+### `kenyon-certificate-generator` — Kenyon certificate PDFs
+Fill the branded Kenyon certificate template with recipient details and export a single-page PDF.  
+**Script:** `skills/kenyon-certificate-generator/fill_certificate.py`  
+**Template:** `skills/kenyon-certificate-generator/Certificate - Kenyon - Template.pdf` (burned in — no upload needed)  
+**Output:** `~/Desktop/Certificate - Kenyon - [type] - [Name].pdf`  
+**Can run in browser:** Yes — Python + PyMuPDF only, no desktop apps needed.
+
+Four types: Training (page 1), Academy Training (page 2), Acceptance (page 3, no course field), Achievement (page 4, Incident field instead of Course).  
+Always ask the user for the certificate type before proceeding.
+
+---
+
 ## File Structure
 
 ```
@@ -125,6 +137,7 @@ Claude Playground/
 │   ├── linkedin-event-generator/  # Event graphic Illustrator workflow
 │   ├── bsl-course-sheets/         # BSL PDF automation
 │   ├── course-dates-generator/    # Course dates PDF automation
+│   ├── kenyon-certificate-generator/ # Kenyon certificate PDF generator
 │   └── word-brand/                # Word document branding
 ├── Illustrator Templates/         # Master .ai files for Illustrator skills
 ├── InDesign/
@@ -150,6 +163,7 @@ Claude Playground/
 | linkedin-holiday-generator | No | Yes |
 | linkedin-event-generator | No | Yes |
 | bsl-course-sheets | No | Yes |
+| kenyon-certificate-generator | Yes | Yes |
 | word-brand | No | Yes |
 
 Skills marked "No" require desktop apps (Illustrator, InDesign, PowerPoint, Word) running locally via MCP.
