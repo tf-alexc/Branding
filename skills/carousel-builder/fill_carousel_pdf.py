@@ -65,7 +65,7 @@ PILL_FONTSIZE = 26.0
 CAROUSEL_TITLE_RECT = fitz.Rect(70, 320, 1170, 630)
 CAROUSEL_DESC_RECT = fitz.Rect(70, 660, 1170, 1130)
 CAROUSEL_TITLE_SIZES = (120, 110, 100, 90, 80, 70, 60)
-CAROUSEL_DESC_SIZES = (80, 72, 64, 56)
+CAROUSEL_DESC_SIZES = (88, 80, 74, 68, 62, 58)
 
 # Blog image is 1920 x 1080 landscape.
 BLOG_PILL_COVER = fitz.Rect(72, 318, 752, 406)
@@ -334,13 +334,13 @@ V2_TITLE_SIZES_120 = (120, 110, 100, 90, 80, 70, 60)
 
 # Cover + outro description (tighter than v1 because the CTA pill sits below).
 V2_COVER_DESC_RECT = fitz.Rect(70, 660, 1170, 970)
-V2_COVER_DESC_SIZES = (80, 72, 64, 56)
+V2_COVER_DESC_SIZES = (88, 80, 74, 68, 62, 58)
 
 # Paragraph slide — smaller title (90pt), big body block.
 V2_PARAGRAPH_TITLE_RECT = fitz.Rect(70, 340, 1170, 590)
 V2_PARAGRAPH_TITLE_SIZES = (90, 80, 70, 60)
 V2_PARAGRAPH_BODY_RECT = fitz.Rect(70, 620, 1170, 1200)
-V2_PARAGRAPH_BODY_SIZES = (72, 64, 56, 48, 42)
+V2_PARAGRAPH_BODY_SIZES = (90, 82, 74, 68, 62, 56, 52)
 
 # List items (bullets + checklist share container geometry).
 V2_LIST_CONTAINERS = [
