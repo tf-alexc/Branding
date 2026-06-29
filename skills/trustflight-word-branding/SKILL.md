@@ -112,7 +112,16 @@ Both list styles inherit bullet character, indentation, and size directly from t
 
 ### Table of Contents
 
-The Basic Document template includes a TOC field. After every basic-mode build the script marks all field characters dirty and sets `<w:updateFields val="true"/>` in `settings.xml`, so Word refreshes the TOC automatically the next time the document is opened — including when `docx2pdf` opens it to produce the PDF. No manual "Update field" step required.
+The Basic Document template includes a TOC field. After every basic-mode build the script:
+
+- Rewrites the TOC instruction to `TOC \o "1-2" \h \z \u`, so **only H1 and H2 headings appear in the TOC** — H3 and deeper are excluded by design.
+- Marks every `w:fldChar` dirty and sets `<w:updateFields val="true"/>` in `settings.xml`, so Word refreshes the TOC automatically the next time the document is opened, including when `docx2pdf` opens it to produce the PDF. No manual "Update field" step required.
+
+When writing content, you can still use Heading 3 (and deeper) inside a section — those headings just won't be indexed in the TOC.
+
+### End page (contact card)
+
+The back-cover contact card from the master template is preserved verbatim — content, formatting, trailing layout paragraphs, everything — and a hard page break is always inserted directly before it so the card lands on its own page regardless of how much user content comes before. Do not duplicate or rewrite the contact-card content in the JSON spec; it is restored from the template on every build.
 
 ### col_widths (optional, in twips)
 If omitted, defaults are applied automatically:

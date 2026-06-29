@@ -299,13 +299,18 @@ def build(data):
 
 
 def _refresh_toc_fields(doc):
-    """Mark every field as dirty and turn on auto-update in settings so Word (and
-    docx2pdf, which drives Word) regenerates the TOC and page references on open."""
+    """Mark every field as dirty, restrict the TOC to H1+H2 only, and turn on
+    auto-update in settings so Word (and docx2pdf, which drives Word) regenerates
+    the TOC and page references on open."""
+    import re
     body = doc.element.body
     touched = False
     for fld in body.iter(qn('w:fldChar')):
         fld.set(qn('w:dirty'), 'true')
         touched = True
+    for instr in body.iter(qn('w:instrText')):
+        if instr.text and instr.text.lstrip().startswith('TOC'):
+            instr.text = re.sub(r'\\o\s+"[^"]*"', r'\\o "1-2"', instr.text)
     if not touched:
         return
     settings = doc.settings.element
@@ -316,6 +321,16 @@ def _refresh_toc_fields(doc):
         settings.append(uf)
     else:
         existing.set(qn('w:val'), 'true')
+
+
+def _make_page_break_paragraph():
+    p = OxmlElement('w:p')
+    r = OxmlElement('w:r')
+    br = OxmlElement('w:br')
+    br.set(qn('w:type'), 'page')
+    r.append(br)
+    p.append(r)
+    return p
 
 
 def _export_pdf(docx_path):
@@ -518,6 +533,11 @@ def _reattach_end_page(body, detached):
     if not detached:
         return
     sectPr = body.find(qn('w:sectPr'))
+    page_break = _make_page_break_paragraph()
+    if sectPr is not None:
+        sectPr.addprevious(page_break)
+    else:
+        body.append(page_break)
     for el in detached:
         if sectPr is not None:
             sectPr.addprevious(el)
