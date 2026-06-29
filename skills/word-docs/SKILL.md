@@ -1,13 +1,13 @@
 ---
-name: trustflight-word-branding
+name: word-docs
 description: Rebuild any Word document with TrustFlight brand styling using the master template. Use this skill whenever the user asks to restyle, brand, recreate, or draft a Word document (including a brief) to match TrustFlight standards.
 ---
 
 # TrustFlight Word Branding Skill
 
-**Script:** `~/.claude/skills/trustflight-word-branding/trustflight_word_branding.py`  
-**Master template (full):** `~/.claude/skills/trustflight-word-branding/templates/Basic Document.docx`  
-**Master template (letterhead):** `~/.claude/skills/trustflight-word-branding/templates/Basic Letterhead.docx`  
+**Script:** `~/.claude/skills/word-docs/word_docs.py`  
+**Master template (full):** `~/.claude/skills/word-docs/templates/Basic Document.docx`  
+**Master template (letterhead):** `~/.claude/skills/word-docs/templates/Basic Letterhead.docx`  
 **Dependencies:** `python-docx` (required), `docx2pdf` (required for PDF export — `pip install docx2pdf`). On macOS, `docx2pdf` drives Word.app for full-fidelity rendering. LibreOffice headless is used as a fallback if installed.
 
 The script picks one of the two bundled templates based on the document type, inherits its named styles, fonts, page layout, headers and footers, then inserts the content from a JSON spec.
@@ -49,7 +49,7 @@ Before doing anything else, **always** ask the user this question and surface it
 3. **Write a temp JSON file** (e.g. `/tmp/doc_data.json`) with the mapped content.
 4. **Run the script:**
    ```bash
-   python3 ~/.claude/skills/trustflight-word-branding/trustflight_word_branding.py /tmp/doc_data.json
+   python3 ~/.claude/skills/word-docs/word_docs.py /tmp/doc_data.json
    ```
 5. The script saves to `output_path` — always set this to the original source file path to override it. A PDF is automatically produced next to the DOCX with the same base name (e.g. `output.docx` + `output.pdf`).
 
