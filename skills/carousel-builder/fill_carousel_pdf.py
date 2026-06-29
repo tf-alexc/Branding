@@ -104,31 +104,60 @@ def _pad_rect(bbox, p: float = 2.0) -> fitz.Rect:
     return fitz.Rect(r.x0 - p, r.y0 - p, r.x1 + p, r.y1 + p)
 
 
+_SENTENCE_SPLIT = re.compile(r'(?<=[.!?])\s+(?=[A-Z0-9"\'(])')
+
+
+def _format_sentences(text: str, max_per_block: int = 2) -> str:
+    """Lay text out for readability instead of as one dense block:
+    - one sentence per line (line break between sentences)
+    - a blank line after every `max_per_block` sentences, so no block of text
+      runs longer than two sentences
+
+    Returns a string with embedded '\\n'. If the text is already a single
+    sentence, it comes back unchanged."""
+    sentences = [s.strip() for s in _SENTENCE_SPLIT.split(text.strip()) if s.strip()]
+    if len(sentences) <= 1:
+        return text.strip()
+    out_lines: list[str] = []
+    for i, sentence in enumerate(sentences):
+        if i and i % max_per_block == 0:
+            out_lines.append("")          # blank line = new block
+        out_lines.append(sentence)
+    return "\n".join(out_lines)
+
+
 def _wrap_lines(font: fitz.Font, text: str, fontsize: float, max_width: float):
-    """Greedy word wrap. Returns (lines, longest_word_width)."""
-    words = text.split()
-    if not words:
-        return [""], 0.0
+    """Greedy word wrap that respects explicit newlines. Returns
+    (lines, longest_word_width). Each '\\n' forces a hard break, and blank
+    lines (from sentence-block separators) are preserved so the height
+    prediction matches what insert_textbox actually renders."""
     space_w = font.text_length(" ", fontsize=fontsize)
     lines: list[str] = []
-    cur: list[str] = []
-    cur_w = 0.0
     longest_word = 0.0
-    for w in words:
-        ww = font.text_length(w, fontsize=fontsize)
-        longest_word = max(longest_word, ww)
-        if not cur:
-            cur = [w]
-            cur_w = ww
-        elif cur_w + space_w + ww <= max_width:
-            cur.append(w)
-            cur_w += space_w + ww
-        else:
+    for source_line in text.split("\n"):
+        words = source_line.split()
+        if not words:
+            lines.append("")             # preserve blank separator line
+            continue
+        cur: list[str] = []
+        cur_w = 0.0
+        for w in words:
+            ww = font.text_length(w, fontsize=fontsize)
+            longest_word = max(longest_word, ww)
+            if not cur:
+                cur = [w]
+                cur_w = ww
+            elif cur_w + space_w + ww <= max_width:
+                cur.append(w)
+                cur_w += space_w + ww
+            else:
+                lines.append(" ".join(cur))
+                cur = [w]
+                cur_w = ww
+        if cur:
             lines.append(" ".join(cur))
-            cur = [w]
-            cur_w = ww
-    if cur:
-        lines.append(" ".join(cur))
+    if not lines:
+        return [""], 0.0
     return lines, longest_word
 
 
@@ -213,7 +242,8 @@ def _fill_carousel_page(page, *, subtitle, title, description):
         fill=CAROUSEL_PILL_FILL, stroke=CAROUSEL_PILL_STROKE,
     )
     _fit_text(page, CAROUSEL_TITLE_RECT, title, CAROUSEL_TITLE_SIZES, WHITE)
-    _fit_text(page, CAROUSEL_DESC_RECT, description, CAROUSEL_DESC_SIZES, DESC_COLOR)
+    _fit_text(page, CAROUSEL_DESC_RECT, _format_sentences(description),
+              CAROUSEL_DESC_SIZES, DESC_COLOR)
 
 
 def _redact_blog_placeholders(page):
@@ -413,17 +443,21 @@ def _fill_v2_cover(page, *, subtitle, title, description):
     _redact_v2_text_spans(page, [(115, 125), (75, 85)])
     _draw_v2_pill(page, subtitle)
     _fit_text(page, V2_TITLE_RECT_120, title, V2_TITLE_SIZES_120, WHITE)
-    _fit_text(page, V2_COVER_DESC_RECT, description, V2_COVER_DESC_SIZES, DESC_COLOR)
+    _fit_text(page, V2_COVER_DESC_RECT, _format_sentences(description),
+              V2_COVER_DESC_SIZES, DESC_COLOR)
 
 
 def _fill_v2_paragraph(page, *, subtitle, title, body):
     """Title 90pt, body 72pt. Use this layout when the slide is one prose
-    paragraph that should breathe."""
+    paragraph that should breathe. The body is reflowed to one sentence per
+    line with a blank line after every two sentences, so it never reads as a
+    dense block."""
     _redact_v2_pill_only(page)
     _redact_v2_text_spans(page, [(85, 95), (70, 75)])
     _draw_v2_pill(page, subtitle)
     _fit_text(page, V2_PARAGRAPH_TITLE_RECT, title, V2_PARAGRAPH_TITLE_SIZES, WHITE)
-    _fit_text(page, V2_PARAGRAPH_BODY_RECT, body, V2_PARAGRAPH_BODY_SIZES, DESC_COLOR)
+    _fit_text(page, V2_PARAGRAPH_BODY_RECT, _format_sentences(body),
+              V2_PARAGRAPH_BODY_SIZES, DESC_COLOR)
 
 
 def _fill_v2_list_slide(page, *, subtitle, title, items):
@@ -511,7 +545,8 @@ def _fill_v2_outro(page, *, subtitle, title, description, source_url=None):
     _redact_v2_text_spans(page, [(115, 125), (75, 85)])
     _draw_v2_pill(page, subtitle)
     _fit_text(page, V2_TITLE_RECT_120, title, V2_TITLE_SIZES_120, WHITE)
-    _fit_text(page, V2_COVER_DESC_RECT, description, V2_COVER_DESC_SIZES, DESC_COLOR)
+    _fit_text(page, V2_COVER_DESC_RECT, _format_sentences(description),
+              V2_COVER_DESC_SIZES, DESC_COLOR)
     if source_url:
         page.insert_image(V2_OUTRO_QR_RECT, stream=_make_qr_png_bytes(source_url))
 
