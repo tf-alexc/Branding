@@ -63,11 +63,8 @@ PILL_TOP = 225.79
 PILL_HEIGHT = 80.66
 PILL_PAD_X = 50.0
 PILL_FONTSIZE = 26.0
-
-CAROUSEL_TITLE_RECT = fitz.Rect(70, 320, 1170, 630)
-CAROUSEL_DESC_RECT = fitz.Rect(70, 660, 1170, 1130)
-CAROUSEL_TITLE_SIZES = (120, 110, 100, 90, 80, 70, 60)
-CAROUSEL_DESC_SIZES = (88, 80, 74, 68, 62, 58)
+# Subtitle pill fill/stroke (shared by every carousel page and the blog image).
+# Named CAROUSEL_PILL_* for historical reasons; used across all v2 pages.
 
 # Blog image is 1920 x 1080 landscape.
 BLOG_PILL_COVER = fitz.Rect(72, 318, 752, 406)
@@ -221,49 +218,6 @@ def _draw_pill(page, label, *, pill_left, pill_top, pill_h, pad_x, fontsize, fil
     )
 
 
-def _redact_carousel_placeholders(page):
-    """Two-pass clean-up:
-    1. Fully remove the original pill drawing (fill + stroke) with aggressive
-       line-art removal — otherwise the pill's stroke survives the default
-       redaction and shows as a doubled outline next to the new (hugged) pill.
-    2. Remove the title + description placeholder text spans without touching
-       line art (gradient waves, decoration stripes) or the arrow image (which
-       lives at the bottom of the page and would otherwise be clipped by the
-       last description line's redaction box, leaving a grey bar)."""
-    # Pass 1 — pill: nuke vectors inside the pill rect, leave images alone.
-    page.add_redact_annot(PILL_COVER, fill=None)
-    page.apply_redactions(
-        images=fitz.PDF_REDACT_IMAGE_NONE,
-        graphics=fitz.PDF_REDACT_LINE_ART_REMOVE_IF_TOUCHED,
-    )
-    # Pass 2 — title + description text only. Spare images and line art.
-    spans = [s for blk in page.get_text("dict")["blocks"] if blk.get("type") == 0
-             for line in blk["lines"] for s in line["spans"]]
-    for s in spans:
-        sz = s["size"]
-        if "S U B T I T L E" in s["text"]:
-            continue
-        if 70 < sz < 90 or sz > 100:
-            page.add_redact_annot(_pad_rect(s["bbox"]), fill=None)
-    page.apply_redactions(
-        images=fitz.PDF_REDACT_IMAGE_NONE,
-        graphics=fitz.PDF_REDACT_LINE_ART_NONE,
-    )
-
-
-def _fill_carousel_page(page, *, subtitle, title, description):
-    _redact_carousel_placeholders(page)
-    _draw_pill(
-        page, subtitle,
-        pill_left=PILL_LEFT, pill_top=PILL_TOP, pill_h=PILL_HEIGHT,
-        pad_x=PILL_PAD_X, fontsize=PILL_FONTSIZE,
-        fill=CAROUSEL_PILL_FILL, stroke=CAROUSEL_PILL_STROKE,
-    )
-    _fit_text(page, CAROUSEL_TITLE_RECT, title, CAROUSEL_TITLE_SIZES, WHITE)
-    _fit_text(page, CAROUSEL_DESC_RECT, _format_sentences(description),
-              CAROUSEL_DESC_SIZES, DESC_COLOR)
-
-
 def _redact_blog_placeholders(page):
     """Same two-pass approach as the carousel: aggressive vector removal for
     the pill, conservative text-only removal for the placeholders."""
@@ -296,45 +250,18 @@ def _fill_blog_page(page, *, subtitle, title, description):
     _fit_text(page, BLOG_DESC_RECT, description, BLOG_DESC_SIZES, DESC_COLOR)
 
 
-def _build_v1_carousel(*, brand, cover, content, outro, carousel_path):
-    """v1 pipeline: 4-page template with two interchangeable content pages.
-    Used by Redline, Kenyon, and TrustFlight. Content slides all have the
-    same title + description shape.
-
-    Built via insert_pdf so each output page has its own content stream —
-    doc.copy_page() left clones sharing the source stream, causing later
-    fills to bleed into earlier pages (every content slide ended up showing
-    the same — usually the last — title and description)."""
-    src = fitz.open(str(CAROUSEL_TEMPLATES[brand]))
-    doc = fitz.open()
-    doc.insert_pdf(src, from_page=0, to_page=0)  # cover
-    for _ in content:
-        # v1 has interchangeable content pages 1 and 2. Use page 1 as the
-        # source for every content slide — they have identical layouts.
-        doc.insert_pdf(src, from_page=1, to_page=1)
-    doc.insert_pdf(src, from_page=3, to_page=3)  # outro
-    src.close()
-
-    _fill_carousel_page(doc[0], **cover)
-    for i, slide in enumerate(content):
-        _fill_carousel_page(doc[1 + i], **slide)
-    _fill_carousel_page(doc[-1], **outro)
-
-    doc.save(str(carousel_path), deflate=True)
-    doc.close()
-
-
 # ============================================================================
-# v2 (new Baines Simmons template): typed content slides + CTA pills
+# Typed-content carousel pipeline (all brands)
 # ----------------------------------------------------------------------------
-# The new BSL template is six pages with four specialised content layouts.
+# Every brand template is six pages with four specialised content layouts.
 # Pages: 0=cover, 1=paragraph, 2=bullets, 3=checklist, 4=quote, 5=outro.
 # Each content slide takes a `type` discriminator picking which template page.
 # The cover and outro both have a template-fixed CTA pill ("CONTINUE READING"
 # / "READ THE FULL ARTICLE") that we leave untouched.
 # ============================================================================
 
-V2_BRANDS = {"Baines Simmons"}
+# Every brand now ships the v2 (6-page, typed-content) template.
+V2_BRANDS = {"Baines Simmons", "Redline", "Kenyon", "TrustFlight"}
 
 V2_TYPE_PAGE = {
     "paragraph": 1,
@@ -694,17 +621,11 @@ def build(
     carousel_path = brand_dir / f"Carousel - {brand} - {safe_title}.pdf"
     blog_path = brand_dir / f"Blog Image - {brand} - {safe_title}.jpg"
 
-    # --- Carousel ---
-    if brand in V2_BRANDS:
-        _build_v2_carousel(
-            brand=brand, cover=cover, content=content, outro=outro,
-            carousel_path=carousel_path, source_url=source_url,
-        )
-    else:
-        _build_v1_carousel(
-            brand=brand, cover=cover, content=content, outro=outro,
-            carousel_path=carousel_path,
-        )
+    # --- Carousel --- every brand uses the v2 typed-content pipeline.
+    _build_v2_carousel(
+        brand=brand, cover=cover, content=content, outro=outro,
+        carousel_path=carousel_path, source_url=source_url,
+    )
 
     # --- Blog image ---
     blog_doc = fitz.open(str(BLOG_TEMPLATE))
