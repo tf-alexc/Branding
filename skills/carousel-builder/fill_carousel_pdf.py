@@ -44,6 +44,8 @@ FONT_BOLD = str(SKILL_DIR / "OpenSans-Bold.ttf")
 NAVY = (0, 0, 26 / 255)
 WHITE = (1, 1, 1)
 DESC_COLOR = (199 / 255, 213 / 255, 1.0)
+# Electric — TrustFlight brand colour #03D4FF. Used for the outro QR code.
+ELECTRIC = (3 / 255, 212 / 255, 255 / 255)
 # Pill fill matches the original template pill interior exactly — sampled from
 # the template's vector drawing. Using this avoids any visible seam when we
 # cover the old pill before redrawing a new (narrower) one.
@@ -388,15 +390,20 @@ V2_QUOTE_ATTR_SIZES = (60, 50, 42, 36, 30)
 V2_OUTRO_QR_RECT = fitz.Rect(783, 1033, 1050, 1300)
 
 
+# Electric (#03D4FF) as a hex string for segno's `dark` argument.
+ELECTRIC_HEX = "#03D4FF"
+
+
 def _make_qr_png_bytes(url: str) -> bytes:
-    """Generate a high-error-correction QR code PNG (transparent background,
-    white modules) for the given URL. Transparent background lets the navy
-    gradient show through; white modules match the brand text colour."""
+    """Generate a high-error-correction QR code PNG for the given URL.
+
+    Modules are always rendered in Electric (#03D4FF), the TrustFlight brand
+    colour, on a transparent background so the navy gradient shows through."""
     import segno
     qr = segno.make(url, error="h")
     buf = io.BytesIO()
     # scale=20 yields plenty of resolution for the 267x268 placement rect.
-    qr.save(buf, kind="png", scale=20, dark="white", light=None, border=2)
+    qr.save(buf, kind="png", scale=20, dark=ELECTRIC_HEX, light=None, border=2)
     return buf.getvalue()
 
 
