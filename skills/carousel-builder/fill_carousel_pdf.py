@@ -163,16 +163,32 @@ def _wrap_lines(font: fitz.Font, text: str, fontsize: float, max_width: float):
     return lines, longest_word
 
 
+MIN_FONTSIZE = 22  # hard floor — below this text is unreadable anyway
+
+
+def _size_fits(font, text, rect, size) -> bool:
+    lines, longest_word = _wrap_lines(font, text, size, rect.width)
+    if longest_word > rect.width:
+        return False
+    total_h = (len(lines) * LINE_HEIGHT_FACTOR + ASCENT_OVERHEAD) * size
+    return total_h <= rect.height
+
+
 def _pick_fitting_size(font: fitz.Font, text: str, rect: fitz.Rect, sizes) -> float:
-    """Largest size from `sizes` whose wrapped layout fits inside `rect`."""
+    """Largest size whose wrapped layout fits inside `rect`. Tries the ladder
+    first; if nothing in the ladder fits, keeps shrinking continuously down to
+    MIN_FONTSIZE so the text always renders rather than silently vanishing
+    (insert_textbox draws nothing when the content overflows the box)."""
     for size in sizes:
-        lines, longest_word = _wrap_lines(font, text, size, rect.width)
-        if longest_word > rect.width:
-            continue  # a single word overflows — must shrink
-        total_h = (len(lines) * LINE_HEIGHT_FACTOR + ASCENT_OVERHEAD) * size
-        if total_h <= rect.height:
+        if _size_fits(font, text, rect, size):
             return size
-    return sizes[-1]
+    # Ladder floor still overflowed — shrink past it.
+    size = int(sizes[-1]) - 1
+    while size >= MIN_FONTSIZE:
+        if _size_fits(font, text, rect, size):
+            return size
+        size -= 1
+    return MIN_FONTSIZE
 
 
 def _fit_text(page, rect, text, sizes, color):
@@ -329,6 +345,14 @@ V2_TYPE_PAGE = {
 V2_COVER_PAGE = 0
 V2_OUTRO_PAGE = 5
 
+# --- Bottom-corner keep-out zones (content pages 1-4) -----------------------
+# The next-arrow circle sits bottom-right; its visible top edge is y=1226.
+# The footer URL band sits bottom-left starting ~y=1373. Inserted text must
+# never reach into either, so every text rect is capped above the arrow.
+# BODY_BOTTOM gives a comfortable margin above the arrow circle.
+BODY_BOTTOM = 1170.0          # safe bottom for left-column body text
+ARROW_LEFT = 755.0            # left edge of the arrow keep-out column
+
 # Shared geometry — title at 120pt fits in this rect on cover, bullets,
 # checklist, and outro pages.
 V2_TITLE_RECT_120 = fitz.Rect(70, 320, 1170, 630)
@@ -338,10 +362,11 @@ V2_TITLE_SIZES_120 = (120, 110, 100, 90, 80, 70, 60)
 V2_COVER_DESC_RECT = fitz.Rect(70, 660, 1170, 970)
 V2_COVER_DESC_SIZES = (88, 80, 74, 68, 62, 58)
 
-# Paragraph slide — smaller title (90pt), big body block.
+# Paragraph slide — smaller title (90pt), body block. Body bottom is capped at
+# BODY_BOTTOM so a long paragraph can never collide with the arrow circle.
 V2_PARAGRAPH_TITLE_RECT = fitz.Rect(70, 340, 1170, 590)
 V2_PARAGRAPH_TITLE_SIZES = (90, 80, 70, 60)
-V2_PARAGRAPH_BODY_RECT = fitz.Rect(70, 620, 1170, 1200)
+V2_PARAGRAPH_BODY_RECT = fitz.Rect(70, 620, 1170, BODY_BOTTOM)
 V2_PARAGRAPH_BODY_SIZES = (90, 82, 74, 68, 62, 56, 52)
 
 # List items (bullets + checklist share container geometry).
@@ -383,7 +408,9 @@ V2_QUOTE_TITLE_RECT = fitz.Rect(70, 340, 1170, 610)
 V2_QUOTE_TITLE_SIZES = (100, 90, 80, 70, 60)
 V2_QUOTE_RECT = fitz.Rect(190, 620, 1130, 1010)
 V2_QUOTE_SIZES = (78, 70, 62, 54, 46)
-V2_QUOTE_ATTR_RECT = fitz.Rect(190, 1050, 1130, 1190)
+# Attribution right edge stops at ARROW_LEFT so a long name never crosses
+# into the arrow column; bottom stays above the arrow circle.
+V2_QUOTE_ATTR_RECT = fitz.Rect(190, 1050, ARROW_LEFT, 1160)
 V2_QUOTE_ATTR_SIZES = (60, 50, 42, 36, 30)
 
 # Outro QR-code placeholder (the red square on the source template).
