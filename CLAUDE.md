@@ -113,6 +113,30 @@ Restyle any Word document to TrustFlight brand standards using the master templa
 
 ---
 
+## MCP Servers
+
+Local MCP servers that expose external systems to Claude as tools.
+
+### `contrast-mcp` (Contrast webinar platform)
+Plan upcoming webinars and pull the details needed for LinkedIn promo posts and event graphics.
+**Location:** `contrast-mcp/`  
+**API:** `https://connect.getcontrast.io` (Contrast, the webinar platform, not Contrast Security)  
+**Credential:** `CONTRAST_API_KEY` in `contrast-mcp/.env` (gitignored, never commit it)  
+**Registered via:** project scoped `.mcp.json` at the repo root  
+**Can run in browser:** No, it is a local stdio MCP server.
+
+Key tools: `contrast_check_auth`, `contrast_list_webinars`, `contrast_promo_brief`,
+`contrast_list_registrations`, `contrast_request`.
+
+Typical flow: `contrast_list_webinars` with `when: "upcoming"`, then `contrast_promo_brief` on the
+chosen webinar, then hand the brief to `asip-webinar-generator`, `linkedin-event-generator` or
+`carousel-builder`. Briefs already carry house style dates, so do not reformat them.
+
+Run `npm run check-auth` in `contrast-mcp/` after install or after rotating the key. See
+`contrast-mcp/README.md` for how the auth header and paths are resolved at runtime.
+
+---
+
 ## File Structure
 
 ```
@@ -133,6 +157,12 @@ Claude Playground/
 ├── Course PDFs/                   # Course date PDF templates (Redline, BSL, Kenyon)
 ├── Claude Presentations/          # All generated PowerPoint files
 ├── Events Generated/              # Exported event graphic JPGs
+├── contrast-mcp/                  # MCP server for the Contrast webinar API
+│   ├── server.js                  # Tool definitions and dispatch
+│   ├── lib/client.js              # HTTP, auth resolution, pagination
+│   ├── lib/normalise.js           # Event record to promo brief mapping
+│   └── scripts/check-auth.js      # Standalone connectivity check
+├── .mcp.json                      # Project scoped MCP server registration
 ├── fill_course_pdf.py             # Course dates script (root copy)
 └── CLAUDE.md                      # This file
 ```
@@ -151,5 +181,6 @@ Claude Playground/
 | linkedin-event-generator | No | Yes |
 | bsl-course-sheets | No | Yes |
 | word-brand | No | Yes |
+| contrast-mcp (MCP server) | No | Yes |
 
 Skills marked "No" require desktop apps (Illustrator, InDesign, PowerPoint, Word) running locally via MCP.

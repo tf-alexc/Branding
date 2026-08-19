@@ -1,0 +1,14 @@
+{
+  "name": "contrast-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for the Contrast webinar platform (getcontrast.io)",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "check-auth": "node scripts/check-auth.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}
