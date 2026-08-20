@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "contrast": {
-      "command": "node",
-      "args": ["contrast-mcp/server.js"]
-    }
-  }
-}
