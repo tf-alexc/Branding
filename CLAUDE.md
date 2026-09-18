@@ -117,11 +117,28 @@ Restyle any Word document to TrustFlight brand standards using the master templa
 Fill the branded Kenyon certificate template with recipient details and export a single-page PDF.  
 **Script:** `skills/kenyon-certificate-generator/fill_certificate.py`  
 **Template:** `skills/kenyon-certificate-generator/Certificate - Kenyon - Template.pdf` (burned in — no upload needed)  
+**Font:** `skills/kenyon-certificate-generator/TitilliumWeb-Regular.ttf` (burned in). Deliberate exception to the Open Sans rule: the certificate artwork sets its fill-in fields in Titillium Web Regular, so filled text must match.  
 **Output:** `~/Desktop/Certificate - Kenyon - [type] - [Name].pdf`  
 **Can run in browser:** Yes — Python + PyMuPDF only, no desktop apps needed.
 
-Four types: Training (page 1), Academy Training (page 2), Acceptance (page 3, no course field), Achievement (page 4, Incident field instead of Course).  
+Five types: Training (page 1), Academy Training (page 2), Acceptance (page 3, no course field), Achievement (page 4, Incident field instead of Course), Membership (page 5, no course field, the date is the member-since date).  
 Always ask the user for the certificate type before proceeding.
+
+---
+
+### `asip-webinar-generator` — ASIP webinar & blog promo graphics
+Fill the Webinar PDF template with an eyebrow/subtitle and title, export as JPG.  
+**Script:** `skills/asip-webinar-generator/fill_webinar.py`  
+**Template:** `skills/asip-webinar-generator/Webinar - Template.pdf` (burned in — no upload needed, 9 pages: 3 TrustFlight webinar/purple + 3 TrustFlight blog/green + 3 Kenyon, one per size each)  
+**Output:** `Webinar Generated/`  
+**Can run in browser:** Yes — Python + PyMuPDF only, no desktop apps needed.
+
+Always ask the user, unless already specified: (1) which brand — Kenyon or TrustFlight (Baines Simmons and Redline will follow); if the user instead gives a link to an existing article or reference doc, detect the brand from it automatically rather than asking; (2) for TrustFlight only, webinar or blog/article — picks the purple "WEBINAR SERIES"/"REGISTER NOW" theme or the green "BLOG SERIES"/"READ THE FULL ARTICLE" theme (Kenyon currently only has one style, its own blog/article layout — don't ask this for Kenyon); (3) which size(s): 1920x1080 (website article thumbnail, no CTA button in this template), 1200x628 (LinkedIn wide ad), 1200x1200 (LinkedIn square ad).
+
+Key rules:
+- Only the eyebrow/subtitle and title fields ever change. Never move, resize, or alter any other visual element. Same rule applies across every brand and theme.
+- Fonts are a deliberate exception to the Open Sans brand rule: Titillium Web Bold (eyebrow, Electric `#03D4FF`) and Titillium Web Light (title, White) — fixed per this template's own spec.
+- Optional background photo, sourced from Unsplash/Pexels (needs `UNSPLASH_ACCESS_KEY` and/or `PEXELS_API_KEY` env vars): always blurred, always cover-fit, always tinted by the chosen brand/theme's own gradient at ~10% opacity so pills/button/logo/lines/text stay exactly as designed on top of it. Ask for a search keyword; never guess one from the title.
 
 ---
 
@@ -138,14 +155,17 @@ Claude Playground/
 │   ├── bsl-course-sheets/         # BSL PDF automation
 │   ├── course-dates-generator/    # Course dates PDF automation
 │   ├── kenyon-certificate-generator/ # Kenyon certificate PDF generator
-│   └── word-brand/                # Word document branding
+│   ├── word-brand/                # Word document branding
+│   └── asip-webinar-generator/    # ASIP webinar promo graphic generator
 ├── Illustrator Templates/         # Master .ai files for Illustrator skills
 ├── InDesign/
 │   ├── BSL Course Sheets/         # Templates, script, fonts, output PDFs
 │   └── indesign-mcp/              # Local InDesign MCP server
 ├── Course PDFs/                   # Course date PDF templates (Redline, BSL, Kenyon)
+├── PDF Templates/                 # PDF templates for other PyMuPDF-driven skills (webinar, whitepaper, socials)
 ├── Claude Presentations/          # All generated PowerPoint files
 ├── Events Generated/              # Exported event graphic JPGs
+├── Webinar Generated/             # Exported ASIP webinar graphic JPGs
 ├── fill_course_pdf.py             # Course dates script (root copy)
 └── CLAUDE.md                      # This file
 ```
@@ -165,5 +185,6 @@ Claude Playground/
 | bsl-course-sheets | No | Yes |
 | kenyon-certificate-generator | Yes | Yes |
 | word-brand | No | Yes |
+| asip-webinar-generator | Yes | Yes |
 
 Skills marked "No" require desktop apps (Illustrator, InDesign, PowerPoint, Word) running locally via MCP.
