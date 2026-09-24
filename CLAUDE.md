@@ -118,8 +118,9 @@ Fill the branded Kenyon certificate template with recipient details and export a
 **Script:** `skills/kenyon-certificate-generator/fill_certificate.py`  
 **Template:** `skills/kenyon-certificate-generator/Certificate - Kenyon - Template.pdf` (burned in — no upload needed)  
 **Font:** `skills/kenyon-certificate-generator/TitilliumWeb-Regular.ttf` (burned in). Deliberate exception to the Open Sans rule: the certificate artwork sets its fill-in fields in Titillium Web Regular, so filled text must match.  
-**Output:** `~/Desktop/Certificate - Kenyon - [type] - [Name].pdf`  
-**Can run in browser:** Yes — Python + PyMuPDF only, no desktop apps needed.
+**Word template:** `skills/kenyon-certificate-generator/Certificate - Kenyon - Membership - Word Template.docx` (burned in; rebuild with `build_word_template.py` after any artwork change).  
+**Output:** PDF + PNG preview, shared into the chat for the user to download. Never saved to the user's own folders: the script only writes to claude.ai's `/mnt/user-data/outputs/` or a temporary staging folder, and has no option to change that.  
+**Can run in browser:** Yes — Python + PyMuPDF only, no desktop apps needed. Script paths resolve from its own folder, so it runs on anyone's machine.
 
 Five types: Training (page 1), Academy Training (page 2), Acceptance (page 3, no course field), Achievement (page 4, Incident field instead of Course), Membership (page 5, no course field, the date is the member-since date).  
 Always ask the user for the certificate type before proceeding.

@@ -2,30 +2,60 @@
 """
 Fill a Kenyon certificate template with recipient details.
 
+Usage (command line, from any working directory):
+    python3 "<skill_dir>/fill_certificate.py" --type training --name "John Smith" \
+        --date "12th June 2026" --course "Emergency Planning"
+
+    python3 "<skill_dir>/fill_certificate.py" --word-template
+
 Usage (import):
     from fill_certificate import fill_certificate
-    output = fill_certificate("training", "John Smith", "12th June 2026", "Emergency Planning")
-    print(output)  # path to saved PDF
+    pdf = fill_certificate("training", "John Smith", "12th June 2026", "Emergency Planning")
+
+Outputs never go into the user's own folders. Everything is written to a
+delivery folder (claude.ai's outputs folder, or a temporary folder elsewhere)
+so it can be shared into the chat, where the user downloads it themselves.
+
+Every path is resolved from this file's own location, so the skill runs the
+same on any machine or sandbox it is installed in.
 
 Field positions are read from the template at runtime, so swapping in a new
 version of "Certificate - Kenyon - Template.pdf" needs no code changes, as long
 as the fill-in placeholders stay set in Titillium Web Regular.
 """
 
-import fitz
+import argparse
 import os
 import re
+import shutil
+import sys
+import tempfile
+
+try:
+    import fitz
+except ImportError:
+    sys.exit("PyMuPDF is not installed. Run: pip install pymupdf "
+             "(add --break-system-packages if pip refuses), then rerun.")
 
 SKILL_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE   = os.path.join(SKILL_DIR, "Certificate - Kenyon - Template.pdf")
+WORD_TEMPLATE = os.path.join(SKILL_DIR, "Certificate - Kenyon - Membership - Word Template.docx")
 # Titillium Web Regular, bundled with this skill: the certificate artwork sets its
 # fill-in fields in it, so filled text matches the template exactly. This overrides
 # the house Open Sans rule for this template only, same as the ASIP webinar skill.
 FONT_FILE  = os.path.join(SKILL_DIR, "TitilliumWeb-Regular.ttf")
-OUTPUT_DIR = os.path.expanduser("~/Desktop")
+
+# claude.ai surfaces files saved here to the user in the chat.
+CHAT_OUTPUT_DIR = "/mnt/user-data/outputs"
+# Everywhere else: a temporary folder, never the user's Desktop or documents.
+TEMP_OUTPUT_DIR = os.path.join(tempfile.gettempdir(), "kenyon-certificates")
+
+PREVIEW_DPI = 150
 
 SAPPHIRE = (0 / 255, 92 / 255, 167 / 255)  # #005CA7
-WHITE    = (1.0, 1.0, 1.0)
+# Redactions remove the placeholder text only. No fill: a white box would paint
+# over the underline rules and line patterns that sit behind the fields.
+NO_FILL  = False
 
 PAGE_INDEX = {
     "training":         0,
@@ -52,6 +82,51 @@ DEFAULT_ORDINAL_RISE = 8.0   # pt above the main baseline
 DEFAULT_ORDINAL_RATIO = 14.0 / 24.0
 
 _layout_cache = {}
+
+
+def normalise_type(cert_type):
+    """'Academy_Training', 'academy-training' and 'academy training' all match."""
+    return re.sub(r"[\s_-]+", " ", str(cert_type)).strip().lower()
+
+
+def delivery_dir():
+    """
+    The only place outputs are written. claude.ai's outputs folder when it
+    exists, since files there reach the user in the chat. Otherwise a temporary
+    folder, which is where the chat's file-sharing tool picks them up from.
+    """
+    folder = CHAT_OUTPUT_DIR if os.path.isdir(CHAT_OUTPUT_DIR) else TEMP_OUTPUT_DIR
+    os.makedirs(folder, exist_ok=True)
+    return folder
+
+
+def preview_path(pdf_path):
+    """PNG preview saved next to the PDF, for chats that cannot preview PDFs."""
+    return os.path.splitext(pdf_path)[0] + " - preview.png"
+
+
+def _unique(path):
+    """Never overwrite an earlier certificate the user may not have downloaded yet."""
+    if not os.path.exists(path):
+        return path
+    stem, ext = os.path.splitext(path)
+    n = 2
+    while os.path.exists(f"{stem} ({n}){ext}"):
+        n += 1
+    return f"{stem} ({n}){ext}"
+
+
+def _check_glyphs(font, text, field):
+    """
+    Refuse text the brand font cannot draw. Titillium Web covers Latin scripts
+    only, so Greek, Cyrillic, Arabic or CJK letters would print as blanks.
+    """
+    missing = sorted({c for c in text if not c.isspace() and not font.has_glyph(ord(c))})
+    if missing:
+        raise ValueError(
+            f"The {field} contains characters the certificate font (Titillium Web) cannot "
+            f"print: {' '.join(missing)}. Ask the user for a Latin-alphabet spelling."
+        )
 
 
 def _placeholder_rows(page):
@@ -88,7 +163,7 @@ def _row_rect(page, row):
     """
     Redaction rect for a placeholder row: the row's own bounds, pulled in so it
     never touches neighbouring artwork. Template lines sit as little as 0.8pt
-    apart, and redaction deletes anything the rect intersects.
+    apart, and redaction deletes any text the rect intersects.
     """
     x0 = min(s["bbox"][0] for s in row) - 1
     x1 = max(s["bbox"][2] for s in row) + 1
@@ -182,7 +257,7 @@ def _insert_date(page, spec, date_str, font):
                          color=SAPPHIRE)
         return font.text_length(text, fontsize=text_size)
 
-    m = re.search(r'(\d+)(st|nd|rd|th)', date_str, re.IGNORECASE)
+    m = re.search(r'(\d+)(st|nd|rd|th)\b', date_str, re.IGNORECASE)
     if not m:
         draw(x, baseline_y, date_str, size)
         return
@@ -199,9 +274,9 @@ def _insert_date(page, spec, date_str, font):
         draw(x_cur, baseline_y, after, size)
 
 
-def fill_certificate(cert_type, name, date, course_or_incident=None, output_path=None):
+def fill_certificate(cert_type, name, date, course_or_incident=None, preview=True):
     """
-    Generate a filled Kenyon certificate PDF.
+    Generate a filled Kenyon certificate PDF in the delivery folder and return its path.
 
     cert_type:            "training" | "academy training" | "acceptance"
                           | "achievement" | "membership"
@@ -210,28 +285,41 @@ def fill_certificate(cert_type, name, date, course_or_incident=None, output_path
                           On Membership this is the "valuable member since" date.
     course_or_incident:   Course title (training/academy training), incident name (achievement),
                           or None (acceptance/membership).
-    output_path:          Full output path. Defaults to ~/Desktop/Certificate - Kenyon - ...pdf
+    preview:              Also save a PNG of the page next to the PDF (see preview_path()).
     """
-    key = cert_type.lower().strip()
+    key = normalise_type(cert_type)
     if key not in PAGE_INDEX:
         raise ValueError(f"Unknown cert type {cert_type!r}. Must be one of: {list(PAGE_INDEX)}")
+
+    name = (name or "").strip()
+    date = (date or "").strip()
+    course_or_incident = (course_or_incident or "").strip() or None
+    if not name:
+        raise ValueError("The name is empty.")
+    if not date:
+        raise ValueError("The date is empty.")
 
     middle_field = MIDDLE_FIELD[key]
     if middle_field and not course_or_incident:
         raise ValueError(f"{key.title()} certificates need the {middle_field} field.")
 
+    font = fitz.Font(fontfile=FONT_FILE)
+    _check_glyphs(font, name, "name")
+    _check_glyphs(font, date, "date")
+    if middle_field:
+        _check_glyphs(font, course_or_incident, middle_field)
+
     page_idx = PAGE_INDEX[key]
     layout   = _read_layout(page_idx)
-    font     = fitz.Font(fontfile=FONT_FILE)
 
     doc  = fitz.open(TEMPLATE)
     page = doc[page_idx]
 
     # Clear the template placeholders
-    page.add_redact_annot(layout["name"]["rect"], fill=WHITE)
-    page.add_redact_annot(layout["date"]["rect"], fill=WHITE)
+    page.add_redact_annot(layout["name"]["rect"], fill=NO_FILL)
+    page.add_redact_annot(layout["date"]["rect"], fill=NO_FILL)
     if "middle" in layout:
-        page.add_redact_annot(layout["middle"]["rect"], fill=WHITE)
+        page.add_redact_annot(layout["middle"]["rect"], fill=NO_FILL)
 
     page.apply_redactions(
         images   = fitz.PDF_REDACT_IMAGE_NONE,
@@ -257,17 +345,56 @@ def fill_certificate(cert_type, name, date, course_or_incident=None, output_path
                          fontfile=FONT_FILE, fontname="ks_font",
                          color=SAPPHIRE)
 
-    # Build output path
-    if output_path is None:
-        safe_name = re.sub(r'[/\\:*?"<>|]', "-", name)
-        safe_type = key.replace(" ", "_")
-        filename  = f"Certificate - Kenyon - {safe_type} - {safe_name}.pdf"
-        output_path = os.path.join(OUTPUT_DIR, filename)
+    safe_name = re.sub(r'[/\\:*?"<>|\x00-\x1f]', "-", name)
+    safe_type = key.replace(" ", "_")
+    filename  = f"Certificate - Kenyon - {safe_type} - {safe_name}.pdf"
+    output_path = _unique(os.path.join(delivery_dir(), filename))
 
     out = fitz.open()
     out.insert_pdf(doc, from_page=page_idx, to_page=page_idx)
-    out.save(output_path)
+    out.save(output_path, garbage=3, deflate=True)
+    if preview:
+        out[0].get_pixmap(dpi=PREVIEW_DPI).save(preview_path(output_path))
     out.close()
     doc.close()
 
     return output_path
+
+
+def word_template():
+    """Copy the embedded Word Membership template into the delivery folder for sharing."""
+    dest = _unique(os.path.join(delivery_dir(), os.path.basename(WORD_TEMPLATE)))
+    shutil.copyfile(WORD_TEMPLATE, dest)
+    return dest
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Fill a Kenyon certificate. Output goes to the delivery folder only.")
+    parser.add_argument("--type", type=normalise_type, choices=list(PAGE_INDEX),
+                        help="Certificate type.")
+    parser.add_argument("--name", help="Recipient full name.")
+    parser.add_argument("--date", help='e.g. "12th June 2026". On Membership, the member-since date.')
+    parser.add_argument("--course", help="Course title (Training, Academy Training).")
+    parser.add_argument("--incident", help="Incident name (Achievement).")
+    parser.add_argument("--word-template", action="store_true",
+                        help="Copy the editable Word Membership template for sharing, then exit.")
+    args = parser.parse_args()
+
+    if args.word_template:
+        print(f"DOCX: {word_template()}")
+        return
+
+    if not (args.type and args.name and args.date):
+        parser.error("--type, --name and --date are required.")
+
+    try:
+        pdf = fill_certificate(args.type, args.name, args.date, args.course or args.incident)
+    except ValueError as err:
+        sys.exit(f"ERROR: {err}")
+    print(f"PDF: {pdf}")
+    print(f"PREVIEW: {preview_path(pdf)}")
+
+
+if __name__ == "__main__":
+    main()
