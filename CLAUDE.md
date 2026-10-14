@@ -8,9 +8,46 @@ This repo contains TrustFlight brand assets, automation scripts, and Claude skil
 
 ---
 
+## Writing Style: No AI Artefacts (ALWAYS APPLY)
+
+Write like a competent human colleague, not a chatbot. These rules apply to every output: chat replies, documents, emails, code comments, commit messages and published content.
+
+### Punctuation and formatting
+- Never use em dashes (—). Use a hyphen, colon, comma or full stop, or restructure the sentence.
+- No emojis unless explicitly asked.
+- Don't over-format. Use headers and bullets only when the content is a genuine list or reference material. Default to plain paragraphs.
+- No bold for emphasis scattered through prose. Bold is for labels only.
+- Use sentence case for headings, not Title Case.
+
+### Banned words and phrases
+- Vocabulary: delve, leverage, utilise, robust, seamless, cutting-edge, game-changer, unlock, empower, elevate, harness, tapestry, landscape, realm, journey, navigate (when not literal), foster, bolster, pivotal, crucial, vital, meticulous, comprehensive, holistic, synergy, streamline, testament, underscore, embark.
+- Openers: "Great question", "Certainly!", "Absolutely!", "I'd be happy to", "Let's dive in", "In today's fast-paced world", "In the ever-evolving...".
+- Closers: "I hope this helps", "Let me know if you have any other questions", "Feel free to reach out", "Happy to help further".
+- Filler: "It's worth noting that", "It's important to remember", "At the end of the day", "When it comes to", "In order to" (use "to").
+
+### Sentence patterns to avoid
+- "It's not just X, it's Y" and "This isn't about X, it's about Y" constructions.
+- Reflexive groups of three ("fast, simple, and secure"). Use as many items as are actually true.
+- Rhetorical questions followed by the answer ("The result? A 30% saving.").
+- Summary sentences that restate the paragraph you just wrote. No "In conclusion" or "Overall".
+- Hedging stacks ("may potentially help to possibly improve"). State it, or state the uncertainty once.
+- Fake enthusiasm and hype adjectives. Let facts carry the weight.
+
+### No mannered prose
+Don't substitute metaphor or flourish for a direct statement. Write "a parameter worth changing", not "a dial worth turning". Write "this still matters", not "this earns its keep". When a literal phrase is available, use it. Metaphors add connotations you didn't choose and make the reader work harder.
+
+### What to do instead
+- Lead with the answer or the point. Context after, if needed.
+- Use short, plain words and specific nouns and numbers.
+- Vary sentence length naturally.
+- Cut any sentence that doesn't add information.
+- Before finishing, reread the output and remove anything on the lists above.
+
+---
+
 ## Brand Rules (always apply)
 
-- Never use em dashes. Use a comma, colon, or rewrite the sentence.
+- Writing style: follow the "No AI Artefacts" section above for all copy.
 - "Visit our website" always means `https://www.trustflight.com`
 - Font: Open Sans throughout — never Arial, Aptos, or Lato.
 - All generated PowerPoint files save to `/Users/alexcraiu/Desktop/Claude Playground/Claude Presentations/`
@@ -119,7 +156,7 @@ Fill the branded Kenyon certificate template with recipient details and export a
 **Template:** `skills/kenyon-certificate-generator/Certificate - Kenyon - Template.pdf` (burned in — no upload needed)  
 **Font:** `skills/kenyon-certificate-generator/TitilliumWeb-Regular.ttf` (burned in). Deliberate exception to the Open Sans rule: the certificate artwork sets its fill-in fields in Titillium Web Regular, so filled text must match.  
 **Word template:** `skills/kenyon-certificate-generator/Certificate - Kenyon - Membership - Word Template.docx` (burned in; rebuild with `build_word_template.py` after any artwork change).  
-**Output:** PDF + PNG preview, shared into the chat for the user to download. Never saved to the user's own folders: the script only writes to claude.ai's `/mnt/user-data/outputs/` or a temporary staging folder, and has no option to change that.  
+**Output:** PDF + PNG preview, shared into the chat for the user to download, with the same result on every surface (claude.ai in a browser; desktop app Chat, Cowork and Code): preview in the conversation, PDF attached, the script's CAPTION line as the message. Never saved to the user's own folders: the script only writes to the conversation's outputs folder or a temporary staging folder, and `--deliver-to` only accepts an `outputs` folder outside the user's home.  
 **Can run in browser:** Yes — Python + PyMuPDF only, no desktop apps needed. Script paths resolve from its own folder, so it runs on anyone's machine.
 
 Five types: Training (page 1), Academy Training (page 2), Acceptance (page 3, no course field), Achievement (page 4, Incident field instead of Course), Membership (page 5, no course field, the date is the member-since date).  
