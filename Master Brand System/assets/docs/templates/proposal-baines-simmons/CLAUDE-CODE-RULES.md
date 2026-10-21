@@ -60,8 +60,9 @@ Copy the canonical table (TrustFlight proposal p11, page id `tech-log-matrix`); 
 ## PDF export (mandatory recipe)
 1. **Canvas:** Export › All artboards (.pdf); the 15 artboards export in reading order, one page each.
 2. **Local:** regenerate the print copy from the 15 page files (each page's markup inside a `<div class="sheet">`, `@page{size:8.5in 11in;margin:0}`, `.sheet{width:8.5in;height:11in;overflow:hidden;break-after:page}`, `<link rel="stylesheet" href="../../styles.css">`, no scripts), serve the system folder locally and print to PDF from Chrome: US Letter, margins None, Background graphics ON.
+3a. **Keep the PDF light for Acrobat.** The canvas exports on a Linux server, so the page CSS sets `text-rendering:geometricPrecision` (exact letter widths; without it every letter snaps to a whole pixel and the spacing looks broken) and `font-kerning:normal`. Never use semi-transparent colours (`rgba()` with alpha, `color-mix(… transparent)`), `opacity`, `box-shadow`, `filter`/blur or `repeating-linear-gradient` on the pages: Chrome turns them into transparency groups, luminosity masks and PostScript-function patterns that Acrobat redraws slowly. Use the solid pre-blended colour instead (for example `#9296A0` for Graphite at 50% on white, `#DADFE6` for white at 85% on Midnight), draw repeating stripes as plain SVG lines, and inline the footer brandmark as an SVG filled `#7689A2`.
 3. **Never** use `doc-page.js` or any script that re-renders the pages for print: Chrome then writes body text as Type 3 glyph outlines from a locally installed font, the spacing breaks and Acrobat slows to a crawl.
-4. **Verify:** 15 pages at 8.5×11in; only OpenSans-* and TitilliumWeb-* fonts, embedded, no Type 3 and no substitutes (LiberationSans etc.); text selectable; ≤ 5 MB.
+4. **Verify:** 15 pages at 8.5×11in; only OpenSans-* and TitilliumWeb-* fonts, embedded, no Type 3 and no substitutes (LiberationSans etc.); no `/SMask` or `/FunctionType 4`; fractional letter positions; text selectable; ≤ 5 MB.
 - Only compress photography to meet 5 MB; never logos, icons or UI screenshots.
 - Always offer a .docx alongside the PDF.
 

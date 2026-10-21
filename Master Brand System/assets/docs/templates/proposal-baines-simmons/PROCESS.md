@@ -31,8 +31,9 @@ Open Sans and Titillium Web always come from the Master Brand System: `styles.cs
 ## Export
 - **On the canvas:** Export › All artboards (.pdf). Each artboard is one page, in reading order.
 - **Locally (Claude Code):** open the print copy in Chrome over a local server (not `file://`) and print to PDF: US Letter, margins None, Background graphics ON. Regenerate the print copy from the 15 pages after any edit.
+- **Keep the PDF light for Acrobat.** The canvas exports on a Linux server, so the page CSS sets `text-rendering:geometricPrecision` (exact letter widths; without it every letter snaps to a whole pixel and the spacing looks broken) and `font-kerning:normal`. Never use semi-transparent colours (`rgba()` with alpha, `color-mix(… transparent)`), `opacity`, `box-shadow`, `filter`/blur or `repeating-linear-gradient` on the pages: Chrome turns them into transparency groups, luminosity masks and PostScript-function patterns that Acrobat redraws slowly. Use the solid pre-blended colour instead (for example `#9296A0` for Graphite at 50% on white, `#DADFE6` for white at 85% on Midnight), draw repeating stripes as plain SVG lines, and inline the footer brandmark as an SVG filled `#7689A2`.
 - **Never** add `doc-page.js` or any script that re-renders the pages for print. It makes Chrome write the text as drawn glyph outlines (Type 3 fonts) that substitute a locally installed font, with rounded letter positions: the spacing looks wrong and the PDF is very slow in Acrobat.
-- **Verify every PDF:** 15 pages, 8.5×11in; fonts listed are only OpenSans-* and TitilliumWeb-* (no Type 3, no substitutes such as LiberationSans); text is selectable; under 5 MB.
+- **Verify every PDF:** 15 pages, 8.5×11in; fonts listed are only OpenSans-* and TitilliumWeb-* (no Type 3, no substitutes such as LiberationSans); no `/SMask` or `/FunctionType 4`; letter positions fractional (not whole numbers); text is selectable; under 5 MB.
 - **Filename:** `Proposal - Baines Simmons - [Proposal Title] - [Client]`, filename-illegal characters removed.
 
 ## Rebranding an existing Baines Simmons proposal (Word or PDF)
