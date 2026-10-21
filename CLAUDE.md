@@ -180,6 +180,23 @@ Key rules:
 
 ---
 
+## Master Brand System design system
+
+The live design system is the artifact https://claude.ai/artifact/3TSvubnBz4WCsS1xD7o3b9; its README's Template routing table links every template's Design canvas.
+
+### Baines Simmons proposal template
+15 fixed US Letter pages, no controls. Rebrand-from-Word workflow in `PROCESS.md`.  
+**Live:** `templates/proposal-baines-simmons/Page01.dc.html` to `Page15.dc.html` in the design system; Design canvas https://claude.ai/artifact/6bZKWgjxJcqrdnzYxbD95z  
+**Local mirror:** `Master Brand System/` (same paths, renders and exports locally; see its README)  
+**Rules:** `Master Brand System/assets/docs/templates/proposal-baines-simmons/PROCESS.md` and `CLAUDE-CODE-RULES.md`
+
+Key rules:
+- Fonts always load from the design system (`styles.css` / `tokens.css` / `fonts/`), never a template-only copy.
+- Never use `doc-page.js` or any print script that re-renders pages: Chrome then writes Type 3 glyph outlines, the spacing breaks and Acrobat crawls. Check every PDF lists only OpenSans-* and TitilliumWeb-* fonts.
+- The contents page entries are links (`PageNN.dc.html` on pages and the canvas, `#pNN` in the print copy).
+
+---
+
 ## File Structure
 
 ```
@@ -195,6 +212,7 @@ Claude Playground/
 │   ├── kenyon-certificate-generator/ # Kenyon certificate PDF generator
 │   ├── word-brand/                # Word document branding
 │   └── asip-webinar-generator/    # ASIP webinar promo graphic generator
+├── Master Brand System/           # Local mirror of design-system files (Baines Simmons proposal)
 ├── Illustrator Templates/         # Master .ai files for Illustrator skills
 ├── InDesign/
 │   ├── BSL Course Sheets/         # Templates, script, fonts, output PDFs

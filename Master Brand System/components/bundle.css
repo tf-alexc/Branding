@@ -1,0 +1,18 @@
+/* Master Brand System: component stylesheet.
+   Loaded after tokens.css. Holds the values tokens.json cannot carry:
+   the two gradients, the gutter alias and the motion values. */
+
+:root {
+  /* ---- Gradients (brand guide pairs Midnight and Sapphire→Electric) ---- */
+  --gradient-midnight: linear-gradient(135deg, var(--color-midnight-grad-start), var(--color-midnight-grad-end));
+  --gradient-response: linear-gradient(120deg, var(--color-sapphire), var(--color-electric));
+
+  --gutter: var(--space-6);
+
+  /* Motion: quick, unbouncy, not specified in the brand guide. */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+}
