@@ -2,6 +2,10 @@
 
 Template files (Master Brand System, `templates/proposal-baines-simmons/`): 15 Design Component pages, one file per sheet, `Page01.dc.html` (cover) to `Page15.dc.html` (back cover), each a fixed US Letter page (816×1056px). Print copy for local PDF export: `Baines Simmons - Proposal - Commercial Proposal -print-.html`, generated from the 15 pages. Design canvas: [Baines Simmons Proposal](https://claude.ai/artifact/6bZKWgjxJcqrdnzYxbD95z), the same 15 pages as artboards (`Main.dc.html` is page 1). Built from the Intermountain Health proposal (OP10663 V2.0).
 
+## Choosing this template
+- Any request to create, write, build, rebrand or redesign a Baines Simmons proposal (bid, tender, RFP response or quote turned into a proposal) uses this template automatically. Don't ask which template to use.
+- If the request doesn't name a brand, take it from the source document. When the document is Baines Simmons (Baines Simmons logo or name, bainessimmons.com addresses, Baines Simmons headers or footers), use this template and say in one line that Baines Simmons was detected from the document. If the document is another brand, use that brand's proposal template. Ask only when neither the request nor the document shows the brand.
+
 **Page stack:** 01 cover · 02 contents · 03–04 description · 05–07 proposal details (tranche + MSA pricing tables) · 08 project summary · 09–10 associated costs, payment terms, additional information · 11 acceptance · 12–14 Terms of Agreement · 15 back cover.
 
 ## Hard rules
@@ -16,6 +20,7 @@ Template files (Master Brand System, `templates/proposal-baines-simmons/`): 15 D
 9. **No controls in the template.** There is no control bar, form or button on any page. Every page shows only what prints.
 10. **PDF filename:** `Proposal - Baines Simmons - [Proposal Title] - [Client]` (see Export).
 11. **Running header** keeps the dash between client and proposal title ("CLIENT – PROPOSAL TITLE · PROPOSAL").
+12. **Cover, acceptance, back cover, headers and footers are set in stone.** The structure of the cover (p1), the acceptance page (p11), the back cover/contacts page (p15), the running header on pp 3–14 and the footer on pp 2–14 never changes: no element added, removed, moved, resized or restyled, and no wording changed. Never restructure their containers: don't split, merge, re-nest, re-order or replace any box, grid, row, signature field or the purchase-order table, and don't change their sizes, spacing, borders or alignment. Only the deal fields are filled in (client, proposal title, proposal type, prepared for, prepared by, date issued, deal code, version, page number) and the cover photo is swapped in; the acceptance page has no deal fields beyond its header and footer. This holds for new proposals, rebrands and any later edit.
 
 ## Filling it from a quote
 - Deal details are literal text on the pages, never form fields: client and proposal title (cover, and the running header on pp 3–14), proposal type (cover pill), prepared for, prepared by and date issued (cover), deal code and version (footer on pp 2–14). Replace every instance; search all 15 pages for `[Client]`, `[Proposal Title]`, `[OP00000]`, `V1.0`, `[Name]` and `[Date]` before export.
@@ -49,7 +54,7 @@ Use this when someone uploads an existing Baines Simmons proposal (usually a .do
    - totals → Project summary (p8);
    - subsistence, travel, shipping, cancellation → Associated costs (p9); payment terms → Payment terms (p9); venue, timings, equipment, validity and similar → Additional information (pp 9–10).
    Keep the source's facts and figures exactly. Rewrite wording only to meet the brand rules (no all caps, no em dashes, left-aligned, column parity, TrustFlight messaging) and to fit the layout.
-4. **Locked pages stay as they are.** Acceptance (p11), Terms of Agreement (pp 12–14) and the back cover (p15) are never rebuilt from the source. If the source's terms or acceptance wording differ from the template, keep the template and tell the user which clauses differ.
+4. **Locked pages stay as they are.** Acceptance (p11), Terms of Agreement (pp 12–14) and the back cover (p15) are never rebuilt from the source, and the cover, running headers and footers keep the template's structure whatever the source's look (hard rule 12). If the source's terms or acceptance wording differ from the template, keep the template and tell the user which clauses differ.
 5. **Overflow.** If content does not fit a page, re-balance across the existing pages first (move whole blocks); add a continuation page only for Description or Proposal details, using the continuation-page heading rule. Never shrink type.
 6. **Cover photo.** Use the client or programme photo if the source has one; otherwise keep the placeholder and say so. Web images follow the README's "Sourcing images from the web".
 7. **Output.** Fill a copy of the 15 pages (in chat: a new Design artifact with the Baines Simmons Proposal canvas files copied in, never the canvas itself), export the PDF as in Export, check it, name it `Proposal - Baines Simmons - [Proposal Title] - [Client]`, and offer a .docx.

@@ -8,6 +8,10 @@ Template files (Master Brand System, `templates/proposal-baines-simmons/`): 15 D
 - Shared files the pages read: `styles.css` (imports `tokens.css` and `components/bundle.css`), `fonts/*.woff2`, `assets/logos/baines-logo-white.svg`, `assets/logos/trustflight-logo-horizontal-white.svg`, `assets/logos/trustflight-icon-blue.svg`.
 - The 21 older per-page files in `templates/proposal-baines-simmons/` (`Baines Simmons - Proposal - <Section>.html`) are the previous layout. Do not use them for new proposals.
 
+## Choosing this template
+- Any request to create, write, build, rebrand or redesign a Baines Simmons proposal (bid, tender, RFP response or quote turned into a proposal) uses this template automatically. Don't ask which template to use.
+- If the request doesn't name a brand, take it from the source document. When the document is Baines Simmons (Baines Simmons logo or name, bainessimmons.com addresses, Baines Simmons headers or footers), use this template and say in one line that Baines Simmons was detected from the document. If the document is another brand, use that brand's proposal template. Ask only when neither the request nor the document shows the brand.
+
 Page stack: 01 cover · 02 contents · 03–04 description · 05–07 proposal details (tranche + MSA pricing tables) · 08 project summary · 09–10 associated costs, payment terms, additional information · 11 acceptance · 12–14 Terms of Agreement · 15 back cover.
 
 ## Hard rules (template)
@@ -22,6 +26,7 @@ Page stack: 01 cover · 02 contents · 03–04 description · 05–07 proposal d
 9. **PDF filename (hard rule):** `Proposal - Baines Simmons - [Proposal Title] - [Client]`, filename-illegal characters removed.
 10. **Page and contents numbers are typed text.** Renumber every running header and the p2 contents list whenever a page is added or removed.
 11. **The contents list on p2 is clickable.** Each entry is a link to its page: `<a href="PageNN.dc.html">` in the page files and on the canvas (page 1 is `Main.dc.html` on the canvas), and `<a href="#pNN">` to the sheet with `id="pNN"` in the print copy, which Chrome turns into internal PDF links. When pages move, update the targets as well as the numbers. Never turn the entries into plain text.
+12. **Cover, acceptance, back cover, headers and footers are set in stone.** The structure of the cover (p1), the acceptance page (p11), the back cover/contacts page (p15), the running header on pp 3–14 and the footer on pp 2–14 never changes: no element added, removed, moved, resized or restyled, and no wording changed. Never restructure their containers: don't split, merge, re-nest, re-order or replace any box, grid, row, signature field or the purchase-order table, and don't change their sizes, spacing, borders or alignment. Only the deal fields are filled in (client, proposal title, proposal type, prepared for, prepared by, date issued, deal code, version, page number) and the cover photo is swapped in; the acceptance page has no deal fields beyond its header and footer. This holds for new proposals, rebrands and any later edit.
 
 ## Filling it from a quote
 - Deal details are literal text: client and proposal title (cover and running headers), proposal type (cover pill), prepared for, prepared by, date issued (cover), deal code and version (footers pp 2–14). Replace every instance across all 15 pages.
