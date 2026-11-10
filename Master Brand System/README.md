@@ -18,6 +18,11 @@ Paths match the live system's `project/` folder, so every relative link in the t
 - The sidebar shows the document title, set once in the `documentTitle` tweak. The back cover has no sidebar and matches the TrustFlight proposal back cover.
 - Both load the system through `ds-base.js` (`styles.css` and `_ds_bundle.js`), so open them from the served folder.
 
+## Corporate whitepaper (portrait)
+
+- Pages: `templates/corporate-whitepaper-portrait/Page01.dc.html` (cover) to `Page15.dc.html` (back cover), one fixed US Letter page each. Design canvas: https://claude.ai/artifact/EkZ5i6htuAbrCmmekWTSv3
+- Corporate cover, sidebar and back cover; whitepaper text and layouts; proposal table style. The sidebar title is typed on each page.
+
 ## Exporting a PDF locally
 
 Serve this folder, then print the print copy from Chrome (US Letter, margins None, Background graphics ON):

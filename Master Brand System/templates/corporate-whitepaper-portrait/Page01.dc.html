@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Corporate whitepaper – Cover</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+<x-dc>
+<!-- @template name="Corporate Whitepaper (Portrait)" description="US Letter whitepaper in the corporate booklet style: corporate cover and back cover, left sidebar with the document title and page number, whitepaper text styles and page layouts, proposal table style. One file per page, Page01 (cover) to Page15 (back cover)." -->
+<helmet>
+<style>
+:root{--wp-accent:#03D4FF;}
+
+body{margin:0;font-family:'Open Sans',Helvetica,sans-serif;font-kerning:normal;text-rendering:geometricPrecision;}
+a{color:var(--brand-primary);}a:hover{color:var(--color-midnight);}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+@page{size:8.5in 11in;margin:0}
+.cb-page{width:816px;height:1056px;background:var(--color-midnight);box-sizing:border-box;overflow:hidden;position:relative;display:flex;flex-direction:row;margin:0;}
+.cb-page.light{background:#ffffff;}
+.cb-page h1,.cb-page h2{text-wrap:balance;}
+.cb-page p{text-wrap:pretty;}
+.cb-rail{width:76px;min-width:76px;height:1056px;box-sizing:border-box;border-right:1px solid #1A3961;background:var(--color-midnight);display:flex;flex-direction:column;align-items:center;padding:40px 0;z-index:2;}
+.cb-rail.light{background:#ffffff;border-right:1px solid #E1E5EA;}
+.cb-rail.on-image{border-right:1px solid #3D5677;}
+.cb-rail-mid{flex:1;display:flex;align-items:center;justify-content:center;}
+.cb-rail-tag{display:inline-block;transform:rotate(-90deg);white-space:nowrap;font-family:var(--font-display);font-weight:var(--weight-light);font-size:12px;letter-spacing:0.16em;color:#4B6383;}
+.cb-rail.light .cb-rail-tag{color:#8A9AAF;}
+.cb-rail.on-image .cb-rail-tag{color:#9CABBF;}
+.cb-num{font-family:var(--font-display);font-weight:var(--weight-light);font-size:13px;color:#536A88;}
+.cb-rail.light .cb-num{color:#A2AEBE;}
+.cb-rail.on-image .cb-num{color:#B4C0CF;}
+.cb-body{flex:1;min-width:0;height:1056px;box-sizing:border-box;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.cb-eyebrow{display:inline-flex;align-self:flex-start;align-items:center;padding:6px 15px;border:2px solid var(--color-electric);border-radius:var(--radius-full);font-family:var(--font-display);font-weight:700;font-size:9pt;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-electric);white-space:nowrap;}
+.cb-h1{font-family:'Titillium Web',Helvetica,sans-serif;font-weight:300;font-size:44px;line-height:1.08;color:var(--color-white);margin:0;text-wrap:balance;}
+.cb-p{font-family:'Open Sans',Helvetica,sans-serif;font-weight:400;font-size:9.5pt;line-height:1.25;color:#DADFE6;margin:0;}
+</style>
+</helmet>
+<div class="cb-page dark" data-screen-label="01" style="padding:0;">
+  <img src="../../assets/imagery/general/commercial-aircraft/commercial-03.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+  <div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,41,85,0.94) 0%,rgba(6,41,85,0.78) 44%,rgba(6,41,85,0.3) 100%);"></div>
+  <div style="position:relative;z-index:1;flex:1;height:1056px;box-sizing:border-box;padding:64px 64px;display:flex;flex-direction:column;justify-content:flex-end;">
+    <img src="../../assets/logos/trustflight-logo-horizontal-white.svg" alt="TrustFlight" style="height:46px;align-self:flex-start;margin-bottom:24px;">
+    <span class="cb-eyebrow" style="margin-bottom:22px;">Whitepaper</span>
+    <h1 class="cb-h1" style="font-size:48px;max-width:600px;"><span style="color:var(--color-centrik-gold);">Main document title</span> in no more than two rows</h1>
+    <p class="cb-p" style="max-width:520px;margin-top:22px;font-size:12pt;line-height:1.35;">Quick overview of the document, in no more than two rows, describing the subject and the value it delivers to the reader.</p>
+    <div style="margin-top:22px;"><div style="font-family:'Titillium Web',Helvetica,sans-serif;font-weight:700;font-size:9pt;text-transform:uppercase;letter-spacing:0.08em;color:var(--wp-accent);margin-bottom:4px;">Author</div><div style="font-size:10pt;color:#ffffff;">[Author Name]</div></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":816,"height":1056}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
