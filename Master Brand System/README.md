@@ -22,6 +22,7 @@ Paths match the live system's `project/` folder, so every relative link in the t
 
 - Pages: `templates/corporate-whitepaper-portrait/Page01.dc.html` (cover) to `Page15.dc.html` (back cover), one fixed US Letter page each. Design canvas: https://claude.ai/artifact/EkZ5i6htuAbrCmmekWTSv3
 - Corporate cover, sidebar and back cover; whitepaper text and layouts; proposal table style. The sidebar title is typed on each page.
+- For Kenyon, the sidebar logo is the Kenyon globe mark only (`kenyon-globe-white.svg` on dark sidebars, `kenyon-globe-rgb.svg` on light), never a wordmark, horizontal, anniversary or stacked logo.
 
 ## Exporting a PDF locally
 
