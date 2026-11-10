@@ -37,8 +37,15 @@ Blue gradient range: #1E5BB5 to #03D4FF
 **DO:** Use on white backgrounds (dark Midnight version) or on Midnight backgrounds (white version)
 **DON'T:** Use the logo against bright backgrounds unless it's a brand product palette. Never change the logo colour unless it's Midnight or white. Do not recreate.
 
+### Anniversary logos first (hard rule)
+- Use the horizontal anniversary lockup wherever a brand has one. Kenyon always uses the 120th anniversary horizontal logo (`kenyon-120-logo-rgb.svg` on light, `kenyon-120-logo-white.svg` on dark); the standard Kenyon logo only when asked for.
+- TrustFlight, Redline and Baines Simmons have no horizontal anniversary lockup: use their default horizontal logo.
+
+### Kenyon sidebars: globe only (hard rule)
+- On any Kenyon design with a sidebar or side rail (whitepaper, deck, booklet, etc.), the logo at the top of the sidebar is the Kenyon globe mark only. No wordmark, horizontal, anniversary or stacked logo there.
+
 ### Secondary (Stacked) Logo
-- Use only when horizontal space is not available
+- Never use a stacked logo unless it is asked for by name
 - Avoid at small sizes
 - Always use files from the logo pack — do not recreate
 
@@ -90,6 +97,15 @@ Each product has its own colour palette for use in product-specific materials.
 - Align content with TrustFlight's core values: safety, trust, and respect
 - DO NOT post political, religious, or divisive content on accounts affiliated with TrustFlight
 - DO NOT share negative or inflammatory comments about individuals, competitors, or organisations
+
+#### LinkedIn captions (every brand)
+Same rules as the Master Brand System README, "LinkedIn captions".
+- **Tone:** professional, confident and warm, written for professional peers. Kenyon is measured and reassuring; holidays and commemorations never sell. No hype, exclamation marks or urgency bait.
+- **Length:** 50 to 150 words, hashtags not counted. The first line states the point in about 140 characters (what shows before "see more"). Paragraphs of one to three sentences.
+- **Hashtags:** suggest up to five, on one line at the end, CamelCase, relevant to the topic, event or brand. Use the event's official hashtag when it has one.
+- **Emoji:** only these five, at the start of their line: 📅 date, 🔹 list item, 📍 venue or location, 👉 read more or link, ✏️ get in touch. No other emoji, none in the opening line, none mid-sentence.
+- **Facts:** from the request, the event or article page, or the employee library. Never invent; use a bracketed placeholder and say so.
+- **Delivery:** one caption ready to paste, in a plain text block, unless options are asked for.
 
 ### Email (Microsoft Outlook)
 - Always email from your @trustflight.com / @bainessimmons.com / @trustredline.co.uk / @kenyoninternational.com address

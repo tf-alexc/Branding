@@ -50,10 +50,17 @@ Don't substitute metaphor or flourish for a direct statement. Write "a parameter
 - Writing style: follow the "No AI Artefacts" section above for all copy.
 - "Visit our website" always means `https://www.trustflight.com`
 - Font: Open Sans throughout — never Arial, Aptos, or Lato.
+- Logos: the horizontal anniversary lockup comes first wherever a brand has one, above all for Kenyon (`kenyon-120-logo-rgb.svg` / `-white.svg`; the standard Kenyon logo only when asked). Brands without one use their default horizontal logo. Never use a stacked logo unless it is asked for by name.
+- Kenyon sidebars: wherever a design has a sidebar or side rail (whitepaper, deck, booklet, etc.) and it is for Kenyon, the logo at the top of the sidebar is the Kenyon globe mark only (`kenyon-globe-white.svg` on dark, `kenyon-globe-rgb.svg` on light). No wordmark, horizontal, anniversary or stacked logo there.
 - All generated PowerPoint files save to `/Users/alexcraiu/Desktop/Claude Playground/Claude Presentations/`
 - Word docs: always override the original file, never create a versioned copy.
 - Images in presentations must be cropped inside a rounded rectangle with an Azure (`#479FF8`) 1pt outline.
 - Pull photography from SharePoint `Photography/` folder — JPGs with `-lr` in the filename only, never PSDs.
+- Photos fetched from the web come only from Unsplash or Pexels, under their free licences (never Unsplash+ or other paid images). Never use Wikipedia or Wikimedia Commons.
+- Decks: any request for a deck, presentation, slides or pitch creates a new artifact from the Slides type (https://claude.ai/artifact/8jTsAFQMFDb2oA8MsPJ2eL), styled on the brand's deck template, so it shows under Slides in the Design section. Use `ppt-design-system` for a .pptx file only when PowerPoint or .pptx is asked for.
+- Documents: a proposal template is the base only when the document is a proposal (proposal, bid, tender, RFP response, quote turned into a proposal). Any other document never starts from or borrows from a proposal template, even when its brand has one.
+- Documents: build the artifact first and share it, then ask at the end whether a PDF is needed (unless the request asked for one).
+- PDFs: before sharing, run the design system's `assets/scripts/pdf-check.md` and look at every rendered page. No pink or magenta casts: no transparency, opacity, filters, blend modes or box-shadows on the page, and every image converted to 8-bit sRGB JPEG or PNG first.
 
 For full brand voice, messaging, and visual identity: see `skills/brand-framework/SKILL.md` and `skills/brand-framework/BRAND-GUIDELINES.md`.
 
@@ -73,7 +80,7 @@ Reference for any copy, messaging, or design decisions. Covers the four capabili
 Build or restyle PowerPoint decks to TrustFlight brand standards.  
 **Template:** `skills/ppt-design-system/Master Presentation Template - v2.pptx`  
 **Brand tokens:** `skills/ppt-design-system/brand.json`  
-**Trigger:** any request for a deck, slides, pitch, or presentation.  
+**Trigger:** a request for a PowerPoint or .pptx file, or to restyle an existing .pptx. Any other deck request is a Slides artifact (see Brand Rules).  
 **Can run in browser:** Partially (Python/python-pptx script runs anywhere; MCP server for reading slide info is local-only).
 
 Key rules:
