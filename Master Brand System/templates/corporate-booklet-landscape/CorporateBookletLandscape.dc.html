@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Corporate Booklet (Landscape)" description="Brand-aware A4-landscape corporate booklet for TrustFlight. Reuses the deck's visual system (dark-blue theme, left sidebar with rotated document title + icon + page number, electric pill section titles, Titillium-light headings, gold stats). Layout set: full-bleed image cover, statement divider, ToC, body+pull-quote, split image/text, split canvas, stats grid, capabilities, full-bleed image divider, difference compare, provide/receive, image-trio band, numbered cards, stats row, leadership bio, contact back." -->
+<helmet>
+  <script src="./ds-base.js"></script>
+
+  
+  <meta name="omelette-owns-print" content="true">
+  <style>
+    @page{size:297mm 210mm;margin:0}
+    @media print{div[data-uneditable]{background:#fff!important;padding:0!important}.cb-page{box-shadow:none!important;margin:0 auto!important;break-after:page}.cb-page:last-child{break-after:auto}}
+    .cb-page{width:1123px;height:794px;background:var(--color-midnight);box-sizing:border-box;overflow:hidden;position:relative;display:flex;flex-direction:row;margin:0 auto 20px;box-shadow:0 6px 30px rgba(0,0,0,0.18);}
+    .cb-page.light{background:#ffffff;}
+    .cb-rail{width:96px;min-width:96px;height:794px;box-sizing:border-box;border-right:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;align-items:center;padding:44px 0;z-index:2;}
+    .cb-page.light .cb-rail{border-right:1px solid rgba(6,41,85,0.12);}
+    .cb-rail.on-image{background:var(--color-midnight);border-right:1px solid rgba(255,255,255,0.22);}
+    .cb-rail-mid{flex:1;display:flex;align-items:center;justify-content:center;}
+    .cb-rail-tag{display:inline-block;transform:rotate(-90deg);white-space:nowrap;font-family:var(--font-display);font-weight:var(--weight-light);font-size:13px;letter-spacing:0.16em;color:rgba(255,255,255,0.24);}
+    .cb-page.light .cb-rail-tag{color:rgba(6,41,85,0.45);}
+    .cb-rail.on-image .cb-rail-tag{color:rgba(255,255,255,0.6);}
+    .cb-num{font-family:var(--font-display);font-weight:var(--weight-light);font-size:14px;color:rgba(255,255,255,0.28);}
+    .cb-page.light .cb-num{color:rgba(6,41,85,0.35);}
+    .cb-rail.on-image .cb-num{color:rgba(255,255,255,0.7);}
+    .cb-body{flex:1;height:794px;box-sizing:border-box;padding:52px 60px;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+    .cb-eyebrow{display:inline-flex;align-self:flex-start;align-items:center;padding:7px 16px;border:2px solid var(--color-electric);border-radius:var(--radius-full);font-family:var(--font-display);font-weight:var(--weight-bold);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-electric);white-space:nowrap;}
+    .cb-h1{font-family:var(--font-display);font-weight:var(--weight-light);font-size:54px;line-height:1.06;color:var(--color-white);margin:0;text-wrap:balance;}
+    .cb-h2{font-family:var(--font-display);font-weight:var(--weight-light);font-size:40px;line-height:1.08;color:var(--color-white);margin:0;text-wrap:balance;}
+    .cb-page.light .cb-h1,.cb-page.light .cb-h2{color:var(--color-midnight);}
+    .cb-p{font-family:var(--font-primary);font-weight:400;font-size:10.5px;line-height:1.6;letter-spacing:0.01em;color:rgba(255,255,255,0.82);margin:0;text-wrap:pretty;}
+    .cb-page.light .cb-p{color:var(--color-graphite);}
+    .cb-stat{font-family:var(--font-display);font-weight:var(--weight-light);font-size:52px;line-height:1;color:var(--color-centrik-gold);}
+    .cb-stat-l{font-family:var(--font-primary);font-size:15px;letter-spacing:0.01em;color:rgba(255,255,255,0.72);margin-top:8px;}
+    .cb-card{background:var(--color-midnight);border-radius:22px;padding:24px 26px;box-sizing:border-box;}
+    .cb-outline{border:1px solid rgba(255,255,255,0.22);border-radius:22px;padding:24px 28px;box-sizing:border-box;}
+    a.cb-btn{display:inline-flex;align-items:center;padding:9px 20px;border:2px solid var(--color-electric);border-radius:var(--radius-full);font-family:var(--font-display);font-weight:var(--weight-bold);font-size:15px;letter-spacing:0.08em;color:var(--color-white);text-decoration:none;white-space:nowrap;}
+    .cb-num-badge{font-family:var(--font-display);font-weight:var(--weight-light);font-size:38px;line-height:1;color:var(--color-electric);margin-bottom:12px;}
+  </style>
+</helmet>
+
+<div data-uneditable="" style="background:#c9ccd4;padding:24px 0;">
+
+<!-- COVER (full-bleed image) -->
+<div class="cb-page" data-screen-label="01" style="padding:0;">
+  <img src="../../assets/imagery/general/commercial-aircraft/commercial-03.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+  <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,41,85,0.92) 0%,rgba(6,41,85,0.82) 42%,rgba(6,41,85,0.32) 100%);"></div>
+  <div style="position:relative;z-index:1;flex:1;height:794px;box-sizing:border-box;padding:72px 80px;display:flex;flex-direction:column;justify-content:flex-end;">
+    <img src="../../assets/logos/trustflight-logo-horizontal-white.svg" alt="TrustFlight" style="height:52px;align-self:flex-start;margin-bottom:26px;">
+    <span class="cb-eyebrow" style="margin-bottom:26px;">Lorem Ipsum</span>
+    <h1 class="cb-h1" style="font-size:48px;max-width:820px;"><span style="color:var(--color-centrik-gold);">Lorem ipsum</span> dolor sit amet consectetur.</h1>
+    <p class="cb-p" style="font-size:18px;max-width:640px;margin-top:26px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam.</p>
+  </div>
+</div>
+
+<!-- STATEMENT DIVIDER -->
+<div class="cb-page" data-screen-label="02">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-white.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">01</span>
+  </div>
+  <div class="cb-body" style="justify-content:center;">
+    <span class="cb-eyebrow" style="margin-bottom:22px;">Lorem Ipsum</span>
+    <h1 class="cb-h1" style="font-size:60px;max-width:820px;">Lorem ipsum dolor sit amet consectetur&nbsp;adipiscing.</h1>
+  </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="cb-page" data-screen-label="03">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-white.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">02</span>
+  </div>
+  <div class="cb-body" style="justify-content:center;">
+    <div style="display:grid;grid-template-columns:0.9fr 1.1fr;gap:56px;align-items:center;">
+      <div>
+        <span class="cb-eyebrow" style="margin-bottom:22px;">Contents</span>
+        <h2 class="cb-h2" style="max-width:360px;">Lorem ipsum dolor sit&nbsp;amet.</h2>
+      </div>
+      <div style="display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:baseline;gap:16px;padding:16px 0;border-top:1px solid rgba(255,255,255,0.14);">
+          <span style="font-family:var(--font-display);font-weight:var(--weight-light);font-size:22px;color:var(--color-electric);min-width:34px;">01</span>
+          <span style="flex:1;font-family:var(--font-display);font-weight:var(--weight-light);font-size:22px;color:#ffffff;">Lorem ipsum dolor sit amet</span>
+          <span class="cb-num" style="font-size:15px;">03</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:16px;padding:16px 0;border-top:1px solid rgba(255,255,255,0.14);">
+          <span style="font-family:var(--font-display);font-weight:var(--weight-light);font-size:22px;color:var(--color-electric);min-width:34px;">02</span>
+          <span style="flex:1;font-family:var(--font-display);font-weight:var(--weight-light);font-size:22px;color:#ffffff;">Consectetur adipiscing elit</span>
+          <span class="cb-num" style="font-size:15px;">05</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:16px;padding:16px 0;border-top:1px solid rgba(255,255,255,0.14);">
+          <span style="font-family:var(--font-display);font-weight:var(--weight-light);font-size:22px;color:var(--color-electric);min-width:34px;">03</span>
+          <span style="flex:1;font-family:var(--font-display);font-weight:var(--weight-light);font-size:22px;color:#ffffff;">Sed do eiusmod tempor incididunt</span>
+          <span class="cb-num" style="font-size:15px;">08</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:16px;padding:16px 0;border-top:1px solid rgba(255,255,255,0.14);">
+          <span style="font-family:var(--font-display);font-weight:var(--weight-light);font-size:22px;color:var(--color-electric);min-width:34px;">04</span>
+          <span style="flex:1;font-family:var(--font-display);font-weight:var(--weight-light);font-size:22px;color:#ffffff;">Ut labore et dolore magna</span>
+          <span class="cb-num" style="font-size:15px;">11</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:16px;padding:16px 0;border-top:1px solid rgba(255,255,255,0.14);border-bottom:1px solid rgba(255,255,255,0.14);">
+          <span style="font-family:var(--font-display);font-weight:var(--weight-light);font-size:22px;color:var(--color-electric);min-width:34px;">05</span>
+          <span style="flex:1;font-family:var(--font-display);font-weight:var(--weight-light);font-size:22px;color:#ffffff;">Quis nostrud exercitation</span>
+          <span class="cb-num" style="font-size:15px;">14</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BODY + PULL-QUOTE -->
+<div class="cb-page" data-screen-label="04">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-white.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">03</span>
+  </div>
+  <div class="cb-body" style="justify-content:center;">
+    <span class="cb-eyebrow" style="margin-bottom:16px;">Lorem Ipsum Dolor</span>
+    <h2 class="cb-h2" style="max-width:760px;margin-bottom:22px;">Lorem ipsum dolor sit amet consectetur elit.</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:44px;max-width:940px;">
+      <p class="cb-p">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris.</p>
+      <p class="cb-p">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident sunt in culpa officia deserunt.</p>
+    </div>
+    <div style="margin-top:36px;padding-top:26px;border-top:1px solid rgba(255,255,255,0.22);max-width:780px;">
+      <p style="font-family:var(--font-display);font-weight:var(--weight-light);font-size:26px;line-height:1.3;color:var(--color-white);margin:0;text-wrap:pretty;">Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor&nbsp;incididunt.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SPLIT IMAGE / TEXT -->
+<div class="cb-page light" data-screen-label="05" style="padding:0;">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-blue.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">04</span>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:row;height:794px;">
+    <div style="flex:1;box-sizing:border-box;padding:56px 48px;display:flex;flex-direction:column;justify-content:center;">
+      <span class="cb-eyebrow" style="margin-bottom:16px;">Lorem Ipsum</span>
+      <h2 class="cb-h2" style="margin-bottom:20px;">Lorem ipsum dolor sit amet consectetur.</h2>
+      <p class="cb-p" style="margin-bottom:14px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim ad minim.</p>
+      <p class="cb-p">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure.</p>
+    </div>
+    <div style="width:468px;height:794px;flex-shrink:0;"><img src="../../assets/imagery/general/aircraft-engineers/engineers-tablet-nose.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+  </div>
+</div>
+
+<!-- SPLIT CANVAS: VERTICAL (left dark / right light) -->
+<div class="cb-page" data-screen-label="06" style="padding:0;">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-white.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">05</span>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:row;height:794px;">
+    <div style="flex:1;box-sizing:border-box;padding:56px 52px;display:flex;flex-direction:column;justify-content:center;background:var(--color-midnight);">
+      <span class="cb-eyebrow" style="margin-bottom:16px;">Lorem Ipsum</span>
+      <h2 class="cb-h2" style="margin-bottom:18px;">Lorem ipsum dolor sit amet.</h2>
+      <p class="cb-p">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim ad minim.</p>
+    </div>
+    <div style="flex:1;box-sizing:border-box;padding:56px 52px;display:flex;flex-direction:column;justify-content:center;background:#ffffff;">
+      <div style="font-family:var(--font-display);font-weight:var(--weight-bold);font-size:13px;letter-spacing:0.07em;text-transform:uppercase;color:var(--color-sapphire);margin-bottom:16px;">Dolor Sit Amet</div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <p style="margin:0;font-family:var(--font-primary);font-size:15px;line-height:1.6;color:var(--color-graphite);">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        <p style="margin:0;font-family:var(--font-primary);font-size:15px;line-height:1.6;color:var(--color-graphite);">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+        <p style="margin:0;font-family:var(--font-primary);font-size:15px;line-height:1.6;color:var(--color-graphite);">Excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STAT GRID -->
+<div class="cb-page" data-screen-label="07">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-white.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">06</span>
+  </div>
+  <div class="cb-body" style="justify-content:center;">
+    <span class="cb-eyebrow" style="margin-bottom:16px;">Lorem Ipsum</span>
+    <h2 class="cb-h2" style="max-width:820px;margin-bottom:34px;">Lorem ipsum dolor sit amet consectetur.</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;">
+      <div style="padding-right:36px;"><div class="cb-stat">1,600+</div><div class="cb-stat-l">Lorem ipsum dolor</div></div>
+      <div style="padding:0 36px;border-left:1px solid rgba(255,255,255,0.15);"><div class="cb-stat">120+</div><div class="cb-stat-l">Consectetur adipiscing</div></div>
+      <div style="padding:0 36px;border-left:1px solid rgba(255,255,255,0.15);"><div class="cb-stat">2,700+</div><div class="cb-stat-l">Sed do eiusmod</div></div>
+      <div style="padding-left:36px;border-left:1px solid rgba(255,255,255,0.15);"><div class="cb-stat">120</div><div class="cb-stat-l">Tempor incididunt</div></div>
+    </div>
+    <p style="font-family:var(--font-primary);font-size:13px;line-height:1.5;color:rgba(255,255,255,0.42);margin:40px 0 0;max-width:900px;">Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna&nbsp;aliqua.</p>
+  </div>
+</div>
+
+<!-- CAPABILITIES -->
+<div class="cb-page" data-screen-label="08">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-white.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">07</span>
+  </div>
+  <div class="cb-body" style="justify-content:center;">
+    <span class="cb-eyebrow" style="margin-bottom:16px;">Lorem Ipsum</span>
+    <h2 class="cb-h2" style="max-width:820px;margin-bottom:28px;">Lorem ipsum dolor sit amet consectetur.</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px;">
+      <div style="padding-top:20px;border-top:1px solid rgba(255,255,255,0.22);">
+        <div style="font-family:var(--font-display);font-weight:var(--weight-bold);font-size:20px;color:var(--color-azure);margin-bottom:10px;">Lorem Ipsum</div>
+        <p class="cb-p" style="font-size:15px;">Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod&nbsp;tempor.</p>
+      </div>
+      <div style="padding-top:20px;border-top:1px solid rgba(255,255,255,0.22);">
+        <div style="font-family:var(--font-display);font-weight:var(--weight-bold);font-size:20px;color:var(--color-azure);margin-bottom:10px;">Dolor Amet</div>
+        <p class="cb-p" style="font-size:15px;">Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi&nbsp;aliquip.</p>
+      </div>
+      <div style="padding-top:20px;border-top:1px solid rgba(255,255,255,0.22);">
+        <div style="font-family:var(--font-display);font-weight:var(--weight-bold);font-size:20px;color:var(--color-azure);margin-bottom:10px;">Sit Consectetur</div>
+        <p class="cb-p" style="font-size:15px;">Duis aute irure dolor in reprehenderit voluptate velit esse cillum&nbsp;dolore.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FULL-BLEED IMAGE DIVIDER -->
+<div class="cb-page" data-screen-label="09" style="padding:0;">
+  <img src="../../assets/imagery/general/business-jets/business-jet-02.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.15;">
+  <div class="cb-rail on-image" style="position:relative;">
+    <img src="../../assets/logos/trustflight-icon-white.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">08</span>
+  </div>
+  <div style="position:relative;z-index:1;flex:1;box-sizing:border-box;padding:52px 60px;display:flex;flex-direction:column;justify-content:flex-end;">
+    <span class="cb-eyebrow" style="margin-bottom:18px;">Lorem Ipsum</span>
+    <h2 class="cb-h2" style="max-width:760px;margin-bottom:16px;">Lorem ipsum dolor sit amet consectetur&nbsp;adipiscing.</h2>
+    <p class="cb-p" style="max-width:620px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna&nbsp;aliqua.</p>
+  </div>
+</div>
+
+<!-- DIFFERENCE COMPARE (two columns) -->
+<div class="cb-page light" data-screen-label="10">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-blue.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">09</span>
+  </div>
+  <div class="cb-body" style="justify-content:center;">
+    <span class="cb-eyebrow" style="margin-bottom:20px;">Lorem Ipsum</span>
+    <h2 class="cb-h2" style="max-width:860px;margin-bottom:28px;">Lorem ipsum dolor sit amet consectetur.</h2>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:56px;">
+      <div>
+        <div style="font-family:var(--font-display);font-weight:var(--weight-bold);font-size:13px;letter-spacing:0.07em;text-transform:uppercase;color:var(--color-graphite);padding-bottom:12px;border-bottom:2px solid var(--border-default);">Lorem Ipsum</div>
+        <div class="cb-p" style="font-size:15px;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Lorem ipsum dolor sit amet consectetur</div>
+        <div class="cb-p" style="font-size:15px;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Adipiscing elit sed do eiusmod tempor</div>
+        <div class="cb-p" style="font-size:15px;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Incididunt ut labore et dolore magna</div>
+        <div class="cb-p" style="font-size:15px;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Ut enim ad minim veniam quis</div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-display);font-weight:var(--weight-bold);font-size:13px;letter-spacing:0.07em;text-transform:uppercase;color:var(--color-sapphire);padding-bottom:12px;border-bottom:2px solid var(--color-sapphire);">Dolor Sit Amet</div>
+        <div class="cb-p" style="font-size:15px;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Nostrud exercitation ullamco laboris nisi</div>
+        <div class="cb-p" style="font-size:15px;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Ut aliquip ex ea commodo consequat</div>
+        <div class="cb-p" style="font-size:15px;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Duis aute irure dolor in reprehenderit</div>
+        <div class="cb-p" style="font-size:15px;padding:12px 0;border-bottom:1px solid var(--border-subtle);">Voluptate velit esse cillum dolore eu</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HALF & HALF: PROVIDE / RECEIVE (proposal-style) -->
+<div class="cb-page light" data-screen-label="11">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-blue.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">10</span>
+  </div>
+  <div class="cb-body" style="justify-content:center;">
+    <span class="cb-eyebrow" style="margin-bottom:16px;">Lorem Ipsum</span>
+    <h2 class="cb-h2" style="max-width:820px;margin-bottom:8px;">Lorem ipsum dolor sit amet.</h2>
+    <p class="cb-p" style="max-width:820px;margin-bottom:24px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna&nbsp;aliqua.</p>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:56px;">
+      <div>
+        <div style="font-family:var(--font-display);font-weight:var(--weight-bold);font-size:13px;letter-spacing:0.07em;text-transform:uppercase;color:var(--color-sapphire);padding-bottom:12px;border-bottom:2px solid var(--color-sapphire);margin-bottom:16px;">Lorem Will Provide</div>
+        <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px;">
+          <li class="cb-p" style="font-size:15px;position:relative;padding-left:18px;" style-before="content:'\2022';position:absolute;left:2px;top:0;color:var(--color-sapphire);font-weight:700;">Lorem ipsum dolor sit amet consectetur adipiscing elit</li>
+          <li class="cb-p" style="font-size:15px;position:relative;padding-left:18px;" style-before="content:'\2022';position:absolute;left:2px;top:0;color:var(--color-sapphire);font-weight:700;">Sed do eiusmod tempor incididunt ut labore dolore</li>
+          <li class="cb-p" style="font-size:15px;position:relative;padding-left:18px;" style-before="content:'\2022';position:absolute;left:2px;top:0;color:var(--color-sapphire);font-weight:700;">Ut enim ad minim veniam quis nostrud exercitation</li>
+          <li class="cb-p" style="font-size:15px;position:relative;padding-left:18px;" style-before="content:'\2022';position:absolute;left:2px;top:0;color:var(--color-sapphire);font-weight:700;">Ullamco laboris nisi ut aliquip ex ea commodo</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:var(--font-display);font-weight:var(--weight-bold);font-size:13px;letter-spacing:0.07em;text-transform:uppercase;color:var(--color-sapphire);padding-bottom:12px;border-bottom:2px solid var(--color-sapphire);margin-bottom:16px;">The Client Will</div>
+        <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px;">
+          <li class="cb-p" style="font-size:15px;position:relative;padding-left:18px;" style-before="content:'\2022';position:absolute;left:2px;top:0;color:var(--color-sapphire);font-weight:700;">Duis aute irure dolor in reprehenderit voluptate</li>
+          <li class="cb-p" style="font-size:15px;position:relative;padding-left:18px;" style-before="content:'\2022';position:absolute;left:2px;top:0;color:var(--color-sapphire);font-weight:700;">Velit esse cillum dolore eu fugiat nulla pariatur</li>
+          <li class="cb-p" style="font-size:15px;position:relative;padding-left:18px;" style-before="content:'\2022';position:absolute;left:2px;top:0;color:var(--color-sapphire);font-weight:700;">Excepteur sint occaecat cupidatat non proident</li>
+          <li class="cb-p" style="font-size:15px;position:relative;padding-left:18px;" style-before="content:'\2022';position:absolute;left:2px;top:0;color:var(--color-sapphire);font-weight:700;">Sunt in culpa qui officia deserunt mollit anim</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IMAGE-TRIO BAND -->
+<div class="cb-page light" data-screen-label="12">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-blue.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">11</span>
+  </div>
+  <div class="cb-body" style="justify-content:center;">
+    <span class="cb-eyebrow" style="margin-bottom:16px;">Lorem Ipsum</span>
+    <h2 class="cb-h2" style="max-width:820px;margin-bottom:26px;">Lorem ipsum dolor sit amet consectetur.</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="width:100%;height:230px;border-radius:16px;overflow:hidden;"><img src="../../assets/imagery/general/corporate-people/team-clipboard-meeting.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+        <div style="font-family:var(--font-display);font-weight:var(--weight-bold);font-size:17px;color:var(--color-midnight);">Lorem Ipsum</div>
+        <p class="cb-p" style="font-size:14px;">Lorem ipsum dolor sit amet consectetur adipiscing elit sed&nbsp;do.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="width:100%;height:230px;border-radius:16px;overflow:hidden;"><img src="../../assets/imagery/general/aircraft-engineers/engineer-engine-tablet.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+        <div style="font-family:var(--font-display);font-weight:var(--weight-bold);font-size:17px;color:var(--color-midnight);">Dolor Amet</div>
+        <p class="cb-p" style="font-size:14px;">Ut enim ad minim veniam quis nostrud exercitation&nbsp;ullamco.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="width:100%;height:230px;border-radius:16px;overflow:hidden;"><img src="../../assets/imagery/general/corporate-people/stage-presenters.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+        <div style="font-family:var(--font-display);font-weight:var(--weight-bold);font-size:17px;color:var(--color-midnight);">Sit Elit</div>
+        <p class="cb-p" style="font-size:14px;">Duis aute irure dolor in reprehenderit voluptate velit&nbsp;esse.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NUMBERED COLUMNS -->
+<div class="cb-page light" data-screen-label="13">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-blue.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">12</span>
+  </div>
+  <div class="cb-body" style="justify-content:center;">
+    <span class="cb-eyebrow" style="margin-bottom:16px;">Lorem Ipsum</span>
+    <h2 class="cb-h2" style="max-width:820px;margin-bottom:30px;">Lorem ipsum dolor sit amet consectetur.</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px;">
+      <div style="padding-top:22px;border-top:1px solid var(--border-default);">
+        <div class="cb-num-badge">01</div>
+        <div style="font-family:var(--font-primary);font-weight:var(--weight-bold);font-size:17px;color:var(--color-sapphire);margin-bottom:8px;">Lorem ipsum dolor</div>
+        <p class="cb-p" style="font-size:15px;">Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt.</p>
+      </div>
+      <div style="padding-top:22px;border-top:1px solid var(--border-default);">
+        <div class="cb-num-badge">02</div>
+        <div style="font-family:var(--font-primary);font-weight:var(--weight-bold);font-size:17px;color:var(--color-sapphire);margin-bottom:8px;">Consectetur elit</div>
+        <p class="cb-p" style="font-size:15px;">Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip commodo.</p>
+      </div>
+      <div style="padding-top:22px;border-top:1px solid var(--border-default);">
+        <div class="cb-num-badge">03</div>
+        <div style="font-family:var(--font-primary);font-weight:var(--weight-bold);font-size:17px;color:var(--color-sapphire);margin-bottom:8px;">Sed do eiusmod</div>
+        <p class="cb-p" style="font-size:15px;">Duis aute irure dolor in reprehenderit voluptate velit esse cillum dolore eu fugiat nulla.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS ROW (light) -->
+<div class="cb-page light" data-screen-label="14">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-blue.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">13</span>
+  </div>
+  <div class="cb-body" style="justify-content:center;">
+    <span class="cb-eyebrow" style="margin-bottom:16px;">Lorem Ipsum</span>
+    <h2 class="cb-h2" style="max-width:820px;margin-bottom:34px;">Lorem ipsum dolor sit amet consectetur.</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;">
+      <div style="padding-right:36px;"><div style="font-family:var(--font-display);font-weight:var(--weight-light);font-size:52px;color:var(--color-sapphire);line-height:1;">40+</div><div style="font-family:var(--font-primary);font-size:15px;color:var(--color-graphite);margin-top:8px;">Lorem ipsum dolor</div></div>
+      <div style="padding:0 36px;border-left:1px solid var(--border-default);"><div style="font-family:var(--font-display);font-weight:var(--weight-light);font-size:52px;color:var(--color-sapphire);line-height:1;">20+</div><div style="font-family:var(--font-primary);font-size:15px;color:var(--color-graphite);margin-top:8px;">Consectetur</div></div>
+      <div style="padding:0 36px;border-left:1px solid var(--border-default);"><div style="font-family:var(--font-display);font-weight:var(--weight-light);font-size:52px;color:var(--color-sapphire);line-height:1;">5</div><div style="font-family:var(--font-primary);font-size:15px;color:var(--color-graphite);margin-top:8px;">Adipiscing</div></div>
+      <div style="padding-left:36px;border-left:1px solid var(--border-default);"><div style="font-family:var(--font-display);font-weight:var(--weight-light);font-size:52px;color:var(--color-sapphire);line-height:1;">500+</div><div style="font-family:var(--font-primary);font-size:15px;color:var(--color-graphite);margin-top:8px;">Sed do eiusmod</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LEADERSHIP BIO -->
+<div class="cb-page light" data-screen-label="15">
+  <div class="cb-rail">
+    <img src="../../assets/logos/trustflight-icon-blue.svg" alt="TrustFlight" style="height:38px;">
+    <div class="cb-rail-mid"><span class="cb-rail-tag">{{ documentTitle }}</span></div>
+    <span class="cb-num">14</span>
+  </div>
+  <div class="cb-body" style="justify-content:center;">
+    <span class="cb-eyebrow" style="margin-bottom:20px;">Lorem Ipsum</span>
+    <div style="display:grid;grid-template-columns:300px 1fr;gap:44px;align-items:start;">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="width:100%;aspect-ratio:1/1;border-radius:18px;overflow:hidden;"><img src="../../assets/imagery/general/corporate-people/laptop-discussion-dusk.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+        <div>
+          <div style="font-family:var(--font-display);font-weight:var(--weight-bold);font-size:24px;color:var(--color-midnight);">Lorem Ipsum</div>
+          <div style="font-family:var(--font-primary);font-size:15px;color:var(--color-sapphire);margin-top:4px;">Lorem ipsum dolor sit amet</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;padding-top:6px;">
+        <p class="cb-p" style="font-size:16px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        <p class="cb-p" style="font-size:16px;">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BACK COVER (same layout as the proposal back cover, no sidebar) -->
+<div class="cb-page" data-screen-label="16" style="flex-direction:column;padding:72px 64px 56px;color:#ffffff;font-family:var(--font-primary);">
+  <div style="flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;gap:32px;">
+    <a href="https://www.trustflight.com" style="display:block;width:fit-content;text-decoration:none;"><img src="../../assets/logos/trustflight-logo-horizontal-white.svg" alt="TrustFlight" style="height:28px;width:auto;display:block;"></a>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;font-size:9pt;line-height:1.5;color:rgba(255,255,255,0.85);">
+        <div>
+          <div style="font-weight:700;color:#ffffff;margin-bottom:10px;">TrustFlight United Kingdom</div>
+          <div style="display:inline-block;border:1.5px solid var(--color-electric);color:var(--color-electric);border-radius:999px;padding:6px 14px;font-weight:700;font-size:9pt;margin-bottom:10px;white-space:nowrap;"><a href="tel:+443302290219" style="color:inherit;text-decoration:none;">UK&nbsp;+44 (0) 330 229 0219</a></div>
+          <div style="font-weight:700;color:#ffffff;margin-bottom:2px;">London</div>
+          <div style="margin-bottom:10px;">22 Lavington Street<br>London, SE1 0NZ</div>
+          <div style="font-weight:700;color:#ffffff;margin-bottom:2px;">Bracknell</div>
+          <div style="margin-bottom:10px;">The Western Centre<br>Bracknell, Berkshire, RG12 1RW</div>
+          <div style="font-weight:700;color:#ffffff;margin-bottom:2px;">Doncaster</div>
+          <div>The National Safety &amp; Security Academy, First Avenue<br>Finningley, Doncaster, DN9 3RH</div>
+        </div>
+        <div>
+          <div style="font-weight:700;color:#ffffff;margin-bottom:10px;">TrustFlight North America</div>
+          <div style="display:inline-block;border:1.5px solid var(--color-electric);color:var(--color-electric);border-radius:999px;padding:6px 14px;font-weight:700;font-size:9pt;margin-bottom:10px;white-space:nowrap;"><a href="tel:+18447849836" style="color:inherit;text-decoration:none;">US&nbsp;+1 (844) 784-9836</a></div>
+          <div style="font-weight:700;color:#ffffff;margin-bottom:2px;">Vancouver</div>
+          <div style="margin-bottom:10px;">Commerce Place, 1110–400 Burrard St<br>Vancouver, BC, V6C 3A6</div>
+          <div style="font-weight:700;color:#ffffff;margin-bottom:2px;">Houston</div>
+          <div>2408 Timberloch Place, Suite A5<br>The Woodlands, TX 77380</div>
+        </div>
+        <div>
+          <div style="font-weight:700;color:#ffffff;margin-bottom:10px;">TrustFlight Jersey</div>
+          <div style="display:inline-block;border:1.5px solid var(--color-electric);color:var(--color-electric);border-radius:999px;padding:6px 14px;font-weight:700;font-size:9pt;margin-bottom:10px;white-space:nowrap;"><a href="tel:+443302290219" style="color:inherit;text-decoration:none;">UK&nbsp;+44 (0) 330 229 0219</a></div>
+          <div style="font-weight:700;color:#ffffff;margin-bottom:2px;">Jersey</div>
+          <div>First Floor, 5 Anley Street<br>St Helier, Jersey, JE2 3QA</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <div style="display:inline-block;border:1.5px solid var(--color-electric);border-radius:999px;padding:8px 18px;font-weight:700;font-size:9pt;white-space:nowrap;"><a href="mailto:sales@trustflight.com" style="color:var(--color-electric);text-decoration:none;">sales@trustflight.com</a></div>
+        <div style="display:inline-block;border:1.5px solid var(--color-electric);border-radius:999px;padding:8px 18px;font-weight:700;font-size:9pt;white-space:nowrap;"><a href="https://www.trustflight.com" style="color:var(--color-electric);text-decoration:none;">trustflight.com</a></div>
+      </div>
+  </div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"documentTitle":{"editor":"text","default":"Document title"},"$preview":{"width":1123,"height":794}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { documentTitle: this.props.documentTitle || 'Document title' };
+  }
+}
+</script>
+</body>
+</html>

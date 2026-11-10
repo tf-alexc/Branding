@@ -11,6 +11,13 @@ Paths match the live system's `project/` folder, so every relative link in the t
 - Rules: `assets/docs/templates/proposal-baines-simmons/PROCESS.md` and `CLAUDE-CODE-RULES.md`.
 - Design canvas: https://claude.ai/artifact/6bZKWgjxJcqrdnzYxbD95z
 
+## Corporate booklets
+
+- Portrait (US Letter): `templates/corporate-booklet-portrait/CorporateBookletPortrait.dc.html`. Design canvas: https://claude.ai/artifact/A856f2qebJULeretGKpe8S
+- Landscape (A4): `templates/corporate-booklet-landscape/CorporateBookletLandscape.dc.html`. Design canvas: https://claude.ai/artifact/NJUPS9dDoqhB8txcAJREEa
+- The sidebar shows the document title, set once in the `documentTitle` tweak. The back cover has no sidebar and matches the TrustFlight proposal back cover.
+- Both load the system through `ds-base.js` (`styles.css` and `_ds_bundle.js`), so open them from the served folder.
+
 ## Exporting a PDF locally
 
 Serve this folder, then print the print copy from Chrome (US Letter, margins None, Background graphics ON):
