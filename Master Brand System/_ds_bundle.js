@@ -483,7 +483,7 @@ function Input(props) {
   } = props;
   const [focused, setFocused] = React.useState(false);
   const inputId = id || React.useId();
-  const pad = size === 'sm' ? '7px 10px' : size === 'lg' ? '13px 16px' : '10px 12px';
+  const pad = size === 'sm' ? '7px 14px' : size === 'lg' ? '13px 22px' : '10px 18px';
   const fontSize = size === 'sm' ? 'var(--font-size-body)' : 'var(--font-size-body)';
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -506,7 +506,7 @@ function Input(props) {
       alignItems: 'center',
       gap: 8,
       padding: pad,
-      borderRadius: 'var(--radius-sm)',
+      borderRadius: 'var(--radius-full)',
       border: `1px solid ${error ? 'var(--status-danger)' : focused ? 'var(--brand-primary)' : 'var(--border-default)'}`,
       background: disabled ? 'var(--surface-sunken)' : 'var(--surface-card)',
       boxShadow: focused ? '0 0 0 3px rgba(71,159,248,0.25)' : 'none',
@@ -969,7 +969,7 @@ function Select(props) {
   } = props;
   const [focused, setFocused] = React.useState(false);
   const selectId = id || React.useId();
-  const pad = size === 'sm' ? '7px 10px' : size === 'lg' ? '13px 16px' : '10px 12px';
+  const pad = size === 'sm' ? '7px 14px' : size === 'lg' ? '13px 22px' : '10px 18px';
   const fontSize = size === 'sm' ? 'var(--font-size-body)' : 'var(--font-size-body)';
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -991,7 +991,7 @@ function Select(props) {
       position: 'relative',
       display: 'flex',
       alignItems: 'center',
-      borderRadius: 'var(--radius-sm)',
+      borderRadius: 'var(--radius-full)',
       border: `1px solid ${error ? 'var(--status-danger)' : focused ? 'var(--brand-primary)' : 'var(--border-default)'}`,
       background: disabled ? 'var(--surface-sunken)' : 'var(--surface-card)',
       boxShadow: focused ? '0 0 0 3px rgba(71,159,248,0.25)' : 'none',
@@ -1009,7 +1009,7 @@ function Select(props) {
       outline: 'none',
       background: 'transparent',
       padding: pad,
-      paddingRight: 34,
+      paddingRight: 40,
       fontFamily: 'var(--font-primary)',
       fontSize,
       color: 'var(--text-primary)'
@@ -1020,7 +1020,7 @@ function Select(props) {
   }, o.label))), /*#__PURE__*/React.createElement("span", {
     style: {
       position: 'absolute',
-      right: 10,
+      right: 16,
       pointerEvents: 'none',
       color: 'var(--text-muted)',
       display: 'flex'
