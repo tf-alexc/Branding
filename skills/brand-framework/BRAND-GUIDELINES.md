@@ -21,7 +21,7 @@ The primary palette appears throughout all TrustFlight brands. Colours: Midnight
 | White | #FFFFFF | — |
 | Graphite | #242D41 | — |
 
-Dark gradient range: #010306 to #083976
+Dark gradient range: #010306 to #083976 (kept in the system, but never used in new graphics: use solid Midnight or a photo instead)
 Blue gradient range: #1E5BB5 to #03D4FF
 
 ---

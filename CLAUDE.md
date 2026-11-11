@@ -52,6 +52,9 @@ Don't substitute metaphor or flourish for a direct statement. Write "a parameter
 - Font: Open Sans throughout — never Arial, Aptos, or Lato.
 - Logos: the horizontal anniversary lockup comes first wherever a brand has one, above all for Kenyon (`kenyon-120-logo-rgb.svg` / `-white.svg`; the standard Kenyon logo only when asked). Brands without one use their default horizontal logo. Never use a stacked logo unless it is asked for by name.
 - Kenyon sidebars: wherever a design has a sidebar or side rail (whitepaper, deck, booklet, etc.) and it is for Kenyon, the logo at the top of the sidebar is the Kenyon globe mark only (`kenyon-globe-white.svg` on dark, `kenyon-globe-rgb.svg` on light). No wordmark, horizontal, anniversary or stacked logo there.
+- Gradients: new graphics never use the dark brand gradient (Midnight to near-black, `#010306` to `#083976`); use solid Midnight or a photo. Keep the gradient in the design system; never delete it.
+- Carousels: a new carousel starts from the tall format (1200x1600), never square, unless square is asked for.
+- Every artifact follows the brand, however basic (notes, a one-pager, a table, a simple page): at minimum Titillium Web headings and Open Sans body text loaded from the design system, and brand colours.
 - All generated PowerPoint files save to `/Users/alexcraiu/Desktop/Claude Playground/Claude Presentations/`
 - Word docs: always override the original file, never create a versioned copy.
 - Images in presentations must be cropped inside a rounded rectangle with an Azure (`#479FF8`) 1pt outline.
