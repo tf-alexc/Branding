@@ -74,6 +74,13 @@ def scenes_doc(look, dur, sid, name, desc, stage):
             "scenes": [{"id": sid, "name": name, "dur": dur, "desc": desc}]}
 
 
+def film_name(kind, spec, name):
+    """Naming convention: '<Type> - <Brand(s)> - <holiday or tradeshow name>'."""
+    keys = spec.get('brands') or [spec['brand']]
+    labels = ', '.join(BRANDS[k]['label'] for k in keys)
+    return spec.get('film_title') or f"{kind} - {labels} - {name}"
+
+
 def employee(ds, name):
     for e in json.load(open(os.path.join(ds, 'assets/portraits/employees.json'))):
         if e['name'].lower() == name.lower():
@@ -215,7 +222,7 @@ kit.scene('post', {{
                 shared=open(os.path.join(HERE, 'templates/tradeshow-shared.js')).read(),
                 mods=mods, scene_id='post', scene=scene,
                 scenes=lambda st: scenes_doc(look, 10, 'post', 'Attending post' if mode == 'attending' else 'Exhibiting post', desc, st),
-                title=spec.get('film_title') or f"{title} {mode} ({brand['label']})")
+                title=film_name('Tradeshow', spec, title))
 
 
 # ---------------------------------------------------------------- holiday
@@ -312,7 +319,7 @@ kit.scene('holiday', {{
                 shared=open(os.path.join(HERE, 'templates/holiday-shared.js')).read(),
                 mods=mods, scene_id='holiday', scene=scene,
                 scenes=lambda st: scenes_doc(look, dur, 'holiday', 'Holiday post', desc, st),
-                title=spec.get('film_title') or f"{title} ({brand['label']}, {'multi-slide' if option == 'multi' else 'single slide'})")
+                title=film_name('Holiday', spec, title))
 
 
 # ---------------------------------------------------------------- steps
@@ -323,8 +330,9 @@ def prepare(a):
     up, docs = os.path.join(out, 'upload'), os.path.join(out, 'docs')
     os.makedirs(up, exist_ok=True); os.makedirs(docs, exist_ok=True)
     ds = os.path.abspath(a.ds)
-    if spec['brand'] not in BRANDS:
-        sys.exit('brand must be one of ' + ', '.join(BRANDS))
+    for k in [spec['brand']] + list(spec.get('brands') or []):
+        if k not in BRANDS:
+            sys.exit('brand must be one of ' + ', '.join(BRANDS))
     r = {'tradeshow': tradeshow, 'holiday': holiday}[spec['kind']](spec, ds, out, up, docs)
     w = [('film', 'meta', {'v': 1, 'title': r['title']}),
          ('modules', 'scenes.json', {'kind': 'json', 'text': json.dumps(r['scenes']('rough'), ensure_ascii=False)}),
