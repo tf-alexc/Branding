@@ -77,7 +77,7 @@ def scenes_doc(look, dur, sid, name, desc, stage):
 def film_name(kind, spec, name):
     """Naming convention: '<Type> - <Brand(s)> - <holiday or tradeshow name>'."""
     keys = spec.get('brands') or [spec['brand']]
-    labels = ', '.join(BRANDS[k]['label'] for k in keys)
+    labels = 'All' if set(keys) >= set(BRANDS) else ', '.join(BRANDS[k]['label'] for k in keys)
     return spec.get('film_title') or f"{kind} - {labels} - {name}"
 
 

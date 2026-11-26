@@ -83,7 +83,7 @@ The script picks the people layout from the head count, the holiday logo colour 
 
 Follow the Motion type's own instructions as you go (read its SKILL.md, rough-cut.md, finalize.md, motion.md, film-api.md and design-systems.md once). This skill already settles Style, Colours and Length (the brand's Graphics Generator look, the brand palette, the lengths above), so there's no question form: say the picks in one line and go on.
 
-1. **Create** the film: Artifact `publish` with `type_url` = the Motion type, `title` = the film title the script printed, `auto_open: "after_first_write"`. Film names follow `<Type> - <Brand(s)> - <name>`: `Tradeshow - Kenyon - Verticon 2027`, `Holiday - TrustFlight - Thanksgiving`, `Holiday - TrustFlight, Kenyon, Baines Simmons, Redline - Thanksgiving`. The script builds this; keep it if you name a film by hand.
+1. **Create** the film: Artifact `publish` with `type_url` = the Motion type, `title` = the film title the script printed, `auto_open: "after_first_write"`. Film names follow `<Type> - <Brand(s)> - <name>`: `Tradeshow - Kenyon - Verticon 2027`, `Holiday - TrustFlight - Thanksgiving`, `Holiday - TrustFlight, Kenyon - Christmas`, and `Holiday - All - Thanksgiving` when all four brands are on the post. The script builds this; keep it if you name a film by hand.
 2. **Upload** the files from `<out>/upload/` in one Artifact call: `url` = the film, `asset: true`, `file_paths: [...]`.
 3. **Map the blob ids:** write `blobs.json` as `{"<file name>": "<32-character id>", ...}` from the upload reply, then run:
 
