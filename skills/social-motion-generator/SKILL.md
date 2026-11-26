@@ -1,13 +1,13 @@
 ---
 name: social-motion-generator
-description: Make animated TrustFlight-family social media posts as Claude Motion films, using the format, look and layout of the Graphics Generator in the Master Brand System. Starts with event and tradeshow attendance posts (Attending / Exhibiting). Use whenever the user asks for an animated, moving or video version of a social post, event post, tradeshow post or LinkedIn graphic.
+description: Make animated TrustFlight-family social media posts as Claude Motion films, using the format, look and layout of the Graphics Generator in the Master Brand System. Covers event and tradeshow attendance posts (Attending / Exhibiting) and national, public and bank holiday posts. Use whenever the user asks for an animated, moving or video version of a social post, event post, tradeshow post, holiday post or LinkedIn graphic.
 ---
 
 # Social motion generator
 
 Animated versions of the Graphics Generator's social posts, built as Motion artifacts (Claude Motion). The static generator is the source of truth for layout, sizes, colours and type; this skill only adds timing. Simple transitions only: fades, eased slides, small scale-ins. No music, no sound, no voice.
 
-**Formats live so far:** Tradeshow, LinkedIn Single, 1200x1600 (R21). Other purposes (blog, webinar, course, holiday) follow the same pattern later.
+**Formats live so far:** Tradeshow (R21) and Holiday (R33-R39), both LinkedIn Single, 1200x1600. Other purposes (blog, webinar, course) follow the same pattern later. The holiday post has its own section near the end.
 
 **Design system:** https://claude.ai/artifact/3TSvubnBz4WCsS1xD7o3b9
 **Layout rules:** `project/assets/docs/templates/graphics-generator/RULES.md` (R20-R32, R40-R41)
@@ -160,6 +160,62 @@ Entrances start slightly before 0 so frame 0 (the thumbnail and first MP4 frame)
 ### Code pattern
 
 `shared.js` sets `window.W` with `svg(kit, module, cls)` (an `<img>` with a `data:image/svg+xml` src from the module text), `backdrop`, `person`, `pill`. The reference film's `shared.js`, `base.css` and `scene-post.js` are the template: read them with ArtifactData `get` and change only the content strings and the asset names.
+
+## Holiday posts (national, public and bank holidays)
+
+Every holiday comes in two options. Ask which one unless the request says; default to Base.
+
+- **Base** (10 s): the generator's holiday post built up and held over a moving photo. Reference: https://claude.ai/artifact/1WAJBxFSMFa6dG3QY4bVHg (TrustFlight, Thanksgiving 2026).
+- **Complex** (19 s), three beats: (1) the Base intro; (2) a warm thank-you message; (3) "Happy [holiday]!" at the centre, held to the end. Reference: https://claude.ai/artifact/6U9Dj6QjLFAYtrXHxQsDuA.
+
+Build new holiday films from the matching reference: same `base.css` and `shared.js`, and in `scene-holiday.js` swap the title, subtitle, flag module, brand logo module, URL, photo and (Complex) the celebrating list and the closing line.
+
+### Facts
+
+- **Holiday and title:** the holiday's name as the title (e.g. "Thanksgiving", "Christmas", "Bank Holiday"). Subtitle "Celebrating" (Commemorating is disabled, R38, so Remembrance Day also uses Celebrating).
+- **Brand:** from the request; ask once if it isn't clear. A US holiday defaults to TrustFlight.
+- **Flag (R39):** US, CA, UK or none, multi-select. Presets: Independence Day and Thanksgiving → US, Remembrance Day → UK, Christmas and New Year → none. Flags: `assets/imagery/holiday/flag-<us|ca|gb>.svg` (strip the C2PA `<metadata>` block before writing the module).
+- **Photo:** the user's own photo if they send one (R36; landscape photos are centre-cropped to 1200x1600, so check the crop keeps the subject). Otherwise the preset in `assets/imagery/holiday/holiday-<id>.jpg` (independence-day, thanksgiving, remembrance, christmas, new-year), or the user's own (R36). Otherwise Unsplash or Pexels, free licence only, no other company's characters or logos.
+
+### Layout (from the generator, don't adjust)
+
+| Element | Spec |
+|---|---|
+| Photo | full bleed, top/left -2px, 1204x1604, cover |
+| Fade | `linear-gradient(180deg, transparent 0-42%, rgba(6,41,85,0.55) 62%, rgba(3,16,34,0.92) 82%, #031022 100%)` |
+| Logo tab | top/left -2px, height 222, padding 0 90 0 92, outline only: 2px right and bottom border at 35% opacity, bottom-right radius 64. Logo 60px high. Sample the photo's mean luminance in the top-left 600x220: under 0.55 → white logo and white outline, otherwise Midnight logo (`*-midnight.svg`) and Midnight outline (class `hd-light` on the tab) |
+| Centred block | left/right 60, bottom 250, centred column |
+| Flags | row, 54.6px high, radius 8, gap 20, 40px above the subtitle |
+| Subtitle | Titillium Light 52.5px, caps, 0.12em, between 2px rules that fade outward, gap 36, 18px above the title |
+| Title | Titillium Bold, caps, 0.04em, line-height 1.02, balanced wrap, two rows max. Size tier 150 / 124 / 100 / 80 / 62px from the title length (`W.titlePx`) |
+| URL | centred, bottom 84, Titillium 24px, 0.28em. No bottom strip, no pills, no CTA |
+| Beat 2 (Complex) | `.hd-warm.holiday-m1`: one centred sentence at left/right 90, vertically centred, Titillium Light 80px white, line-height 1.14, balanced wrap. No eyebrow or lead-in in another style (no Electric line), and never the intro's "Celebrating" rules-and-caps style. Copy is warm and human but professional, opening with the holiday: e.g. "This Thanksgiving, we’re grateful for our customers, our partners, and the team who keep our skies safe." Keep it to one sentence of about 15-18 words. Take the user's wording if given |
+| Beat 3 (Complex) | `.hd-msg.holiday-m2`: "Happy [holiday]!" in the title style (Titillium Bold caps, 0.04em), sized by `W.titlePx` |
+
+### Timing (Base: 10 s, one scene `holiday`)
+
+| Time (s) | What moves |
+|---|---|
+| 0 → 10 | Photo zooms out 1.15 → 1.0 and rises 40px → 0 at a constant rate, so it keeps moving to the end |
+| -0.6 → 0.4 | Logo fades in, drops 14px; tab outline fades in -0.3 → 0.7 |
+| 0.7 → 1.3 | Flag fades in and scales 0.8 → 1 with a small overshoot |
+| 1.2 → 2.0 | Rules grow outward from the subtitle |
+| 1.3 → 2.0 | Subtitle fades in while its tracking tightens 0.3em → 0.12em |
+| 2.0 → 3.0 | Title fades in, rising only 12px and scaling 0.985 → 1 (keep it subtle) |
+| ~3 → 10 | Hold over the moving photo |
+
+The URL is static: it fades in with the brand logo (-0.6 → 0.4) and never moves.
+
+**Complex option (19 s)** keeps the Base intro as is (photo zoom runs over 0 → 19), then:
+
+| Time (s) | What moves |
+|---|---|
+| 6.0 → 6.7 | Flag, subtitle and title fade out together and lift 30px (ease in). Logo tab and URL stay |
+| 7.0 → ~9.2 | Beat 2: the sentence fades in word by word from the right (`TextFx.fadeFromRight`, stagger 0.09 s, 0.6 s, dx 30) |
+| ~9.2 → 13.0 | Hold on beat 2 (time to read it) |
+| 13.0 → 13.6 | Beat 2 fades out and lifts 30px |
+| 14.0 → 15.0 | Beat 3: "Happy [holiday]!" fades in, rising only 12px and scaling 0.985 → 1 (keep it subtle) |
+| 15 → 19 | Hold on beat 3 over the moving photo |
 
 ## Step 4: Deliver
 
