@@ -33,7 +33,7 @@ BRANDS = {
     'bainessimmons': {'label': 'Baines Simmons', 'url': 'BAINESSIMMONS.COM',
                       'white': 'logos/baines-logo-white.svg',
                       'dark': 'logos/baines-logo-midnight.svg'},
-    'redline': {'label': 'Redline', 'url': 'TRUSTREDLINE.CO.UK',
+    'redline': {'label': 'Redline', 'url': 'TRUSTREDLINE.COM',
                 'white': 'logos/redline-logo-white.svg',
                 'dark': 'logos/redline-logo-midnight.svg'},
 }
@@ -243,25 +243,44 @@ def holiday(spec, ds, out, up, docs):
                   else "        '<div class=\"hd-flags holiday-flags\" style=\"display:none\"></div>' +\n")
     title, sub = spec['title'], spec.get('subtitle', 'Celebrating')
     tab_cls = 'hd-tab holiday-tab' + ('' if dark else ' hd-light')
-    complex_html = complex_q = complex_init = complex_render = ''
-    dur = 10
+    complex_html = complex_q = complex_init = complex_render = photo2_html = tab2_html = ''
+    dur = 10  # Social films run 10 s at most; Multi-slide 15 s at most.
+    # Intro timings (s): flag in, rules/subtitle in, title in.
+    tm = dict(f0=0.7, f1=1.3, f2=1.0, r0=1.2, r1=2.0, s0=1.3, s1=2.0, t0=2.0, t1=3.0)
     if option == 'multi':
-        dur = 19
+        dur = 15
+        words = len(spec['message'].split())
+        if words > 18:
+            print(f'Warning: the thank-you sentence has {words} words; keep it to 12-18 so it can be read in about 4 s.')
         complex_html = (f"      '<div class=\"hd-warm holiday-m1\"><div class=\"hd-warm-line holiday-m1line\">{js(spec['message'])}</div></div>' +\n"
                         f"      '<div class=\"hd-msg holiday-m2\"><div class=\"hd-title holiday-m2title\">{js(spec.get('closing') or 'Happy ' + title + '!')}</div></div>' +\n")
-        complex_q = " block: q('.holiday-block'), m1: q('.holiday-m1'), m1line: q('.holiday-m1line'), m2: q('.holiday-m2'), m2title: q('.holiday-m2title'),"
+        complex_q = " block: q('.holiday-block'), m1: q('.holiday-m1'), m1line: q('.holiday-m1line'), m2: q('.holiday-m2'), m2title: q('.holiday-m2title'), photo2: q('.holiday-photo2'), tab1: q('.holiday-tab1'), tab2: q('.holiday-tab2'),"
         complex_init = "\n    this.m2title.style.fontSize = W.titlePx(this.m2title.textContent) + 'px';"
-        complex_render = """    // Multi-slide: the holiday block fades out at 6 s.
-    const out = ei(seg(t, 6.0, 6.7));
+        if spec.get('closing_photo'):
+            im2 = cover(spec['closing_photo'], os.path.join(up, 'photo2.jpg'), 1200, 1600, 84)
+            dark2 = tab_is_dark(im2)
+            mods['brand-logo-2.txt'] = svg_text(os.path.join(ds, 'assets', brand['white' if dark2 else 'dark']))
+            photo2_html = "      '<img class=\"hd-photo hd-photo2 holiday-photo2\" alt=\"\" src=\"' + kit.assets.url('photo2.jpg') + '\">' +\n"
+            tab2_html = (f"      '<div class=\"hd-tab holiday-tab2{'' if dark2 else ' hd-light'}\"><div class=\"hd-tab-line\"></div>' + W.svg(kit, 'brand-logo-2.txt', 'hd-logo') + '</div>' +\n")
+        complex_render = """    // Multi-slide, beat 1 out: the holiday block fades and lifts at 4.5 s. Logo tab and URL stay.
+    const out = ei(seg(t, 4.5, 5.0));
     this.block.style.opacity = 1 - out;
     this.block.style.transform = 'translateY(' + lerp(0, -30, out).toFixed(1) + 'px)';
-    // Beat 2: a warm, centred thank-you, word by word; it holds, then lifts away.
-    const o1 = ei(seg(t, 13.0, 13.6));
-    TextFx.fadeFromRight(this.m1line, t, 7.0, { stagger: 0.09, dur: 0.6, dx: 30 });
-    this.m1.style.opacity = t < 6.9 ? 0 : 1 - o1;
+    // Beat 2: the thank-you sentence, word by word from 5.2 s; it holds, then lifts away at 10.0 s.
+    const o1 = ei(seg(t, 10.0, 10.5));
+    TextFx.fadeFromRight(this.m1line, t, 5.2, { stagger: 0.08, dur: 0.6, dx: 30 });
+    this.m1.style.opacity = t < 5.1 ? 0 : 1 - o1;
     this.m1.style.transform = 'translateY(calc(-50% + ' + lerp(0, -30, o1).toFixed(1) + 'px))';
-    // Beat 3: "Happy [holiday]!" lands and holds to the end.
-    const m = eo(seg(t, 14.0, 15.0));
+    // Optional closing photo: cross-fades in under "Happy [holiday]!" (10.4 - 11.1 s) and keeps moving to the end.
+    if (this.photo2) {
+      const x = eio(seg(t, 10.4, 11.1));
+      this.photo2.style.opacity = x;
+      this.photo2.style.transform = 'translateY(' + lerp(24, 0, seg(t, 10.4, 15)).toFixed(1) + 'px) scale(' + lerp(1.1, 1.0, seg(t, 10.4, 15)).toFixed(4) + ')';
+      this.tab1.style.opacity = 1 - x;
+      this.tab2.style.opacity = x * g;
+    }
+    // Beat 3: "Happy [holiday]!" lands at 10.7 s and holds to the end.
+    const m = eo(seg(t, 10.7, 11.5));
     this.m2.style.opacity = m;
     this.m2.style.transform = 'translateY(calc(-50% + ' + lerp(12, 0, m).toFixed(1) + 'px)) scale(' + lerp(0.985, 1, m).toFixed(4) + ')';
 """
@@ -270,9 +289,9 @@ kit.scene('holiday', {{
   init(kit) {{
     kit.stage.append(kit.h('<div class="ground">' +
       '<img class="hd-photo holiday-photo" alt="" src="' + kit.assets.url('photo.jpg') + '">' +
-      '<div class="hd-fade"></div>' +
-      '<div class="{tab_cls}"><div class="hd-tab-line holiday-tabline"></div>' + W.svg(kit, 'brand-logo.txt', 'hd-logo holiday-logo') + '</div>' +
-      '<div class="hd-block holiday-block">' +
+{photo2_html}      '<div class="hd-fade"></div>' +
+      '<div class="{tab_cls} holiday-tab1"><div class="hd-tab-line holiday-tabline"></div>' + W.svg(kit, 'brand-logo.txt', 'hd-logo holiday-logo') + '</div>' +
+{tab2_html}      '<div class="hd-block holiday-block">' +
 {flags_html}        '<div class="hd-subrow"><div class="hd-rule hd-rule-l holiday-rl"></div><div class="hd-sub holiday-sub">{js(sub)}</div><div class="hd-rule hd-rule-r holiday-rr"></div></div>' +
         '<div class="hd-title holiday-title">{js(title)}</div>' +
       '</div>' +
@@ -293,18 +312,18 @@ kit.scene('holiday', {{
     this.logo.style.transform = 'translateY(' + lerp(-14, 0, g).toFixed(1) + 'px)';
     this.tabline.style.opacity = eo(seg(t, -0.3, 0.7));
     // Flag pops in.
-    const f = seg(t, 0.7, 1.3);
-    this.flags.style.opacity = eo(seg(t, 0.7, 1.0));
+    const f = seg(t, {tm['f0']}, {tm['f1']});
+    this.flags.style.opacity = eo(seg(t, {tm['f0']}, {tm['f2']}));
     this.flags.style.transform = 'scale(' + lerp(0.8, 1, eob(f, 1.6)).toFixed(4) + ')';
     // Rules grow outward from the subtitle; the subtitle fades in as its tracking tightens.
-    const r = eio(seg(t, 1.2, 2.0));
+    const r = eio(seg(t, {tm['r0']}, {tm['r1']}));
     this.rl.style.transform = 'scaleX(' + r.toFixed(4) + ')';
     this.rr.style.transform = 'scaleX(' + r.toFixed(4) + ')';
-    const s = eo(seg(t, 1.3, 2.0));
+    const s = eo(seg(t, {tm['s0']}, {tm['s1']}));
     this.sub.style.opacity = s;
     this.sub.style.letterSpacing = lerp(0.3, 0.12, s).toFixed(4) + 'em';
     // Title rises a little and settles.
-    const ti = eo(seg(t, 2.0, 3.0));
+    const ti = eo(seg(t, {tm['t0']}, {tm['t1']}));
     this.title.style.opacity = ti;
     this.title.style.transform = 'translateY(' + lerp(12, 0, ti).toFixed(1) + 'px) scale(' + lerp(0.985, 1, ti).toFixed(4) + ')';
     // URL is static: it fades in with the brand logo and never moves.
@@ -314,7 +333,7 @@ kit.scene('holiday', {{
 """
     look = f"Graphics Generator holiday post ({'multi-slide, with a thank-you slide and a closing slide' if option == 'multi' else 'single slide'}): the LinkedIn Single holiday layout from the TrustFlight design system, built up with simple fades over a slowly moving photo. plain"
     desc = f"The {brand['label']} {title} post builds over the photo: logo tab and URL, flag, {sub.upper()} between two rules, {title.upper()}"
-    desc += (f"; at 6 s it fades out for \"{spec['message']}\", then \"{spec.get('closing') or 'Happy ' + title + '!'}\" holds to the end." if option == 'multi' else ", then holds.")
+    desc += (f"; at 4.5 s it fades out for \"{spec['message']}\", then at 10.7 s \"{spec.get('closing') or 'Happy ' + title + '!'}\"{' lands over a second photo' if spec.get('closing_photo') else ' lands'} and holds to the end." if option == 'multi' else ", then holds.")
     return dict(css=open(os.path.join(HERE, 'templates/holiday-base.css')).read(),
                 shared=open(os.path.join(HERE, 'templates/holiday-shared.js')).read(),
                 mods=mods, scene_id='holiday', scene=scene,

@@ -11,7 +11,7 @@ Only the logo and URL change between brands. Plate, strip, colours, type and tim
 | `trustflight` | `trustflight-logo-horizontal-white.svg` | `trustflight-logo-horizontal-midnight.svg` | TRUSTFLIGHT.COM |
 | `kenyon` | `kenyon-120-logo-white.svg` (anniversary lockup) | `kenyon-120-logo-rgb.svg` | KENYONINTERNATIONAL.COM |
 | `bainessimmons` | `baines-logo-white.svg` | `baines-logo-midnight.svg` | BAINESSIMMONS.COM |
-| `redline` | `redline-logo-white.svg` | `redline-logo-midnight.svg` | TRUSTREDLINE.CO.UK |
+| `redline` | `redline-logo-white.svg` | `redline-logo-midnight.svg` | TRUSTREDLINE.COM |
 
 Film settings: 1200x1600, 30 fps, background `#031022`, palette Dark Blue `#031022`, Electric `#03D4FF`, white, Sapphire `#1E5BB5`. Fonts: Titillium Web (300, 400, 700) for display, Open Sans (400, 700) for text, loaded by the player from Google Fonts. Logos, icons and flags are SVG text modules shown as `<img>` data URIs (never uploaded, never inlined as markup).
 
@@ -71,8 +71,11 @@ Entrances start slightly before 0 so the first frame (thumbnail, first MP4 frame
 | URL | centred, bottom 84, Titillium 24px, 0.28em. Static: fades in with the logo, never moves. No strip, pills or CTA |
 | Multi-slide, slide 2 | one centred sentence, left/right 90, vertically centred, Titillium Light 80px white, line-height 1.14. No eyebrow or lead-in in another style, and not the intro's rules-and-caps style |
 | Multi-slide, slide 3 | "Happy [holiday]!" in the title style, sized by `W.titlePx` |
+| Multi-slide, closing photo | optional `photo2.jpg` over the first photo, under the fade. A second logo tab (`brand-logo-2.txt`, its colour picked from the second photo) cross-fades with the first |
 
 ## Holiday timing
+
+Films run 10 s at most; Multi-slide 15 s at most.
 
 Single slide (10 s, scene `holiday`):
 
@@ -84,16 +87,18 @@ Single slide (10 s, scene `holiday`):
 | 1.2 → 2.0 | Rules grow outward; subtitle fades in as its tracking tightens 0.3em → 0.12em |
 | 2.0 → 3.0 | Title fades in, rising only 12px, scaling 0.985 → 1 (keep it subtle) |
 
-Multi-slide (19 s) adds:
+Multi-slide (15 s at most) keeps the single-slide intro above, then:
 
 | Time (s) | What moves |
 |---|---|
-| 6.0 → 6.7 | Flag, subtitle and title fade out and lift 30px. Logo tab and URL stay |
-| 7.0 → ~9.2 | The sentence fades in word by word from the right (stagger 0.09 s, 0.6 s, dx 30) |
-| ~9.2 → 13.0 | Hold (reading time) |
-| 13.0 → 13.6 | Sentence fades out, lifts 30px |
-| 14.0 → 15.0 | "Happy [holiday]!" fades in, rising only 12px, scaling 0.985 → 1 |
-| 15 → 19 | Hold |
+| 0 → 15 | Photo zooms out 1.15 → 1.0 and rises 40px at a constant rate |
+| 4.5 → 5.0 | Flag, subtitle and title fade out and lift 30px. Logo tab and URL stay |
+| 5.2 → ~7.0 | The sentence fades in word by word from the right (stagger 0.08 s, 0.6 s, dx 30). 12-18 words |
+| ~7.0 → 10.0 | Hold (reading time) |
+| 10.0 → 10.5 | Sentence fades out, lifts 30px |
+| 10.4 → 11.1 | Closing photo (if any) cross-fades in with its own logo tab; it zooms 1.1 → 1.0 and rises 24px to the end |
+| 10.7 → 11.5 | "Happy [holiday]!" fades in, rising only 12px, scaling 0.985 → 1 |
+| 11.5 → 15 | Hold |
 
 ## Rebuilding the plate layers
 

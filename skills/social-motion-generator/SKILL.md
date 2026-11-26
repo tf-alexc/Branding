@@ -5,7 +5,7 @@ description: Make animated TrustFlight, Kenyon, Baines Simmons and Redline socia
 
 # Social motion generator
 
-Animated versions of the Graphics Generator's social posts, made as Motion artifacts. The static Graphics Generator is the source of truth for layout, sizes, colours and type; this skill adds timing. Simple transitions only: fades, eased slides, small scale-ins. No music, sound or voice.
+Animated versions of the Graphics Generator's social posts, made as Motion artifacts. The static Graphics Generator is the source of truth for layout, sizes, colours and type; this skill adds timing. Simple transitions only: fades, eased slides, small scale-ins. No music, sound or voice. Films run 10 s at most; a Multi-slide holiday post 15 s at most.
 
 The film code is fixed and lives in this skill: `build_film.py` writes every document a film needs from a short JSON spec, using `templates/` and `assets/`. Don't redesign the layout or the animation for a new post; fill in the spec. Exact sizes and timings are in `reference.md` if something needs checking or changing.
 
@@ -15,7 +15,7 @@ The film code is fixed and lives in this skill: `build_film.py` writes every doc
 |---|---|---|---|
 | Tradeshow | Attending / Exhibiting | 10 s | Logo, event logo, tag, title, people, then date/location/venue (and booth) pills land by about 4 s and hold. Background slowly zooms, wavy lines sway |
 | Holiday | Single slide | 10 s | Logo tab and URL, flag, "Celebrating" between rules, holiday title; holds over a slowly moving photo |
-| Holiday | Multi-slide | 19 s | The single-slide post as the first slide, then at 6 s a warm one-sentence thank-you, then "Happy [holiday]!" held to the end |
+| Holiday | Multi-slide | 15 s | The single-slide post as the first slide, then at 4.5 s a short warm sentence, then at 10.7 s "Happy [holiday]!" held to the end, ideally over a second photo |
 
 **Sources** (anyone in the organisation can open these):
 - Design system: https://claude.ai/artifact/3TSvubnBz4WCsS1xD7o3b9
@@ -40,7 +40,27 @@ Fill what you can from the request, an event link or the events API, then ask on
 - **Title:** the holiday's name ("Thanksgiving", "Christmas", "Bank Holiday"). Subtitle stays "Celebrating".
 - **Flags:** `us`, `ca`, `gb`, several or none. Presets: Independence Day and Thanksgiving → `us`, Remembrance Day → `gb`, Christmas and New Year → none.
 - **Photo:** the user's own if they send one (landscape photos are centre-cropped to portrait, so look at the crop). Otherwise the design system's preset `assets/imagery/holiday/holiday-<independence-day|thanksgiving|remembrance|christmas|new-year>.jpg`, or a free Pexels/Unsplash photo.
-- **Multi-slide only:** the thank-you sentence and the closing line. The sentence is one warm, human, professional sentence of about 15-18 words that opens with the holiday, e.g. "This Thanksgiving, we're grateful for our customers, our partners, and our teams who keep our skies safe." The closing line is "Happy [holiday]!". Use the user's wording when given; follow the brand's writing rules (no em dashes, no hype).
+- **Multi-slide only:** the sentence for slide 2, the closing line, and (optional, encouraged) a second photo.
+  - The sentence is one warm, human, professional sentence of 12-18 words, short enough to read in about 4 s. The script warns above 18.
+  - The closing line is "Happy [holiday]!" unless the user wants another.
+  - The second photo (`closing_photo`) cross-fades in as "Happy [holiday]!" appears. Pick one that fits the holiday but differs from the first (another scene, colour or distance), from the same sources and rules as the first photo. The logo colour is picked for each photo on its own. Leave it out and the first photo carries on.
+  - Use the user's wording when given. Otherwise see "Holiday messaging" below.
+
+### Holiday messaging
+
+Holiday posts go out every year for four brands, so the wording must not repeat. Before writing, look at what that brand already said for the same holiday (the film names in the user's gallery, Artifact `list`, and the retyped lines in those films' `modules/retyped.json`) and don't reuse a sentence or its shape.
+
+Suggest three different options in one message and let the user pick or mix. Each takes a different angle, for example:
+- the people behind the work (crews, engineers, responders, trainers, the brand's own team);
+- the brand's own world: safe flights home, the families waiting at arrivals, a quiet hangar on a holiday night, a course finished before the break;
+- something specific to the holiday (harvest and a shared table for Thanksgiving, remembrance and service for Remembrance Day, a fresh start for New Year);
+- a plain, short thank-you to customers and partners, in a new form.
+
+Rules for every option:
+- Write for the brand: TrustFlight (aviation software and the people who keep fleets airworthy), Kenyon (crisis and family assistance, bringing people home), Baines Simmons (aviation safety training and consulting), Redline (aviation security training).
+- Vary the opening. Not every sentence starts "This [holiday], we're grateful…".
+- Warm and plain: no puns that undercut the occasion, no hype, no em dashes, none of the banned words in the project's writing rules. Solemn holidays (Remembrance Day, Memorial Day) get a respectful line, never a cheerful one.
+- Never mention a real event, number or person that isn't given.
 
 ## 2. Prepare the files
 
@@ -71,17 +91,18 @@ Holiday spec:
 ```json
 {"kind": "holiday", "option": "multi-slide", "brand": "trustflight",
  "title": "Thanksgiving", "flags": ["us"], "photo": "/path/photo.jpg",
- "message": "This Thanksgiving, we’re grateful for our customers, our partners, and our teams who keep our skies safe.",
+ "closing_photo": "/path/second-photo.jpg",
+ "message": "To everyone who keeps aircraft flying and people safe this Thanksgiving, thank you.",
  "closing": "Happy Thanksgiving!"}
 ```
 
-`option` is `single-slide` or `multi-slide` (the older names `base` and `complex` still work). Optional keys: `brands` (a list of brand keys when one post covers several brands; it sets the film name), `film_title` (overrides the name), `title_px` (tradeshow title size; the script shrinks long titles itself), and per person `title`, `brand` or `portrait` to override `employees.json`.
+`option` is `single-slide` or `multi-slide` (the older names `base` and `complex` still work). `closing_photo` is optional (Multi-slide only). Optional keys: `brands` (a list of brand keys when one post covers several brands; it sets the film name), `film_title` (overrides the name), `title_px` (tradeshow title size; the script shrinks long titles itself), and per person `title`, `brand` or `portrait` to override `employees.json`.
 
 The script picks the people layout from the head count, the holiday logo colour from the photo (white on dark, Midnight on light), the title sizes, and escapes names safely (O'Connell, &). It prints the files to upload.
 
 ## 3. Make the film
 
-Follow the Motion type's own instructions as you go (read its SKILL.md, rough-cut.md, finalize.md, motion.md, film-api.md and design-systems.md once). This skill already settles Style, Colours and Length (the brand's Graphics Generator look, the brand palette, the lengths above), so there's no question form: say the picks in one line and go on.
+Follow the Motion type's own instructions as you go (read its SKILL.md, rough-cut.md, finalize.md, motion.md, film-api.md and design-systems.md once). This skill already settles Style, Colours and Length (the brand's Graphics Generator look, the brand palette, 10 s, or 15 s for Multi-slide), so there's no question form: say the picks in one line and go on.
 
 1. **Create** the film: Artifact `publish` with `type_url` = the Motion type, `title` = the film title the script printed, `auto_open: "after_first_write"`. Film names follow `<Type> - <Brand(s)> - <name>`: `Tradeshow - Kenyon - Verticon 2027`, `Holiday - TrustFlight - Thanksgiving`, `Holiday - TrustFlight, Kenyon - Christmas`, and `Holiday - All - Thanksgiving` when all four brands are on the post. The script builds this; keep it if you name a film by hand.
 2. **Upload** the files from `<out>/upload/` in one Artifact call: `url` = the film, `asset: true`, `file_paths: [...]`.

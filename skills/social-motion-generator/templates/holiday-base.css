@@ -20,3 +20,5 @@
 .hd-msg { position:absolute; left:110px; right:110px; top:50%; transform:translateY(-50%); text-align:center; font-family:var(--display, var(--sans, system-ui, sans-serif)); font-weight:300; font-size:104px; line-height:1.08; color:var(--second); text-wrap:balance; opacity:0 }
 .hd-warm { position:absolute; left:90px; right:90px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; align-items:center; text-align:center; opacity:0 }
 .hd-warm-line { font-family:var(--display, var(--sans, system-ui, sans-serif)); font-weight:300; font-size:80px; line-height:1.14; color:var(--second); text-wrap:balance }
+.hd-photo2 { opacity:0 }
+.holiday-tab2 { opacity:0 }
