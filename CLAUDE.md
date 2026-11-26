@@ -191,7 +191,7 @@ Key rules:
 ---
 
 ### `social-motion-generator`: animated social posts (Claude Motion)
-Animated versions of the Graphics Generator's posts as Motion films (MP4/GIF export), for all four brands: tradeshow attending/exhibiting posts and holiday posts (Base or Complex). `build_film.py` builds every film document from a short JSON spec; layout and timing specs in `reference.md`.  
+Animated versions of the Graphics Generator's posts as Motion films (MP4/GIF export), for all four brands: tradeshow attending/exhibiting posts and holiday posts (Single slide or Multi-slide). `build_film.py` builds every film document from a short JSON spec; layout and timing specs in `reference.md`.  
 **Script:** `skills/social-motion-generator/build_film.py`  
 **Package:** `skills/social-motion-generator.zip` (upload to claude.ai, or copy the folder to `~/.claude/skills/`)  
 **Can run in browser:** Yes. Python (Pillow, numpy) and the Motion artifact type; no desktop apps needed.

@@ -222,7 +222,9 @@ kit.scene('post', {{
 
 def holiday(spec, ds, out, up, docs):
     brand = BRANDS[spec['brand']]
-    option = spec.get('option', 'base').lower()
+    # Holiday options: 'single-slide' (was 'base') and 'multi-slide' (was 'complex'). Old names still work.
+    raw = re.sub(r'[\s_]+', '-', str(spec.get('option', 'single-slide')).strip().lower())
+    option = 'multi' if raw in ('multi-slide', 'multi', 'multislide', 'complex') else 'single'
     im = cover(spec['photo'], os.path.join(up, 'photo.jpg'), 1200, 1600, 84)
     dark = tab_is_dark(im)
     mods = {'brand-logo.txt': svg_text(os.path.join(ds, 'assets', brand['white' if dark else 'dark']))}
@@ -236,13 +238,13 @@ def holiday(spec, ds, out, up, docs):
     tab_cls = 'hd-tab holiday-tab' + ('' if dark else ' hd-light')
     complex_html = complex_q = complex_init = complex_render = ''
     dur = 10
-    if option == 'complex':
+    if option == 'multi':
         dur = 19
         complex_html = (f"      '<div class=\"hd-warm holiday-m1\"><div class=\"hd-warm-line holiday-m1line\">{js(spec['message'])}</div></div>' +\n"
                         f"      '<div class=\"hd-msg holiday-m2\"><div class=\"hd-title holiday-m2title\">{js(spec.get('closing') or 'Happy ' + title + '!')}</div></div>' +\n")
         complex_q = " block: q('.holiday-block'), m1: q('.holiday-m1'), m1line: q('.holiday-m1line'), m2: q('.holiday-m2'), m2title: q('.holiday-m2title'),"
         complex_init = "\n    this.m2title.style.fontSize = W.titlePx(this.m2title.textContent) + 'px';"
-        complex_render = """    // Complex option: the holiday block fades out at 6 s.
+        complex_render = """    // Multi-slide: the holiday block fades out at 6 s.
     const out = ei(seg(t, 6.0, 6.7));
     this.block.style.opacity = 1 - out;
     this.block.style.transform = 'translateY(' + lerp(0, -30, out).toFixed(1) + 'px)';
@@ -303,14 +305,14 @@ kit.scene('holiday', {{
 {complex_render}  }},
 }});
 """
-    look = f"Graphics Generator holiday post ({'complex option with a thank-you and a closing line' if option == 'complex' else 'base'}): the LinkedIn Single holiday layout from the TrustFlight design system, built up with simple fades over a slowly moving photo. plain"
+    look = f"Graphics Generator holiday post ({'multi-slide, with a thank-you slide and a closing slide' if option == 'multi' else 'single slide'}): the LinkedIn Single holiday layout from the TrustFlight design system, built up with simple fades over a slowly moving photo. plain"
     desc = f"The {brand['label']} {title} post builds over the photo: logo tab and URL, flag, {sub.upper()} between two rules, {title.upper()}"
-    desc += (f"; at 6 s it fades out for \"{spec['message']}\", then \"{spec.get('closing') or 'Happy ' + title + '!'}\" holds to the end." if option == 'complex' else ", then holds.")
+    desc += (f"; at 6 s it fades out for \"{spec['message']}\", then \"{spec.get('closing') or 'Happy ' + title + '!'}\" holds to the end." if option == 'multi' else ", then holds.")
     return dict(css=open(os.path.join(HERE, 'templates/holiday-base.css')).read(),
                 shared=open(os.path.join(HERE, 'templates/holiday-shared.js')).read(),
                 mods=mods, scene_id='holiday', scene=scene,
                 scenes=lambda st: scenes_doc(look, dur, 'holiday', 'Holiday post', desc, st),
-                title=spec.get('film_title') or f"{title} ({brand['label']}, {option})")
+                title=spec.get('film_title') or f"{title} ({brand['label']}, {'multi-slide' if option == 'multi' else 'single slide'})")
 
 
 # ---------------------------------------------------------------- steps

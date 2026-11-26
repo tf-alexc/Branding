@@ -1,6 +1,6 @@
 ---
 name: social-motion-generator
-description: Make animated TrustFlight, Kenyon, Baines Simmons and Redline social media posts as Claude Motion films (MP4 or GIF), in the Graphics Generator's format and look from the Master Brand System. Covers event and tradeshow posts (Attending or Exhibiting) and national, public and bank holiday posts (Base or Complex). Use whenever someone asks for an animated, moving or video version of a social post, event post, tradeshow post, holiday post or LinkedIn graphic.
+description: Make animated TrustFlight, Kenyon, Baines Simmons and Redline social media posts as Claude Motion films (MP4 or GIF), in the Graphics Generator's format and look from the Master Brand System. Covers event and tradeshow posts (Attending or Exhibiting) and national, public and bank holiday posts (Single slide or Multi-slide). Use whenever someone asks for an animated, moving or video version of a social post, event post, tradeshow post, holiday post or LinkedIn graphic.
 ---
 
 # Social motion generator
@@ -14,8 +14,8 @@ The film code is fixed and lives in this skill: `build_film.py` writes every doc
 | Kind | Option | Length | What happens |
 |---|---|---|---|
 | Tradeshow | Attending / Exhibiting | 10 s | Logo, event logo, tag, title, people, then date/location/venue (and booth) pills land by about 4 s and hold. Background slowly zooms, wavy lines sway |
-| Holiday | Base | 10 s | Logo tab and URL, flag, "Celebrating" between rules, holiday title; holds over a slowly moving photo |
-| Holiday | Complex | 19 s | Base intro, then at 6 s a warm one-sentence thank-you, then "Happy [holiday]!" held to the end |
+| Holiday | Single slide | 10 s | Logo tab and URL, flag, "Celebrating" between rules, holiday title; holds over a slowly moving photo |
+| Holiday | Multi-slide | 19 s | The single-slide post as the first slide, then at 6 s a warm one-sentence thank-you, then "Happy [holiday]!" held to the end |
 
 **Sources** (anyone in the organisation can open these):
 - Design system: https://claude.ai/artifact/3TSvubnBz4WCsS1xD7o3b9
@@ -35,12 +35,12 @@ Fill what you can from the request, an event link or the events API, then ask on
 - **Photo (optional):** the venue or city, from Pexels or Unsplash, free licence only (never Unsplash+, Wikipedia or Wikimedia). Never a photo showing another company's characters, rides or logos. Note the photographer for the caption credit. The API keys are `PEXELS_API_KEY` / `UNSPLASH_ACCESS_KEY` if set; if neither works, ask the user for a photo or go without (the plate alone is fine).
 
 **Holiday**
-- **Option:** Base or Complex. Ask unless the request says; default Base.
+- **Option:** Single slide or Multi-slide. Ask unless the request says; default Single slide.
 - **Brand:** from the request; ask once if unclear.
 - **Title:** the holiday's name ("Thanksgiving", "Christmas", "Bank Holiday"). Subtitle stays "Celebrating".
 - **Flags:** `us`, `ca`, `gb`, several or none. Presets: Independence Day and Thanksgiving → `us`, Remembrance Day → `gb`, Christmas and New Year → none.
 - **Photo:** the user's own if they send one (landscape photos are centre-cropped to portrait, so look at the crop). Otherwise the design system's preset `assets/imagery/holiday/holiday-<independence-day|thanksgiving|remembrance|christmas|new-year>.jpg`, or a free Pexels/Unsplash photo.
-- **Complex only:** the thank-you sentence and the closing line. The sentence is one warm, human, professional sentence of about 15-18 words that opens with the holiday, e.g. "This Thanksgiving, we're grateful for our customers, our partners, and our teams who keep our skies safe." The closing line is "Happy [holiday]!". Use the user's wording when given; follow the brand's writing rules (no em dashes, no hype).
+- **Multi-slide only:** the thank-you sentence and the closing line. The sentence is one warm, human, professional sentence of about 15-18 words that opens with the holiday, e.g. "This Thanksgiving, we're grateful for our customers, our partners, and our teams who keep our skies safe." The closing line is "Happy [holiday]!". Use the user's wording when given; follow the brand's writing rules (no em dashes, no hype).
 
 ## 2. Prepare the files
 
@@ -69,13 +69,13 @@ Tradeshow spec:
 Holiday spec:
 
 ```json
-{"kind": "holiday", "option": "complex", "brand": "trustflight",
+{"kind": "holiday", "option": "multi-slide", "brand": "trustflight",
  "title": "Thanksgiving", "flags": ["us"], "photo": "/path/photo.jpg",
  "message": "This Thanksgiving, we’re grateful for our customers, our partners, and our teams who keep our skies safe.",
  "closing": "Happy Thanksgiving!"}
 ```
 
-Optional keys: `film_title`, `title_px` (tradeshow title size; the script shrinks long titles itself), and per person `title`, `brand` or `portrait` to override `employees.json`.
+`option` is `single-slide` or `multi-slide` (the older names `base` and `complex` still work). Optional keys: `film_title`, `title_px` (tradeshow title size; the script shrinks long titles itself), and per person `title`, `brand` or `portrait` to override `employees.json`.
 
 The script picks the people layout from the head count, the holiday logo colour from the photo (white on dark, Midnight on light), the title sizes, and escapes names safely (O'Connell, &). It prints the files to upload.
 

@@ -69,12 +69,12 @@ Entrances start slightly before 0 so the first frame (thumbnail, first MP4 frame
 | Subtitle | Titillium Light 52.5px, caps, 0.12em, between 2px rules that fade outward, 18px above the title |
 | Title | Titillium Bold, caps, 0.04em, line-height 1.02, two rows max; size tier 150 / 124 / 100 / 80 / 62px from the title length (`W.titlePx`) |
 | URL | centred, bottom 84, Titillium 24px, 0.28em. Static: fades in with the logo, never moves. No strip, pills or CTA |
-| Complex beat 2 | one centred sentence, left/right 90, vertically centred, Titillium Light 80px white, line-height 1.14. No eyebrow or lead-in in another style, and not the intro's rules-and-caps style |
-| Complex beat 3 | "Happy [holiday]!" in the title style, sized by `W.titlePx` |
+| Multi-slide, slide 2 | one centred sentence, left/right 90, vertically centred, Titillium Light 80px white, line-height 1.14. No eyebrow or lead-in in another style, and not the intro's rules-and-caps style |
+| Multi-slide, slide 3 | "Happy [holiday]!" in the title style, sized by `W.titlePx` |
 
 ## Holiday timing
 
-Base (10 s, scene `holiday`):
+Single slide (10 s, scene `holiday`):
 
 | Time (s) | What moves |
 |---|---|
@@ -84,7 +84,7 @@ Base (10 s, scene `holiday`):
 | 1.2 → 2.0 | Rules grow outward; subtitle fades in as its tracking tightens 0.3em → 0.12em |
 | 2.0 → 3.0 | Title fades in, rising only 12px, scaling 0.985 → 1 (keep it subtle) |
 
-Complex (19 s) adds:
+Multi-slide (19 s) adds:
 
 | Time (s) | What moves |
 |---|---|
@@ -117,4 +117,4 @@ Image.fromarray(np.dstack([a, al * 255]).astype(np.uint8)[740:]).save('plate-lin
 
 ## Example films
 
-Made while building the skill (private to their owner unless shared): TrustFlight tradeshow https://claude.ai/artifact/84frbVjkVAQzS4WvpRzQUG, Kenyon https://claude.ai/artifact/AXVqhDxsCmCMEbf9gjeqjB, Baines Simmons https://claude.ai/artifact/U2ZB4gr2xueBpZqTaHPtQZ, Redline https://claude.ai/artifact/AhT2rTsnK6g3sUzVeSdJpb, Thanksgiving Base https://claude.ai/artifact/1WAJBxFSMFa6dG3QY4bVHg, Thanksgiving Complex https://claude.ai/artifact/6U9Dj6QjLFAYtrXHxQsDuA.
+Made while building the skill (private to their owner unless shared): TrustFlight tradeshow https://claude.ai/artifact/84frbVjkVAQzS4WvpRzQUG, Kenyon https://claude.ai/artifact/AXVqhDxsCmCMEbf9gjeqjB, Baines Simmons https://claude.ai/artifact/U2ZB4gr2xueBpZqTaHPtQZ, Redline https://claude.ai/artifact/AhT2rTsnK6g3sUzVeSdJpb, Thanksgiving single slide https://claude.ai/artifact/1WAJBxFSMFa6dG3QY4bVHg, Thanksgiving multi-slide https://claude.ai/artifact/6U9Dj6QjLFAYtrXHxQsDuA.
