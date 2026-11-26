@@ -190,6 +190,14 @@ Key rules:
 
 ---
 
+### `social-motion-generator`: animated social posts (Claude Motion)
+Animated versions of the Graphics Generator's posts as Motion films (MP4/GIF export), for all four brands: tradeshow attending/exhibiting posts and holiday posts (Base or Complex). `build_film.py` builds every film document from a short JSON spec; layout and timing specs in `reference.md`.  
+**Script:** `skills/social-motion-generator/build_film.py`  
+**Package:** `skills/social-motion-generator.zip` (upload to claude.ai, or copy the folder to `~/.claude/skills/`)  
+**Can run in browser:** Yes. Python (Pillow, numpy) and the Motion artifact type; no desktop apps needed.
+
+---
+
 ## Master Brand System design system
 
 The live design system is the artifact https://claude.ai/artifact/3TSvubnBz4WCsS1xD7o3b9; its README's Template routing table links every template's Design canvas.
@@ -221,7 +229,8 @@ Claude Playground/
 │   ├── course-dates-generator/    # Course dates PDF automation
 │   ├── kenyon-certificate-generator/ # Kenyon certificate PDF generator
 │   ├── word-brand/                # Word document branding
-│   └── asip-webinar-generator/    # ASIP webinar promo graphic generator
+│   ├── asip-webinar-generator/    # ASIP webinar promo graphic generator
+│   └── social-motion-generator/   # Animated social posts (Motion films)
 ├── Master Brand System/           # Local mirror of design-system files (Baines Simmons proposal)
 ├── Illustrator Templates/         # Master .ai files for Illustrator skills
 ├── InDesign/
@@ -252,5 +261,6 @@ Claude Playground/
 | kenyon-certificate-generator | Yes | Yes |
 | word-brand | No | Yes |
 | asip-webinar-generator | Yes | Yes |
+| social-motion-generator | Yes | Yes |
 
 Skills marked "No" require desktop apps (Illustrator, InDesign, PowerPoint, Word) running locally via MCP.

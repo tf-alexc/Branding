@@ -1,0 +1,43 @@
+#stage { --ground:#031022; --main:#03D4FF; --second:#FFFFFF; --accent:#1E5BB5; --midnight:#062955; color:var(--second); font-family:var(--sans, system-ui, sans-serif) }
+.ground { position:absolute; inset:0; background:var(--ground); overflow:hidden }
+.words { position:absolute; margin:0; display:flex; flex-direction:column; gap:28px } .words > * { margin:0 }
+.ts-layer { position:absolute; inset:0; transform-origin:50% 50% }
+.ts-plate { position:absolute; inset:-2px; background-size:cover; background-position:center }
+.ts-lines { position:absolute; left:-70px; top:700px; width:1340px; height:960px; display:block; transform-origin:50% 100% }
+.ts-photo { position:absolute; top:-40px; left:-40px; width:1280px; height:1680px; object-fit:cover; opacity:.2; filter:blur(4px) }
+.ts-brand { position:absolute; top:95px; left:90px; height:60.75px; width:auto; display:block }
+.ts-col { position:absolute; top:300px; left:90px; width:1020px; display:flex; flex-direction:column; align-items:flex-start; gap:28px }
+.ts-evlogo { height:250px; width:auto; max-width:1020px; object-fit:contain; object-position:left center; display:block }
+.ts-tag { align-self:flex-start; font-family:var(--display, var(--sans, system-ui, sans-serif)); font-weight:700; font-size:24.4px; letter-spacing:.12em; color:var(--second); white-space:nowrap; background:color-mix(in srgb, var(--midnight) 50%, transparent); border:2px solid var(--main); border-radius:66px; padding:0 37px; height:66px; display:flex; align-items:center; box-sizing:border-box }
+.ts-title { width:100%; font-family:var(--display, var(--sans, system-ui, sans-serif)); font-weight:300; font-size:92px; line-height:1.1; color:var(--second) }
+.ts-people { display:flex; align-items:flex-start; gap:27.6px 46px; flex-wrap:wrap; width:100%; margin-top:11.5px }
+.ts-person { display:flex; align-items:center; gap:16.1px; min-width:0 }
+.ts-frame { width:126.5px; height:177.1px; border-radius:999px; border:2px solid var(--main); overflow:hidden; flex-shrink:0; background:var(--midnight) }
+.ts-frame img { width:100%; height:100%; object-fit:cover; object-position:center 18%; transform:scale(1.2); transform-origin:center 18%; display:block }
+.ts-who { display:flex; flex-direction:column; gap:5.75px; min-width:0 }
+.ts-name { font-family:var(--display, var(--sans, system-ui, sans-serif)); font-weight:400; font-size:39.1px; color:var(--main) }
+.ts-role { font-size:23px; letter-spacing:.04em; color:var(--second); line-height:1.25 }
+.ts-pills { position:absolute; left:90px; bottom:130px; width:1020px; display:flex; flex-wrap:wrap; gap:18px }
+.ts-pill { display:flex; align-items:center; gap:16px; height:72px; max-width:100%; padding:0 30px 0 20px; background:var(--ground); border:2px solid var(--main); border-radius:36px; box-sizing:border-box }
+.ts-pill img { width:40px; height:40px; flex-shrink:0; display:block }
+.ts-pill img.ts-flag { border-radius:50%; object-fit:cover }
+.ts-pill span { font-weight:700; font-size:22px; letter-spacing:.1em; color:var(--second); white-space:nowrap }
+.ts-url { position:absolute; bottom:70px; left:90px; font-family:var(--display, var(--sans, system-ui, sans-serif)); font-weight:400; font-size:17px; letter-spacing:.28em; color:var(--second); white-space:nowrap }
+.ts-strip { position:absolute; left:0; bottom:0; width:100%; height:10px; background:linear-gradient(90deg, var(--accent) 0%, var(--main) 100%); transform-origin:0 50% }
+/* 2-3 people: big portrait, name and title underneath (Redline Airport Security reference) */
+.ts-people.ts-cols { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:0 46px; align-items:start }
+.ts-people.ts-cols3 { grid-template-columns:repeat(3, minmax(0, 1fr)) }
+.ts-cols .ts-person { flex-direction:column; align-items:flex-start; gap:22px }
+.ts-cols .ts-frame { width:230px; height:322px }
+.ts-cols .ts-who { gap:6px }
+.ts-cols .ts-name { font-size:46px; line-height:1.1 }
+.ts-cols .ts-role { font-size:27px }
+.ts-cols3 .ts-frame { width:200px; height:280px }
+.ts-cols3 .ts-name { font-size:38px }
+.ts-cols3 .ts-role { font-size:22px }
+/* 1 person: the row layout at 150% */
+.ts-solo .ts-person { gap:24.15px }
+.ts-solo .ts-frame { width:189.75px; height:265.65px; border-width:3px }
+.ts-solo .ts-who { gap:8.6px }
+.ts-solo .ts-name { font-size:58.65px }
+.ts-solo .ts-role { font-size:34.5px }
